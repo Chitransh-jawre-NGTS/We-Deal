@@ -56,7 +56,7 @@ const Landing = () => {
       </div>
 
       <HeroCarousel/>
-      <GoogleAd/>
+      {/* <GoogleAd/> */}
 
       <Categories />
 

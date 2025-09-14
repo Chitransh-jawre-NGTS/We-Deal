@@ -49,7 +49,7 @@ const Navbar = (
     <>
       <header className="bg-white w-full shadow sticky top-0 z-50">
         {/* Topbar */}
-        <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 max-w-[1400px] mx-auto">
+        <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4 max-w-[1500px] mx-auto">
           {/* Logo */}
           <Link to="/" className="text-3xl font-bold text-gray-700">
             { title || "WeDeal"}
@@ -146,7 +146,7 @@ const Navbar = (
         </div>
 
         {/* Categories (Desktop only) */}
-        <div className="hidden md:flex w-350 mx-auto overflow-x-auto gap-6 px-6 py-2 bg-gray-50 border-t border-gray-200">
+        <div className="hidden md:flex mx-auto overflow-x-auto gap-6 px-6 py-2 bg-gray-50 border-t border-gray-200">
           {categories.map((cat, idx) => (
           <div className="mx-auto">
               <span
