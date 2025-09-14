@@ -15,6 +15,10 @@ import ChatbotPage from "./pages/Help/index.jsx";
 import LoginPage from "./pages/Login/index.jsx";
 import PrivacyPolicy from "./pages/PrivecyPolicy/index.jsx";
 import TermsAndConditions from "./pages/Term&Condition/index.jsx";
+import Chats from "./pages/Chats/index.jsx";
+import ChatRoom from "./components/ChatRoom.jsx";
+import Store from "./pages/Store/index.jsx";
+import CategoryForm from "./components/CategoryForm.jsx";
 
 
 
@@ -22,7 +26,7 @@ function App() {
   return (
     <div className="relative">
       {/* Navbar always visible */}
-      <Navbar />
+      {/* <Navbar /> */}
 
       {/* Main Routes */}
       <Routes>
@@ -38,6 +42,10 @@ function App() {
          <Route path="/login" element={<LoginPage/>} />
                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+          <Route path="/chat" element={<Chats />} />
+        <Route path="/chat/:id" element={<ChatRoom />} />
+        <Route path="/store" element={<Store/>}/>
+        <Route path="/sells/:slug" element={<CategoryForm />} />
 
         {/* Optional 404 page */}
         <Route

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, Bot, User } from "lucide-react";
+import { Send, Bot, User, X } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const faqResponses = {
   "how to post ad": "To post an ad, go to 'Sell' on the navbar, fill in your product details, and click Submit.",
@@ -17,6 +18,7 @@ const ChatbotPage = () => {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef(null);
+  const navigate = useNavigate();
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -26,15 +28,12 @@ const ChatbotPage = () => {
   const handleSend = (msgText = input) => {
     if (!msgText.trim()) return;
 
-    // Add user message
     const userMsg = { type: "user", text: msgText };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
 
-    // Bot typing
     setIsTyping(true);
 
-    // Find response
     const lower = msgText.toLowerCase();
     let response =
       "🤔 Hmm, I’m not sure about that. Please check the Help Center for more info.";
@@ -44,7 +43,6 @@ const ChatbotPage = () => {
       }
     });
 
-    // Simulate delay
     setTimeout(() => {
       setMessages((prev) => [...prev, { type: "bot", text: response }]);
       setIsTyping(false);
@@ -52,14 +50,23 @@ const ChatbotPage = () => {
   };
 
   return (
-    <div className="max-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center ">
-      <div className="w-full max-w-2xl bg-white/70 backdrop-blur-lg shadow-xl rounded-2xl flex flex-col h-[75vh] border border-gray-200">
+    <div className="max-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center">
+      <div className="w-full max-w-2xl bg-white/70 backdrop-blur-lg flex flex-col h-screen border border-gray-200">
         {/* Header */}
-        <div className="p-4 border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-2xl flex items-center gap-2">
-          <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
-            <Bot className="w-5 h-5" />
+        <div className="p-4 border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center animate-pulse">
+              <Bot className="w-5 h-5" />
+            </div>
+            <h2 className="font-semibold text-lg">Smart Assistant</h2>
           </div>
-          <h2 className="font-semibold text-lg">Smart Assistant</h2>
+          <button
+            onClick={() => navigate("/")}
+            className="p-2 rounded-full hover:bg-white/20 transition"
+            title="End Chat"
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
         </div>
 
         {/* Chat Messages */}
@@ -96,7 +103,6 @@ const ChatbotPage = () => {
             </motion.div>
           ))}
 
-          {/* Typing indicator */}
           {isTyping && (
             <div className="flex items-center gap-2 text-gray-500 text-sm">
               <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center">
