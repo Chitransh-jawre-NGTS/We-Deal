@@ -1,15 +1,25 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  FaMobileAlt,
+  FaCarSide,
+  FaCouch,
+  FaBriefcase,
+  FaTshirt,
+  FaTv,
+  FaBlender,
+  FaBasketballBall,
+} from "react-icons/fa";
 
 const categories = [
-  { name: "Mobiles", image: "https://picsum.photos/400/300?random=11" },
-  { name: "Cars", image: "https://picsum.photos/400/300?random=12" },
-  { name: "Furniture", image: "https://picsum.photos/400/300?random=13" },
-  { name: "Jobs", image: "https://picsum.photos/400/300?random=14" },
-  { name: "Fashion", image: "https://picsum.photos/400/300?random=15" },
-  { name: "Electronics", image: "https://picsum.photos/400/300?random=16" },
-  { name: "Home Appliances", image: "https://picsum.photos/400/300?random=17" },
-  { name: "Sports", image: "https://picsum.photos/400/300?random=18" },
+  { name: "Mobiles", icon: FaMobileAlt },
+  { name: "Cars", icon: FaCarSide },
+  { name: "Furniture", icon: FaCouch },
+  { name: "Jobs", icon: FaBriefcase },
+  { name: "Fashion", icon: FaTshirt },
+  { name: "Electronics", icon: FaTv },
+  { name: "Home Appliances", icon: FaBlender },
+  { name: "Sports", icon: FaBasketballBall },
 ];
 
 const Categories = () => {
@@ -32,23 +42,23 @@ const Categories = () => {
         {/* Horizontal scroll with 2 rows */}
         <div className="overflow-x-auto">
           <div className="grid grid-rows-2 grid-flow-col gap-4">
-            {categories.map((cat, idx) => (
-              <div
-                key={idx}
-                onClick={() => handleClick(cat.name)}
-                className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl w-32 md:w-40"
-              >
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  className="w-full h-20 md:h-28 object-cover"
-                  loading="lazy"
-                />
-                <div className="p-2 text-center">
-                  <h3 className="text-xs md:text-sm font-bold text-purple-700">{cat.name}</h3>
+            {categories.map((cat, idx) => {
+              const Icon = cat.icon;
+              return (
+                <div
+                  key={idx}
+                  onClick={() => handleClick(cat.name)}
+                  className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl w-32 md:w-40 flex flex-col items-center justify-center p-4"
+                >
+                  <div className="text-purple-700 text-4xl md:text-5xl mb-2">
+                    <Icon />
+                  </div>
+                  <h3 className="text-xs md:text-sm font-bold text-purple-700">
+                    {cat.name}
+                  </h3>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

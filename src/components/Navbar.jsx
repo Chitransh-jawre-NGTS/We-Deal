@@ -11,6 +11,7 @@ import {
   FaBars,
   FaTimes,
   FaMapMarkerAlt,
+  FaPlus,
 } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -204,7 +205,7 @@ const Navbar = ({ showBottomNav = true, title, showTopBar = true, showMobileMenu
               to="/sell"
               className="flex flex-col items-center text-white bg-blue-600 p-3 rounded-full -mt-6 shadow-lg hover:bg-blue-700 transition"
             >
-              GO
+              <FaPlus className="text-2xl" />
             </Link>
 
             <Link to="/store" className={`flex flex-col items-center text-sm ${isActive("/store")}`}>
@@ -214,7 +215,7 @@ const Navbar = ({ showBottomNav = true, title, showTopBar = true, showMobileMenu
 
             <Link to="/account" className={`flex flex-col items-center text-sm ${isActive("/account")}`}>
               <FaUser className="text-xl" />
-              <span>Account</span>
+              <span className=" pe-1">User </span>
             </Link>
           </div>
         </nav>
