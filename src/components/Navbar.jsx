@@ -8,8 +8,6 @@ import {
   FaComments,
   FaStore,
   FaHome,
-  FaBars,
-  FaTimes,
   FaMapMarkerAlt,
   FaPlus,
 } from "react-icons/fa";
@@ -26,18 +24,30 @@ const categories = [
   "For Rent: Houses & Apartments",
 ];
 
-const Navbar = ({ showBottomNav = true, title, showTopBar = true, showMobileMenu= true, city = "Indore", state = "Madhya Pradesh"  }) => {
-  const [location, setLocation] = useState("India");
+const Navbar = ({
+  showBottomNav = true,
+  title,
+  showTopBar = true,
+  showMobileMenu = true,
+  city = "Indore",
+  state = "Madhya Pradesh",
+}) => {
   const [language, setLanguage] = useState("English");
-  const [open, setOpen] = useState(false);
+  const [openLang, setOpenLang] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
-  const navigate = useNavigate();
 
+  const [showLocationPage, setShowLocationPage] = useState(false);
+  const [location, setLocation] = useState("");
+  const [currentLocation, setCurrentLocation] = useState("");
+
+  const navigate = useNavigate();
   const { pathname } = useLocation();
+
+  const savedLocation = localStorage.getItem("userLocation");
 
   const handleSelect = (lang) => {
     setLanguage(lang);
-    setOpen(false);
+    setOpenLang(false);
   };
 
   const isActive = (path) =>
@@ -45,6 +55,43 @@ const Navbar = ({ showBottomNav = true, title, showTopBar = true, showMobileMenu
       ? "text-blue-600 font-semibold"
       : "text-gray-600 hover:text-blue-600";
 
+  const handleDetectLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          const detected = `Lat: ${latitude}, Lng: ${longitude}`;
+          setCurrentLocation(detected);
+          alert("Location detected! (demo only)");
+        },
+        () => alert("Failed to detect location. Please allow location access.")
+      );
+    }
+  };
+
+    const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        // Use OpenStreetMap Nominatim API for reverse geocoding
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+        );
+        const data = await response.json();
+
+        if (data.address) {
+          const city = data.address.city || data.address.town || data.address.village;
+          const state = data.address.state;
+          setLocation(`${city}, ${state}`);
+        } else {
+          setLocation("Location not found");
+        }
+      });
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  };
   return (
     <>
       {/* Desktop Navbar */}
@@ -57,8 +104,12 @@ const Navbar = ({ showBottomNav = true, title, showTopBar = true, showMobileMenu
 
             {/* Search + Location */}
             <div className="flex items-center gap-4 flex-1 mx-6">
-              <div className="flex items-center border border-gray-300 rounded-md px-3 py-1 text-sm font-medium cursor-pointer hover:shadow transition">
-                {location} <FaChevronDown className="ml-2 text-gray-500" />
+              <div
+                onClick={() => setShowLocationPage(true)}
+                className="flex items-center border border-gray-300 rounded-md px-3 py-1 text-sm font-medium cursor-pointer hover:shadow transition"
+              >
+                {savedLocation || `${city}, ${state}`}
+                <FaChevronDown className="ml-2 text-gray-500" />
               </div>
 
               <div className="relative flex-1">
@@ -78,14 +129,15 @@ const Navbar = ({ showBottomNav = true, title, showTopBar = true, showMobileMenu
 
             {/* Right Side */}
             <div className="flex items-center gap-4">
+              {/* Language Dropdown */}
               <div className="relative">
                 <div
-                  onClick={() => setOpen(!open)}
+                  onClick={() => setOpenLang(!openLang)}
                   className="flex items-center border border-gray-300 rounded-md px-3 py-1 text-sm font-medium cursor-pointer hover:shadow transition"
                 >
                   {language} <FaChevronDown className="ml-1 text-gray-500" />
                 </div>
-                {open && (
+                {openLang && (
                   <div className="absolute mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                     <ul className="py-1 text-sm text-gray-700">
                       <li
@@ -141,84 +193,113 @@ const Navbar = ({ showBottomNav = true, title, showTopBar = true, showMobileMenu
 
       {/* Mobile Top Navbar */}
       {showMobileMenu && (
-        <div className="md:hidden fixed top-0 left-0 w-full bg-white shadow z-50 flex items-center justify-between px-4 py-3">
-      
-      {/* Left: Back Arrow + Logo */}
-      <div className="flex items-center gap-2">
-        {/* <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-full hover:bg-gray-100 transition"
-        >
-          <ArrowLeft className="w-6 h-6 text-gray-700" />
-        </button> */}
-        <Link to="/" className="text-2xl font-bold text-blue-500">
-          {title || "WeDeal"}
-        </Link>
-      </div>
+        <div className="md:hidden fixed top-0 left-0 w-full bg-white shadow z-50">
+          <div className="flex items-center justify-between px-4 py-3">
+            <Link to="/" className="text-2xl font-bold text-blue-500">
+              {title || "WeDeal"}
+            </Link>
 
-      {/* Right: Location */}
-      <div className="flex items-center gap-1 text-sm text-gray-700">
-        <FaMapMarkerAlt className="" />
-        <span>{city}, {state}</span>
-      </div>
-    </div>
-      )}
+            {/* Location on mobile */}
+            <div
+              onClick={() => setShowLocationPage(true)}
+              className="flex items-center gap-1 text-sm text-gray-700 cursor-pointer"
+            >
+              <FaMapMarkerAlt />
+              <span>{savedLocation || `${city}, ${state}`}</span>
+            </div>
+          </div>
 
-      {/* Mobile Menu Dropdown */}
-      {mobileMenu && (
-        <div className="md:hidden fixed top-12 left-0 w-full bg-white shadow-lg z-40 border-t border-gray-200">
-          <ul className="flex flex-col py-2">
-            <li className="px-4 py-2 border-b hover:bg-gray-100 cursor-pointer">
-              <Link to="/">Home</Link>
-            </li>
-            <li className="px-4 py-2 border-b hover:bg-gray-100 cursor-pointer">
-              <Link to="/chat">Chat</Link>
-            </li>
-            <li className="px-4 py-2 border-b hover:bg-gray-100 cursor-pointer">
-              <Link to="/store">Store</Link>
-            </li>
-            <li className="px-4 py-2 border-b hover:bg-gray-100 cursor-pointer">
-              <Link to="/wishlist">Wishlist</Link>
-            </li>
-            <li className="px-4 py-2 border-b hover:bg-gray-100 cursor-pointer">
-              <Link to="/login">Login</Link>
-            </li>
-          </ul>
+          {/* Search */}
+          <div className="px-4 pb-3">
+            <div className="flex items-center bg-gray-100 rounded-full px-3 py-2 shadow-inner">
+              <FaSearch className="h-5 w-5 text-gray-500 mr-2" />
+              <input
+                type="text"
+                placeholder="Search items..."
+                className="bg-transparent outline-none w-full text-sm"
+              />
+            </div>
+          </div>
         </div>
       )}
 
       {/* Mobile Bottom Navbar */}
       {showBottomNav && (
-        <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-500 shadow-inner z-50">
+        <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-inner z-50">
           <div className="flex justify-around items-center py-2">
             <Link to="/" className={`flex flex-col items-center text-sm ${isActive("/")}`}>
               <FaHome className="text-xl" />
               <span>Home</span>
             </Link>
-
             <Link to="/chat" className={`flex flex-col items-center text-sm ${isActive("/chat")}`}>
               <FaComments className="text-xl" />
               <span>Chat</span>
             </Link>
-
             <Link
               to="/sell"
               className="flex flex-col items-center text-white bg-blue-600 p-3 rounded-full -mt-6 shadow-lg hover:bg-blue-700 transition"
             >
               <FaPlus className="text-2xl" />
             </Link>
-
             <Link to="/store" className={`flex flex-col items-center text-sm ${isActive("/store")}`}>
               <FaStore className="text-xl" />
               <span>Store</span>
             </Link>
-
             <Link to="/account" className={`flex flex-col items-center text-sm ${isActive("/account")}`}>
               <FaUser className="text-xl" />
-              <span className=" pe-1">User </span>
+              <span>User</span>
             </Link>
           </div>
         </nav>
+      )}
+
+      {/* ✅ Fullscreen Location Selector Overlay */}
+      {showLocationPage && (
+        <div className="fixed inset-0 bg-white z-[9999] flex flex-col">
+          {/* Topbar */}
+          <div className="flex items-center gap-3 px-4 py-3 border-b shadow-sm">
+            <button onClick={() => setShowLocationPage(false)}>
+              <ArrowLeft className="text-xl text-gray-700" />
+            </button>
+            <h2 className="text-lg font-semibold">Choose Location</h2>
+          </div>
+
+          {/* Search */}
+          <div className="p-4">
+            <div className="flex items-center border rounded-full px-3 py-2 shadow-sm">
+              <FaSearch className="text-gray-500 mr-2" />
+              <input
+                type="text"
+                placeholder="Search city, area..."
+                className="flex-1 outline-none text-sm"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Detect Location */}
+          <div className="p-4">
+            <button
+              onClick={getLocation}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              <FaMapMarkerAlt />
+              Detect My Current Location
+            </button>
+          </div>
+
+          {currentLocation && (
+            <div className="px-4 py-2 text-gray-700 text-sm">
+              {location && <p className="mt-4">📍 {location}</p>}
+            </div>
+          )}
+
+          {/* Save Button */}
+          <div className="p-4">
+      {location && <p className="mt-4"> {location}</p>}
+    </div>
+        </div>
       )}
     </>
   );

@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import Navbar from "./Navbar";
 
 const categoriesList = [
   "Mobiles",
@@ -35,6 +36,8 @@ const CategoryDetails = () => {
   const products = productsByCategory[category] || [];
 
   return (
+   <>
+   <Navbar />
     <div className="min-h-screen bg-gray-50 font-sans">
 
 
@@ -102,6 +105,7 @@ const CategoryDetails = () => {
         </main>
       </section>
     </div>
+    </>
   );
 };
 

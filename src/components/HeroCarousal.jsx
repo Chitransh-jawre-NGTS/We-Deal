@@ -1,23 +1,28 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Slider from "react-slick";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+
+// ✅ Import images so they’re bundled once
+import sellImg from "../assets/images/hero-carousal/sell.jpg";
+import carImg from "../assets/images/hero-carousal/car.jpg";
+import electronicsImg from "../assets/images/hero-carousal/electronics.jpg";
 
 const banners = [
   {
     id: 1,
-    image: "src/assets/images/hero-carousal/sell.jpg",
+    image: sellImg,
     title: "Sell Anything Instantly",
     subtitle: "Post your ad for free and reach thousands of buyers.",
   },
   {
     id: 2,
-    image: "src/assets/images/hero-carousal/car.jpg",
+    image: carImg,
     title: "Find Your Dream Car",
     subtitle: "Browse thousands of verified car listings near you.",
   },
   {
     id: 3,
-    image: "src/assets/images/hero-carousal/electronics.jpg",
+    image: electronicsImg,
     title: "Best Deals on Electronics",
     subtitle: "Grab the latest gadgets at unbeatable prices.",
   },
@@ -43,25 +48,29 @@ const PrevArrow = ({ onClick }) => (
 );
 
 const HeroCarousel = () => {
-  const settings = {
-    dots: true,
-    infinite: true,
-    autoplay: true,
-    autoplaySpeed: 5000,
-    speed: 700,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    nextArrow: <NextArrow />,
-    prevArrow: <PrevArrow />,
-    appendDots: (dots) => (
-      <div style={{ bottom: "15px" }}>
-        <ul className="flex justify-center gap-2"> {dots} </ul>
-      </div>
-    ),
-    customPaging: () => (
-      <div className="w-3 h-3 bg-gray-400 rounded-full hover:bg-white transition"></div>
-    ),
-  };
+  // ✅ Memoize settings so they don’t change every render
+  const settings = useMemo(
+    () => ({
+      dots: true,
+      infinite: true,
+      autoplay: true,
+      autoplaySpeed: 5000,
+      speed: 700,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      nextArrow: <NextArrow />,
+      prevArrow: <PrevArrow />,
+      appendDots: (dots) => (
+        <div style={{ bottom: "15px" }}>
+          <ul className="flex justify-center gap-2"> {dots} </ul>
+        </div>
+      ),
+      customPaging: () => (
+        <div className="w-3 h-3 bg-gray-400 rounded-full hover:bg-white transition"></div>
+      ),
+    }),
+    []
+  );
 
   return (
     <section className="relative w-full overflow-hidden">

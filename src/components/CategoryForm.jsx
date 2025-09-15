@@ -1,53 +1,148 @@
 // src/pages/CategoryForm.jsx
-import React from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
+import { categoryData } from "../data/categoryFields";
 
 const CategoryForm = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
+  const category = categoryData[slug];
 
-  // You can map different fields based on category
-  const formFields = {
-    cars: ["Brand", "Model", "Year", "Price"],
-    motorcycles: ["Brand", "Model", "Year", "Price"],
-    "mobile-phones": ["Brand", "Model", "Storage", "Price"],
-    "for-sale:-houses-&-apartments": ["Location", "Size (sq ft)", "Price"],
-    scooters: ["Brand", "Model", "Year", "Price"],
-    "commercial-&-other-vehicles": ["Type", "Brand", "Model", "Price"],
-    "for-rent:-houses-&-apartments": ["Location", "Size", "Rent per month"],
+  const [formValues, setFormValues] = useState({});
+  const [error, setError] = useState("");
+
+  const handleChange = (field, value) => {
+    setFormValues((prev) => ({
+      ...prev,
+      [field]: value,
+      ...(field === "Brand" ? { Model: "" } : {}), // reset dependent field
+    }));
   };
 
-  const fields = formFields[slug] || ["Title", "Description", "Price"];
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    // ✅ Check all required fields
+    for (let field of category.fields) {
+      if (!formValues[field.name] || formValues[field.name].trim() === "") {
+        setError(`Please fill out the ${field.name} field.`);
+        return;
+      }
+    }
+
+    setError(""); // clear error if valid
+    navigate("/upload-images", { state: { formValues } });
+  };
+
+  if (!category) {
+    return <p className="p-4">Invalid category</p>;
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       {/* Topbar */}
       <header className="flex items-center bg-white px-4 py-3 shadow sticky top-0 z-50">
-        <Link to="/categories" className="text-gray-700 text-xl mr-4">
-          <FaArrowLeft />
+        <Link
+          to="/sell"
+          className="p-2 rounded-full hover:bg-gray-100 transition mr-3"
+        >
+          <FaArrowLeft className="text-gray-700 text-lg" />
         </Link>
-        <h1 className="text-lg font-semibold capitalize">{slug.replace(/-/g, " ")}</h1>
+        <h1 className="text-lg font-semibold capitalize text-gray-800">
+          {slug.replace(/-/g, " ")}
+        </h1>
       </header>
 
       {/* Dynamic Form */}
       <div className="p-4">
-        <form className="space-y-4 bg-white p-4 rounded-lg shadow">
-          {fields.map((field, idx) => (
-            <div key={idx} className="flex flex-col">
-              <label className="text-sm font-medium mb-1">{field}</label>
-              <input
-                type="text"
-                placeholder={`Enter ${field}`}
-                className="border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200"
-              />
-            </div>
-          ))}
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5 bg-white p-6 rounded-2xl shadow-md"
+        >
+          {category.fields.map((field, idx) => {
+            // Dependent Select
+            if (field.type === "select" && field.dependsOn) {
+              const parentValue = formValues[field.dependsOn];
+              const options = parentValue
+                ? field.options[parentValue] || []
+                : [];
+
+              return (
+                <div key={idx} className="flex flex-col">
+                  <label className="text-sm font-medium text-gray-700 mb-1">
+                    {field.name} <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    required
+                    value={formValues[field.name] || ""}
+                    onChange={(e) => handleChange(field.name, e.target.value)}
+                    className="border rounded-lg px-3 py-2 bg-gray-50 focus:ring-2 focus:ring-blue-400 focus:outline-none disabled:opacity-50"
+                    disabled={!parentValue}
+                  >
+                    <option value="">Select {field.name}</option>
+                    {options.map((opt, i) => (
+                      <option key={i} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            }
+
+            // Normal Select
+            if (field.type === "select") {
+              return (
+                <div key={idx} className="flex flex-col">
+                  <label className="text-sm font-medium text-gray-700 mb-1">
+                    {field.name} <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    required
+                    value={formValues[field.name] || ""}
+                    onChange={(e) => handleChange(field.name, e.target.value)}
+                    className="border rounded-lg px-3 py-2 bg-gray-50 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                  >
+                    <option value="">Select {field.name}</option>
+                    {field.options.map((opt, i) => (
+                      <option key={i} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            }
+
+            // Text input
+            return (
+              <div key={idx} className="flex flex-col">
+                <label className="text-sm font-medium text-gray-700 mb-1">
+                  {field.name} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formValues[field.name] || ""}
+                  onChange={(e) => handleChange(field.name, e.target.value)}
+                  placeholder={`Enter ${field.name}`}
+                  className="border rounded-lg px-3 py-2 bg-gray-50 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                />
+              </div>
+            );
+          })}
+
+          {/* Error Message */}
+          {error && (
+            <p className="text-red-600 text-sm font-medium">{error}</p>
+          )}
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 active:scale-95 transition-transform shadow"
           >
-            Submit
+            Continue
           </button>
         </form>
       </div>
