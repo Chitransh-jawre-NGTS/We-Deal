@@ -20,6 +20,7 @@ import ChatRoom from "./components/ChatRoom.jsx";
 import Store from "./pages/Store/index.jsx";
 import CategoryForm from "./components/CategoryForm.jsx";
 import ImageUpload from "./pages/ImageUpload/index.jsx";
+import SearchPage from "./pages/Search/index.jsx";
 
 
 
@@ -48,6 +49,8 @@ function App() {
         <Route path="/store" element={<Store/>}/>
         <Route path="/sells/:slug" element={<CategoryForm />} />
          <Route path="/upload-images" element={<ImageUpload />} />
+         <Route path="/search" element={<SearchPage />} />
+         <Route path="/profile" element={<ProfileVerification />} />
 
         {/* Optional 404 page */}
         <Route

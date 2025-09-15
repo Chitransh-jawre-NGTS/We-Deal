@@ -1,6 +1,7 @@
 import React from "react";
-import { Clock, Heart, Store, CheckCircle, XCircle } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
+import { Clock, CheckCircle, XCircle } from "lucide-react";
+import { FaArrowLeft } from "react-icons/fa";
 
 const products = [
   {
@@ -53,15 +54,25 @@ const products = [
   },
 ];
 
-
 const SellProducts = () => {
-  return (
-    <div className="max-h-screen bg-white pt-4  pb-40 md:pt-24 md:pb-10 px-4 md:px-6 max-w-[1400px] mx-auto">
-      {/* <h1 className="text-3xl font-bold mb-8 flex items-center gap-2 text-gray-800">
-        My Listings
-      </h1> */}
+  const navigate = useNavigate();
 
-      <div className="space-y-6">
+  return (
+    <div className="max-h-screen bg-white pt-4 pb-40 md:pt-24 md:pb-10 px-4 md:px-6 max-w-[1400px] mx-auto">
+
+      {/* Top Bar */}
+      <div className="flex items-center gap-4 mb-6 bg-white shadow-md p-3  fixed w-full left-0 top-0 z-50">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-full hover:bg-gray-100 transition"
+        >
+          <FaArrowLeft className="text-gray-700" />
+        </button>
+        <h1 className="text-xl font-semibold text-gray-800">My Listings</h1>
+      </div>
+
+      {/* Product List */}
+      <div className="space-y-6 mt-15">
         {products.map((product) => (
           <div
             key={product.id}
@@ -77,52 +88,30 @@ const SellProducts = () => {
                 className="w-28 h-20 rounded-lg object-cover border border-blue-300"
               />
               <div>
-                <p className="text-gray-800 font-semibold text-lg">
-                  {product.name}
-                </p>
+                <p className="text-gray-800 font-semibold text-lg">{product.name}</p>
                 <p className="text-gray-500 text-sm">ID: {product.id}</p>
                 {/* Status + Timeline */}
-            <div className="flex flex-col items-start md:items-center">
-              <p
-                className={`flex items-center gap-1 font-medium ${
-                  product.status === "Active"
-                    ? "text-green-600"
-                    : "text-red-500"
-                }`}
-              >
-                {product.status === "Active" ? (
-                  <CheckCircle className="w-4 h-4" />
-                ) : (
-                  <XCircle className="w-4 h-4" />
-                )}
-                {product.status}
-              </p>
-              <p className="flex items-center gap-1 text-gray-500 text-sm mt-1">
-                <Clock className="w-4 h-4" /> {product.timeline}
-              </p>
-            </div>
+                <div className="flex flex-col items-start md:items-center">
+                  <p
+                    className={`flex items-center gap-1 font-medium ${
+                      product.status === "Active"
+                        ? "text-green-600"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {product.status === "Active" ? (
+                      <CheckCircle className="w-4 h-4" />
+                    ) : (
+                      <XCircle className="w-4 h-4" />
+                    )}
+                    {product.status}
+                  </p>
+                  <p className="flex items-center gap-1 text-gray-500 text-sm mt-1">
+                    <Clock className="w-4 h-4" /> {product.timeline}
+                  </p>
+                </div>
               </div>
             </div>
-
-            
-
-            {/* Likes */}
-            {/* <div className="flex items-center gap-2 text-gray-700">
-              <Heart className="w-5 h-5 text-red-500" />
-              <span className="font-medium">{product.likes}</span>
-            </div> */}
-
-            {/* Action Button */}
-            {/* <button
-              className={`px-5 py-2.5 rounded-md text-white font-medium transition w-full md:w-auto ${
-                product.status === "Active"
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-gray-400 cursor-not-allowed"
-              }`}
-              disabled={product.status !== "Active"}
-            >
-              Manage
-            </button> */}
           </div>
         ))}
       </div>

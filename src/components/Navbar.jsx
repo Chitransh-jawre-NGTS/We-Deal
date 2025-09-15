@@ -35,6 +35,7 @@ const Navbar = ({
   const [language, setLanguage] = useState("English");
   const [openLang, setOpenLang] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
+  const [query, setQuery] = useState("");
 
   const [showLocationPage, setShowLocationPage] = useState(false);
   const [location, setLocation] = useState("");
@@ -69,7 +70,7 @@ const Navbar = ({
     }
   };
 
-    const getLocation = () => {
+  const getLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
@@ -90,6 +91,12 @@ const Navbar = ({
       });
     } else {
       alert("Geolocation is not supported by this browser.");
+    }
+  };
+  const handleSearch = () => {
+    if (query.trim()) {
+      // Navigate to the search page with the query as a URL parameter
+      navigate(`/search?query=${encodeURIComponent(query)}`);
     }
   };
   return (
@@ -116,10 +123,13 @@ const Navbar = ({
                 <input
                   type="text"
                   placeholder="Find Cars, Mobile Phones and more..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                   className="w-full border border-gray-300 rounded-md px-4 py-2 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
                 <button
                   aria-label="Search"
+                  onClick={handleSearch}
                   className="absolute right-1 top-1 bottom-1 px-3 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition flex items-center justify-center"
                 >
                   <FaSearch />
@@ -192,8 +202,9 @@ const Navbar = ({
       )}
 
       {/* Mobile Top Navbar */}
-      {showMobileMenu && (
+       {showMobileMenu && (
         <div className="md:hidden fixed top-0 left-0 w-full bg-white shadow z-50">
+         
           <div className="flex items-center justify-between px-4 py-3">
             <Link to="/" className="text-2xl font-bold text-blue-500">
               {title || "WeDeal"}
@@ -208,18 +219,28 @@ const Navbar = ({
               <span>{savedLocation || `${city}, ${state}`}</span>
             </div>
           </div>
+          
 
           {/* Search */}
-          <div className="px-4 pb-3">
+          <div className="px-4 py-2 pb-3">
             <div className="flex items-center bg-gray-100 rounded-full px-3 py-2 shadow-inner">
               <FaSearch className="h-5 w-5 text-gray-500 mr-2" />
               <input
                 type="text"
                 placeholder="Search items..."
                 className="bg-transparent outline-none w-full text-sm"
+                value={query} // bind state
+                onChange={(e) => setQuery(e.target.value)} // update state
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearch(); // allow Enter key
+                }}
               />
+              <button onClick={handleSearch} className="ml-2 text-blue-600">
+                Search
+              </button>
             </div>
           </div>
+
         </div>
       )}
 
@@ -297,8 +318,8 @@ const Navbar = ({
 
           {/* Save Button */}
           <div className="p-4">
-      {location && <p className="mt-4"> {location}</p>}
-    </div>
+            {location && <p className="mt-4"> {location}</p>}
+          </div>
         </div>
       )}
     </>

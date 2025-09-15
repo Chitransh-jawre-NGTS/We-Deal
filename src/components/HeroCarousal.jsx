@@ -73,7 +73,7 @@ const HeroCarousel = () => {
   );
 
   return (
-    <section className="relative w-full overflow-hidden">
+    <section className="relative w-full mt-10 md:mt-0 overflow-hidden">
       <Slider {...settings}>
         {banners.map((banner) => (
           <div key={banner.id} className="relative w-full h-[40vh] md:h-[75vh]">
