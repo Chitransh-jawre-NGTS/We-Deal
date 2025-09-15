@@ -1,22 +1,64 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import toast, { Toaster } from "react-hot-toast";
+import { sendOtp, verifyOtp } from "../../redux/slices/authSlice";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
-  const handleSubmit = (e) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { loading, otpMessage, error, user } = useSelector(
+    (state) => state.auth
+  );
+
+  // Send OTP
+  const handleSendOtp = (e) => {
     e.preventDefault();
     if (!/^[6-9]\d{9}$/.test(phone)) {
-      alert("Please enter a valid 10-digit mobile number.");
+      toast.error("Please enter a valid 10-digit mobile number.");
       return;
     }
-    console.log("Phone Number:", phone);
-    // 🔑 Add OTP send/verification logic here
+
+    dispatch(sendOtp(phone)).then((res) => {
+      if (!res.error) {
+        setOtpSent(true);
+        // Show OTP in toast (for dev/testing only)
+        toast.success(`OTP sent: ${res.payload.otp}`);
+      } else {
+        toast.error(res.payload?.message || "Failed to send OTP");
+      }
+    });
+  };
+
+  // Verify OTP
+  const handleVerifyOtp = (e) => {
+    e.preventDefault();
+    if (!otp) {
+      toast.error("Please enter the OTP.");
+      return;
+    }
+
+    dispatch(verifyOtp({ phone, otp })).then((res) => {
+      if (!res.error) {
+        toast.success("✅ Login successful!");
+        // Redirect to homepage or dashboard
+        navigate("/");
+      } else {
+        toast.error(res.payload?.message || "Invalid OTP");
+      }
+    });
   };
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-r from-purple-100 to-purple-200 px-4">
+      <Toaster position="top-center" reverseOrder={false} />
+
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        {/* Header */}
         <h2 className="text-3xl font-bold text-purple-700 text-center mb-6">
           Welcome Back 👋
         </h2>
@@ -24,57 +66,108 @@ const LoginPage = () => {
           Login with your mobile number
         </p>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Mobile Number */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Mobile Number
-            </label>
-            <input
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Enter 10-digit mobile number"
-              maxLength={10}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
-            />
-          </div>
+        {user ? (
+          <p className="text-green-600 text-center font-medium">
+            ✅ Logged in as {user.phone}
+          </p>
+        ) : !otpSent ? (
+          <form onSubmit={handleSendOtp} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Mobile Number
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Enter 10-digit mobile number"
+                maxLength={10}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+              />
+            </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition"
-          >
-            Get OTP
-          </button>
-        </form>
+            <button
+              type="submit"
+              className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition disabled:opacity-50 flex items-center justify-center"
+              disabled={loading}
+            >
+              {loading ? (
+                <svg
+                  className="animate-spin h-5 w-5 mr-2 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+              ) : null}
+              {loading ? "Sending..." : "Get OTP"}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleVerifyOtp} className="space-y-5">
+            <p className="text-center text-sm text-gray-600">
+              OTP sent to <span className="font-medium">{phone}</span>
+            </p>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Enter OTP
+              </label>
+              <input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter 6-digit OTP"
+                maxLength={6}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
+              />
+            </div>
 
-        {/* Divider */}
-        <div className="my-6 flex items-center">
-          <hr className="flex-grow border-gray-300" />
-          <span className="px-3 text-gray-500 text-sm">OR</span>
-          <hr className="flex-grow border-gray-300" />
-        </div>
-
-        {/* Google Login (optional) */}
-        <button className="w-full border border-gray-300 py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
-            alt="Google"
-            className="w-5 h-5"
-          />
-          <span className="font-medium text-gray-700">Continue with Google</span>
-        </button>
-
-        {/* Signup Link */}
-        <p className="text-center text-sm text-gray-600 mt-6">
-          Don’t have an account?{" "}
-          <a href="/signup" className="text-purple-600 font-medium hover:underline">
-            Sign up
-          </a>
-        </p>
+            <button
+              type="submit"
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50 flex items-center justify-center"
+              disabled={loading}
+            >
+              {loading ? (
+                <svg
+                  className="animate-spin h-5 w-5 mr-2 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+              ) : null}
+              {loading ? "Verifying..." : "Verify OTP"}
+            </button>
+          </form>
+        )}
       </div>
     </section>
   );

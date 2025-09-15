@@ -1,10 +1,8 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
-
-import Landing from "./pages/home"; // Landing page
-import CategoryDetails from "./components/ProductCategory"; // Category page
+import Landing from "./pages/home";
+import CategoryDetails from "./components/ProductCategory";
 import ProductDescription from "./components/ProductDescription";
 import Account from "./pages/Account/Index";
 import Orders from "./pages/Orders.jsx";
@@ -22,48 +20,123 @@ import CategoryForm from "./components/CategoryForm.jsx";
 import ImageUpload from "./pages/ImageUpload/index.jsx";
 import SearchPage from "./pages/Search/index.jsx";
 
-
+import ProtectedRoute from "./routes/ProtectedRoutes.jsx";
 
 function App() {
   return (
     <div className="relative">
-      {/* Navbar always visible */}
-      {/* <Navbar /> */}
-
-      {/* Main Routes */}
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/category/:category" element={<CategoryDetails />} />
-        <Route path="/product/:category/:productId" element={<ProductDescription />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="/sell" element={<Sell />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/profile-verification" element={<ProfileVerification />} />
-         <Route path="/help" element={<ChatbotPage />} />
-         <Route path="/login" element={<LoginPage/>} />
-               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route
+          path="/product/:productId"
+          element={<ProductDescription />}
+        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-          <Route path="/chat" element={<Chats />} />
-        <Route path="/chat/:id" element={<ChatRoom />} />
-        <Route path="/store" element={<Store/>}/>
-        <Route path="/sells/:slug" element={<CategoryForm />} />
-         <Route path="/upload-images" element={<ImageUpload />} />
-         <Route path="/search" element={<SearchPage />} />
-         <Route path="/profile" element={<ProfileVerification />} />
+        <Route path="/help" element={<ChatbotPage />} />
+        <Route path="/search" element={<SearchPage />} />
 
-        {/* Optional 404 page */}
+        {/* ✅ Protected routes */}
+        <Route
+          path="/account"
+          element={
+            <ProtectedRoute>
+              <Account />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <Orders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sell"
+          element={
+            <ProtectedRoute>
+              <Sell />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <ProtectedRoute>
+              <Wishlist />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile-verification"
+          element={
+            <ProtectedRoute>
+              <ProfileVerification />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            <ProtectedRoute>
+              <Chats />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chat/:id"
+          element={
+            <ProtectedRoute>
+              <ChatRoom />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/store"
+          element={
+            <ProtectedRoute>
+              <Store />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sells/:slug"
+          element={
+            <ProtectedRoute>
+              <CategoryForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/upload-images"
+          element={
+            <ProtectedRoute>
+              <ImageUpload />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfileVerification />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 404 Fallback */}
         <Route
           path="*"
           element={
-            <div className="text-center mt-20 text-gray-500">
-              Page not found
-            </div>
+            <div className="text-center mt-20 text-gray-500">Page not found</div>
           }
         />
       </Routes>
-
-      {/* Mobile bottom navigation */}
     </div>
   );
 }

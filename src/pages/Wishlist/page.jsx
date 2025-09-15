@@ -1,37 +1,38 @@
-import React, { useState } from "react";
+// src/pages/Wishlist.jsx
+import React, { useState, useEffect } from "react";
 import { FaTrashAlt, FaArrowLeft } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-
-const sampleWishlist = [
-  {
-    id: 1,
-    title: "iPhone 14 Pro",
-    price: "₹90,000",
-    image: "https://picsum.photos/seed/iphone14/300/200",
-    category: "Mobiles",
-  },
-  {
-    id: 2,
-    title: "Maruti Swift",
-    price: "₹5,00,000",
-    image: "https://picsum.photos/seed/swift/300/200",
-    category: "Cars",
-  },
-  {
-    id: 3,
-    title: "Sofa Set",
-    price: "₹25,000",
-    image: "https://picsum.photos/seed/sofa/300/200",
-    category: "Furniture",
-  },
-];
+import httpClient from "../../utils/httpClient"; // your axios instance
 
 const Wishlist = () => {
-  const [wishlist, setWishlist] = useState(sampleWishlist);
+  const [wishlist, setWishlist] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const removeItem = (id) => {
-    setWishlist(wishlist.filter((item) => item.id !== id));
+  // Fetch wishlist from backend
+  const fetchWishlist = async () => {
+    try {
+      const res = await httpClient.get("/wishlist");
+      setWishlist(res.data.products || []); // assuming wishlist has "products" array
+    } catch (err) {
+      console.error("Error fetching wishlist:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchWishlist();
+  }, []);
+
+  // Remove product from wishlist
+  const removeItem = async (productId) => {
+    try {
+      await httpClient.post("/wishlist/remove", { productId });
+      setWishlist(wishlist.filter((item) => item._id !== productId));
+    } catch (err) {
+      console.error("Error removing from wishlist:", err);
+    }
   };
 
   return (
@@ -51,7 +52,9 @@ const Wishlist = () => {
 
       {/* Content */}
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 pt-24">
-        {wishlist.length === 0 ? (
+        {loading ? (
+          <p className="text-center text-gray-500 mt-20 text-lg">Loading...</p>
+        ) : wishlist.length === 0 ? (
           <p className="text-center text-gray-500 mt-20 text-lg">
             Your wishlist is empty 😢
           </p>
@@ -59,14 +62,14 @@ const Wishlist = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {wishlist.map((item) => (
               <div
-                key={item.id}
+                key={item._id}
                 className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col hover:shadow-2xl transition transform hover:-translate-y-1"
               >
                 {/* Product Image */}
-                <Link to={`/product/${item.category}/${item.id}`}>
+                <Link to={`/product/${item._id}`} state={{ product: item, allProducts: wishlist }}>
                   <img
-                    src={item.image}
-                    alt={item.title}
+                    src={item.images?.[0] || "/placeholder.png"}
+                    alt={item.title || "Product"}
                     className="w-full h-48 object-cover hover:scale-105 transition"
                   />
                 </Link>
@@ -75,15 +78,17 @@ const Wishlist = () => {
                 <div className="p-4 flex flex-col flex-1 justify-between">
                   <div>
                     <h2 className="text-lg md:text-xl font-semibold text-gray-800">
-                      {item.title}
+                      {item.fields?.Brand} {item.fields?.Model}
                     </h2>
-                    <p className="text-blue-600 font-bold mt-1">{item.price}</p>
+                    <p className="text-blue-600 font-bold mt-1">
+                      ₹{Number(item.fields?.Price).toLocaleString()}
+                    </p>
                   </div>
 
                   {/* Action Buttons */}
                   <div className="mt-4 flex justify-end gap-3">
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item._id)}
                       className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm md:text-base"
                     >
                       <FaTrashAlt />
