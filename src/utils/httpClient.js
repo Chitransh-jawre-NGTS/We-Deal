@@ -1,8 +1,11 @@
 // src/api/httpClient.js
 import axios from "axios";
 
-// Base URL (change when deploying backend)
-const BASE_URL = "http://localhost:5000/api";
+// ✅ Choose base URL depending on environment
+const BASE_URL =
+  import.meta.env.MODE === "development"
+    ? "https://we-deal-backend.onrender.com/api"
+    : "http://localhost:5000/api";
 
 const httpClient = axios.create({
   baseURL: BASE_URL,
@@ -30,6 +33,7 @@ httpClient.interceptors.response.use(
     if (error.response?.status === 401) {
       console.error("Unauthorized! Redirect to login.");
       localStorage.removeItem("token");
+      // you can redirect to login page here
     }
     return Promise.reject(error);
   }
