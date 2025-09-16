@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaSearch } from "react-icons/fa";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -33,7 +33,7 @@ const ProductDescription = () => {
   return (
     <>
       {/* Topbar */}
-      <div className="flex bg-white md-hidden sticky top-0 z-50">
+      <div className="flex bg-white sticky top-0 z-50 shadow-sm px-3 py-2 items-center gap-2">
         <button
           onClick={() => navigate(-1)}
           className="p-2 rounded-full hover:bg-gray-100 transition"
@@ -42,82 +42,103 @@ const ProductDescription = () => {
         </button>
         <form
           onSubmit={handleSearchSubmit}
-          className="flex-1 flex items-center bg-gray-100 rounded-full px-3 py-2 shadow-inner"
+          className="flex-1 flex items-center bg-gray-100 rounded-full px-3 py-1.5"
         >
+          <FaSearch className="text-gray-500 mr-2" />
           <input
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search for products or locations..."
-            className="w-full border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            placeholder="Search products or locations..."
+            className="w-full bg-transparent text-sm md:text-base focus:outline-none"
           />
         </form>
       </div>
 
       {/* Product Details */}
-      <div className="bg-gray-50 font-sans pb-24">
-        <section className="md:py-16 px-4 md:px-16 max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
-          <main className="flex-1 flex flex-col gap-8">
-            <div className="flex flex-col lg:flex-row gap-6 bg-white rounded-xl shadow-md overflow-hidden p-4 md:p-6">
-              {/* Images Carousel */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex-1 flex gap-2 overflow-x-auto rounded-xl"
-              >
-                {product.images && product.images.length > 0 ? (
-                  product.images.map((img, idx) => (
-                    <img
-                      key={idx}
-                      src={img}
-                      alt={`${product.fields.Brand} ${product.fields.Model} ${idx + 1}`}
-                      className="w-64 h-64 object-cover rounded-xl flex-shrink-0"
-                    />
-                  ))
-                ) : (
-                  <img
-                    src="/placeholder.png"
-                    alt="No image available"
-                    className="w-full h-full object-cover rounded-xl"
-                  />
-                )}
-              </motion.div>
+      <div className="bg-gray-50 font-sans pb-28">
+        <section className="py-6 md:py-12 px-4 md:px-16 max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
+          {/* Left: Images */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex-1 flex gap-4 overflow-x-auto rounded-xl snap-x snap-mandatory scroll-smooth"
+          >
+            {product.images && product.images.length > 0 ? (
+              product.images.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt={`${product.fields.Brand} ${product.fields.Model} ${idx + 1}`}
+                  className="w-80 h-80 md:w-[28rem] md:h-[28rem] object-cover rounded-xl flex-shrink-0 snap-center border border-gray-200"
+                />
+              ))
+            ) : (
+              <img
+                src="/placeholder.png"
+                alt="No image available"
+                className="w-full h-full object-cover rounded-xl border"
+              />
+            )}
+          </motion.div>
 
-              {/* Product Info */}
-              <div className="flex-1 flex flex-col gap-4">
-                <h2 className="text-3xl md:text-4xl font-extrabold text-purple-800">
-                  {product.fields.Brand} {product.fields.Model}
-                </h2>
-                <p className="text-2xl md:text-3xl text-purple-600 font-semibold">
-                  ₹{Number(product.fields.Price).toLocaleString()}
-                </p>
-                <p className="text-gray-700 text-sm md:text-base">
-                  Year: {product.fields.Year || "Unknown"}
-                </p>
-                <p className="text-gray-400 text-xs">
-                  Published: {new Date(product.createdAt).toLocaleDateString()}
-                </p>
+          {/* Right: Product Info */}
+          <div className="flex-1 flex flex-col gap-5">
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-900">
+              {product.fields.Brand} {product.fields.Model}
+            </h2>
+            <p className="text-2xl md:text-3xl text-purple-600 font-extrabold">
+              ₹{Number(product.fields.Price).toLocaleString()}
+            </p>
 
-                {/* Description */}
-                <div className="mt-4">
-                  <h3 className="text-xl font-bold text-purple-700 mb-2">
-                    Description
-                  </h3>
-                  <p className="text-gray-700 text-sm md:text-base">
-                    {product.description || "No description provided."}
-                  </p>
-                </div>
-              </div>
+            <div className="flex flex-wrap gap-3">
+              <span className="px-4 py-1.5 text-sm rounded-full bg-purple-100 text-purple-700 font-medium">
+                Year: {product.fields.Year || "Unknown"}
+              </span>
+              <span className="px-4 py-1.5 text-sm rounded-full bg-gray-100 text-gray-600">
+                Published: {new Date(product.createdAt).toLocaleDateString()}
+              </span>
             </div>
-          </main>
+
+            {/* Description */}
+            <div>
+              <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-2">
+                Description
+              </h3>
+              <p className="text-gray-600 text-sm md:text-base leading-relaxed">
+                {product.description || "No description provided."}
+              </p>
+            </div>
+          </div>
         </section>
 
+        {/* Map Section */}
+        {/* Map Section */}
+<section className="px-4 md:px-16 max-w-7xl mx-auto mb-20">
+  <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-3">
+    Location
+  </h3>
+  <div className="w-full h-64 md:h-96 rounded-xl overflow-hidden shadow-md border">
+    <iframe
+      title="Product Location"
+      src={`https://www.google.com/maps?q=${encodeURIComponent(
+        "Indore, Madhya Pradesh"
+      )}&output=embed`}
+      className="w-full h-full border-0"
+      allowFullScreen=""
+      loading="lazy"
+    ></iframe>
+  </div>
+  <p className="mt-2 text-sm text-gray-600">Indore, Madhya Pradesh</p>
+</section>
+
+
         {/* Fixed Bottom Bar */}
-        <div className="fixed bottom-0 left-0 w-full bg-white shadow-md border-t p-4 flex justify-center gap-4 z-50">
-          <button className="flex-1 px-6 py-3 bg-purple-600 text-white font-semibold rounded hover:bg-purple-700 transition">
+        <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg border-t p-4 flex justify-center gap-4 z-50">
+          <button className="flex-1 px-6 py-3 bg-purple-600 text-white font-semibold rounded-2xl hover:bg-purple-700 transition text-sm md:text-base">
             Make a Deal
           </button>
-          <button className="flex-1 px-6 py-3 bg-white border border-purple-600 text-purple-600 font-semibold rounded hover:bg-purple-50 transition">
+          <button className="flex-1 px-6 py-3 bg-white border-2 border-purple-600 text-purple-600 font-semibold rounded-2xl hover:bg-purple-50 transition text-sm md:text-base">
             Chat with Seller
           </button>
         </div>
@@ -127,10 +148,6 @@ const ProductDescription = () => {
 };
 
 export default ProductDescription;
-
-
-
-
 
 
 

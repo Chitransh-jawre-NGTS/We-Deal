@@ -1,11 +1,7 @@
-// src/api/httpClient.js
 import axios from "axios";
 
-// ✅ Choose base URL depending on environment
-const BASE_URL =
-  import.meta.env.MODE === "development"
-    ? "https://we-deal-backend.onrender.com/api"
-    : "http://localhost:5000/api";
+// ✅ Correct way to read from .env
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const httpClient = axios.create({
   baseURL: BASE_URL,
@@ -14,7 +10,6 @@ const httpClient = axios.create({
   },
 });
 
-// ✅ Request Interceptor (attach token if exists)
 httpClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -26,14 +21,13 @@ httpClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Response Interceptor
 httpClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       console.error("Unauthorized! Redirect to login.");
       localStorage.removeItem("token");
-      // you can redirect to login page here
+      // window.location.href = "/login";
     }
     return Promise.reject(error);
   }
