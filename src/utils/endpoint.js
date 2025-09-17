@@ -19,26 +19,27 @@
 
 // export default endpoints;
 
+const API_BASE = "/api";
 
 const endpoints = {
   auth: {
-    sendOtp: "/auth/send-otp",
-    verifyOtp: "/auth/verify-otp",
+    sendOtp: `${API_BASE}/auth/send-otp`,
+    verifyOtp: `${API_BASE}/auth/verify-otp`,
   },
   user: {
-    profile: "/user/profile",
+    profile: `${API_BASE}/user/profile`,
   },
   product: {
-    list: "/get-products",
-   create: "/create",
-    byId: (productId) => `/product/${productId}`,    // GET
-    update: (productId) => `/product/${productId}/update`, // PUT
-    delete: (productId) => `/product/${productId}/delete`, // DELETE
-    userProducts: (userId) => `/product/${userId}`, // GET all products of user
+    list: `${API_BASE}/get-products`,
+    create: `${API_BASE}/create`,
+    byId: (productId) => `${API_BASE}/product/${productId}`,
+    update: (productId) => `${API_BASE}/product/${productId}/update`,
+    delete: (productId) => `${API_BASE}/product/${productId}/delete`,
+    userProducts: (userId) => `${API_BASE}/product/${userId}`,
   },
   chat: {
-    byId: (chatId) => `/${chatId}`,
-    list: "/chats",
+    byId: (chatId) => `${API_BASE}/${chatId}`,
+    list: `${API_BASE}/chats`,
   },
 };
 
