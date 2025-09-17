@@ -9,13 +9,13 @@ export const productApi = {
       headers: { "Content-Type": "multipart/form-data" },
     }),
 
- getById: (id) => httpClient.get(endpoints.product.byId(id)),
+  getUserProducts: (userId) =>
+    httpClient.get(endpoints.product.userProducts(userId)),
 
-update: (id, formData) =>
-  httpClient.put(endpoints.product.update(id), formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  }),
+  update: (id, formData) =>
+    httpClient.put(endpoints.product.update(id), formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
 
-delete: (id) => httpClient.delete(endpoints.product.delete(id)),
-
+  delete: (id) => httpClient.delete(endpoints.product.delete(id)),
 };

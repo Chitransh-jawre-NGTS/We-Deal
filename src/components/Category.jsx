@@ -29,37 +29,57 @@ const Categories = () => {
     navigate(`/category/${category.toLowerCase()}`);
   };
 
+  // Duplicate categories for infinite scroll effect
+  const infiniteCategories = [...categories, ...categories];
+
   return (
-    <div className="bg-gray-50 lg:hidden font-sans">
-      <section className="py-12 md:py-16 px-4 md:px-16 text-center">
-        <h2 className="text-3xl md:text-5xl font-extrabold text-purple-800 mb-4 md:mb-6">
+    <div className="bg-gray-50 font-sans">
+      <section className="py-2 md:py-16 px-4 md:px-16 text-center">
+        <h2 className="text-3xl md:text-5xl font-extrabold text-blue-800 mb-4 md:mb-6">
           Explore Categories
         </h2>
-        <p className="text-gray-700 text-sm md:text-lg max-w-xl md:max-w-2xl mx-auto mb-8">
+        <p className="text-gray-700 text-sm md:text-lg max-w-xl md:max-w-2xl mx-auto mb-2">
           Browse through our categories to find what you are looking for. Click on any category to explore related items.
         </p>
 
-        {/* Horizontal scroll with 2 rows */}
-        <div className="overflow-x-auto">
-          <div className="grid grid-rows-2 grid-flow-col gap-4">
-            {categories.map((cat, idx) => {
+        {/* Small & medium devices: infinite horizontal scroll carousel */}
+        <div className="lg:hidden overflow-x-auto py-2 scroll-smooth snap-x snap-mandatory">
+          <div className="flex gap-4">
+            {infiniteCategories.map((cat, idx) => {
               const Icon = cat.icon;
               return (
                 <div
                   key={idx}
                   onClick={() => handleClick(cat.name)}
-                  className="bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl w-32 md:w-40 flex flex-col items-center justify-center p-4"
+                  className="bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl w-32 flex flex-col items-center justify-center p-4 flex-shrink-0 snap-center"
                 >
-                  <div className="text-purple-700 text-4xl md:text-5xl mb-2">
+                  <div className="text-blue-700 text-4xl mb-2">
                     <Icon />
                   </div>
-                  <h3 className="text-xs md:text-sm font-bold text-purple-700">
-                    {cat.name}
-                  </h3>
+                  <h3 className="text-xs font-bold text-blue-700">{cat.name}</h3>
                 </div>
               );
             })}
           </div>
+        </div>
+
+        {/* Large devices: grid layout */}
+        <div className="hidden lg:grid grid-cols-4 gap-6 justify-items-center">
+          {categories.map((cat, idx) => {
+            const Icon = cat.icon;
+            return (
+              <div
+                key={idx}
+                onClick={() => handleClick(cat.name)}
+                className="bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl w-48 flex flex-col items-center justify-center p-4"
+              >
+                <div className="text-blue-700 text-6xl mb-2">
+                  <Icon />
+                </div>
+                <h3 className="text-base font-bold text-blue-700">{cat.name}</h3>
+              </div>
+            );
+          })}
         </div>
       </section>
     </div>

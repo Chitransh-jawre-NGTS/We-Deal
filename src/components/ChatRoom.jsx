@@ -1,30 +1,58 @@
-// src/pages/ChatRoom.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { FaArrowLeft, FaPaperPlane, FaUserCircle } from "react-icons/fa";
+import { socket } from "../utils/socket";
+import { chatApi } from "../api/chatApi"; // ✅ import API
 
 const ChatRoom = () => {
-  const { id } = useParams();
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Hi! Is this still available?", sender: "other" },
-    { id: 2, text: "Yes, it’s available.", sender: "me" },
-  ]);
+  const { id: chatId } = useParams();
+  const userId = localStorage.getItem("_Id");
+  const [messages, setMessages] = useState([]);
   const [newMsg, setNewMsg] = useState("");
-  const [hasUserSentFirstMsg, setHasUserSentFirstMsg] = useState(
-    messages.some((msg) => msg.sender === "me")
-  );
 
-  const sendMessage = (text = null) => {
-    const messageToSend = text || newMsg;
-    if (messageToSend.trim() === "") return;
-
-    setMessages([
-      ...messages,
-      { id: Date.now(), text: messageToSend, sender: "me" },
-    ]);
-    setNewMsg("");
-    setHasUserSentFirstMsg(true);
+  // Fetch previous messages from backend
+  const fetchMessages = async () => {
+    try {
+      const res = await chatApi.getMessages(chatId); // ✅ use API
+      setMessages(res.data || []);
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+  useEffect(() => {
+    if (!chatId) return;
+
+    fetchMessages();
+
+    socket.connect();
+    socket.emit("joinChat", chatId);
+
+    socket.on("receiveMessage", (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+
+    return () => {
+      socket.off("receiveMessage");
+      socket.disconnect();
+    };
+  }, [chatId]);
+
+  const sendMessage = async () => {
+  if (!newMsg.trim()) return;
+
+  const message = { chatId, text: newMsg }; // remove sender
+  socket.emit("sendMessage", message);
+
+  try {
+    await chatApi.sendMessage(chatId, { text: newMsg }); // only send text
+  } catch (err) {
+    console.error("Failed to send message to backend:", err);
+  }
+
+  setNewMsg("");
+};
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -35,7 +63,7 @@ const ChatRoom = () => {
         </Link>
         <div className="flex items-center gap-2">
           <FaUserCircle className="text-2xl" />
-          <h2 className="text-lg font-semibold">User {id}</h2>
+          <h2 className="text-lg font-semibold">Chat {chatId}</h2>
         </div>
       </header>
 
@@ -43,9 +71,9 @@ const ChatRoom = () => {
       <div className="flex-1 p-4 overflow-y-auto space-y-3">
         {messages.map((msg) => (
           <div
-            key={msg.id}
+            key={msg._id || msg.id}
             className={`max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl shadow-sm ${
-              msg.sender === "me"
+              msg.sender === userId
                 ? "ml-auto bg-blue-600 text-white rounded-br-none"
                 : "mr-auto bg-gray-200 text-gray-800 rounded-bl-none"
             }`}
@@ -54,24 +82,6 @@ const ChatRoom = () => {
           </div>
         ))}
       </div>
-
-      {/* Quick Action Buttons (visible until user sends first message) */}
-      {!hasUserSentFirstMsg && (
-        <div className="p-3 flex gap-3 border-t bg-white">
-          <button
-            onClick={() => sendMessage("Hi 👋")}
-            className="flex-1 py-2 rounded-full border border-blue-600 text-blue-600 font-medium hover:bg-blue-50 transition"
-          >
-            Send Hi
-          </button>
-          <button
-            onClick={() => sendMessage("I’d like to make an offer 💰")}
-            className="flex-1 py-2 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-          >
-            Make an Offer
-          </button>
-        </div>
-      )}
 
       {/* Input */}
       <div className="p-3 flex items-center border-t bg-white">
@@ -83,7 +93,7 @@ const ChatRoom = () => {
           className="flex-1 border rounded-full px-4 py-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
-          onClick={() => sendMessage()}
+          onClick={sendMessage}
           className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition"
         >
           <FaPaperPlane />

@@ -30,11 +30,15 @@ const endpoints = {
   },
   product: {
     list: "/get-products",
-    create: (userId) => `/product/${userId}/create`, // POST
+   create: "/create",
     byId: (productId) => `/product/${productId}`,    // GET
     update: (productId) => `/product/${productId}/update`, // PUT
     delete: (productId) => `/product/${productId}/delete`, // DELETE
     userProducts: (userId) => `/product/${userId}`, // GET all products of user
+  },
+  chat: {
+    byId: (chatId) => `/${chatId}`,
+    list: "/chats",
   },
 };
 

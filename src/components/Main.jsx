@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { FaHeart } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { productApi } from "../api/product";
 import { wishlistApi } from "../api/wishlist"; // your wishlist API
 import httpClient from "../utils/httpClient"; // if using axios instance
+
+
+  const categoriesList = [
+  "Mobiles",
+  "Cars",
+  "Furniture",
+  "Jobs",
+  "Fashion",
+  "Electronics",
+  "Home Appliances",
+  "Sports",
+];
+
+
 
 const ListingsPage = () => {
   const [products, setProducts] = useState([]);
@@ -11,6 +25,7 @@ const ListingsPage = () => {
   const [sortOption, setSortOption] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
 
   // Fetch products
   useEffect(() => {
@@ -91,6 +106,34 @@ const ListingsPage = () => {
     <section className="py-8 md:py-16 px-4 md:px-16 max-w-9xl mx-auto flex flex-col lg:flex-row gap-8">
       {/* Sidebar */}
       <aside className="w-full lg:w-64 flex-shrink-0 space-y-6">
+
+      <div className="bg-white rounded-2xl hidden  lg:block shadow-xl p-6">
+  <h4 className="font-extrabold text-xl mb-5 text-purple-700 tracking-wide">
+    Categories
+  </h4>
+  <ul className="space-y-3">
+    {categoriesList.map((cat, idx) => (
+      <li key={idx}>
+        <Link
+          to={`/category/${cat.toLowerCase()}`}
+          className="flex items-center justify-between px-4 py-2 rounded-xl hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg group"
+        >
+          <span className="font-medium group-hover:font-semibold">{cat}</span>
+          <svg
+            className="w-4 h-4 text-purple-500 group-hover:text-white transition-colors"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </Link>
+      </li>
+    ))}
+  </ul>
+</div>
+
         <div className="bg-white rounded-xl shadow p-4">
           <h4 className="font-bold text-lg text-purple-700 mb-3">Sort Products</h4>
           <select

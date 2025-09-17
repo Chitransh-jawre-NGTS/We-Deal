@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaArrowLeft, FaSearch } from "react-icons/fa";
+import Navbar from "./Navbar";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -33,6 +34,7 @@ const ProductDescription = () => {
   return (
     <>
       {/* Topbar */}
+      {/* <Navbar showBottomNav={false} showMobileMenu={false}/> */}
       <div className="flex bg-white sticky top-0 z-50 shadow-sm px-3 py-2 items-center gap-2">
         <button
           onClick={() => navigate(-1)}
@@ -56,7 +58,7 @@ const ProductDescription = () => {
       </div>
 
       {/* Product Details */}
-      <div className="bg-gray-50 font-sans pb-28">
+      <div className="bg-gray-50 font-sans pb-32 md:pb-28">
         <section className="py-6 md:py-12 px-4 md:px-16 max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
           {/* Left: Images */}
           <motion.div
@@ -70,7 +72,7 @@ const ProductDescription = () => {
                   key={idx}
                   src={img}
                   alt={`${product.fields.Brand} ${product.fields.Model} ${idx + 1}`}
-                  className="w-80 h-80 md:w-[28rem] md:h-[28rem] object-cover rounded-xl flex-shrink-0 snap-center border border-gray-200"
+                  className="w-80 h-80 md:w-[28rem] md:h-[28rem] lg:w-[32rem] lg:h-[32rem] object-cover rounded-xl flex-shrink-0 snap-center border border-gray-200"
                 />
               ))
             ) : (
@@ -84,28 +86,28 @@ const ProductDescription = () => {
 
           {/* Right: Product Info */}
           <div className="flex-1 flex flex-col gap-5">
-            <h2 className="text-2xl md:text-4xl font-bold text-gray-900">
+            <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900">
               {product.fields.Brand} {product.fields.Model}
             </h2>
-            <p className="text-2xl md:text-3xl text-purple-600 font-extrabold">
+            <p className="text-2xl md:text-3xl lg:text-4xl text-purple-600 font-extrabold">
               ₹{Number(product.fields.Price).toLocaleString()}
             </p>
 
             <div className="flex flex-wrap gap-3">
-              <span className="px-4 py-1.5 text-sm rounded-full bg-purple-100 text-purple-700 font-medium">
+              <span className="px-4 py-1.5 text-sm md:text-base rounded-full bg-purple-100 text-purple-700 font-medium">
                 Year: {product.fields.Year || "Unknown"}
               </span>
-              <span className="px-4 py-1.5 text-sm rounded-full bg-gray-100 text-gray-600">
+              <span className="px-4 py-1.5 text-sm md:text-base rounded-full bg-gray-100 text-gray-600">
                 Published: {new Date(product.createdAt).toLocaleDateString()}
               </span>
             </div>
 
             {/* Description */}
             <div>
-              <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-2">
+              <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 mb-2">
                 Description
               </h3>
-              <p className="text-gray-600 text-sm md:text-base leading-relaxed">
+              <p className="text-gray-600 text-sm md:text-base lg:text-lg leading-relaxed">
                 {product.description || "No description provided."}
               </p>
             </div>
@@ -113,32 +115,70 @@ const ProductDescription = () => {
         </section>
 
         {/* Map Section */}
-        {/* Map Section */}
-<section className="px-4 md:px-16 max-w-7xl mx-auto mb-20">
-  <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-3">
-    Location
-  </h3>
-  <div className="w-full h-64 md:h-96 rounded-xl overflow-hidden shadow-md border">
-    <iframe
-      title="Product Location"
-      src={`https://www.google.com/maps?q=${encodeURIComponent(
-        "Indore, Madhya Pradesh"
-      )}&output=embed`}
-      className="w-full h-full border-0"
-      allowFullScreen=""
-      loading="lazy"
-    ></iframe>
-  </div>
-  <p className="mt-2 text-sm text-gray-600">Indore, Madhya Pradesh</p>
-</section>
-
+        <section className="px-4 md:px-16 max-w-7xl mx-auto mb-20">
+          <h3 className="text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 mb-3">
+            Location
+          </h3>
+          <div className="w-full h-64 md:h-96 lg:h-[28rem] rounded-xl overflow-hidden shadow-md border">
+            <iframe
+              title="Product Location"
+              src={`https://www.google.com/maps?q=${encodeURIComponent(
+                "Indore, Madhya Pradesh"
+              )}&output=embed`}
+              className="w-full h-full border-0"
+              allowFullScreen=""
+              loading="lazy"
+            ></iframe>
+          </div>
+          <p className="mt-2 text-sm md:text-base text-gray-600">Indore, Madhya Pradesh</p>
+        </section>
 
         {/* Fixed Bottom Bar */}
-        <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg border-t p-4 flex justify-center gap-4 z-50">
+        <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg border-t p-4 flex flex-col md:flex-row justify-center gap-4 z-50">
           <button className="flex-1 px-6 py-3 bg-purple-600 text-white font-semibold rounded-2xl hover:bg-purple-700 transition text-sm md:text-base">
             Make a Deal
           </button>
-          <button className="flex-1 px-6 py-3 bg-white border-2 border-purple-600 text-purple-600 font-semibold rounded-2xl hover:bg-purple-50 transition text-sm md:text-base">
+
+          <button
+            onClick={async () => {
+              try {
+                const productId = product._id;
+                let token = localStorage.getItem("token");
+                if (!token) {
+                  const match = document.cookie.match(/token=([^;]+)/);
+                  token = match ? match[1] : null;
+                }
+
+                console.log("Token being sent:", token);
+
+                if (!token) {
+                  console.error("No auth token found. Please login first.");
+                  return;
+                }
+
+                const res = await fetch(
+                  `http://localhost:5000/api/findOrCreateChatByProduct/${productId}`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                    credentials: "include",
+                  }
+                );
+
+                const data = await res.json();
+                const chatId = data._id;
+
+                navigate(`/chatroom/${chatId}`);
+              } catch (err) {
+                console.error("Error opening chat:", err);
+                console.log(err.message);
+              }
+            }}
+            className="flex-1 px-6 py-3 bg-white border-2 border-purple-600 text-purple-600 font-semibold rounded-2xl hover:bg-purple-50 transition text-sm md:text-base"
+          >
             Chat with Seller
           </button>
         </div>
@@ -148,8 +188,6 @@ const ProductDescription = () => {
 };
 
 export default ProductDescription;
-
-
 
 
 
@@ -230,27 +268,27 @@ export default ProductDescription;
 //             </div>
 //           )}
 
-  //  {/* Sidebar */}
-  //         <aside className="w-full lg:w-64 flex-shrink-0 space-y-6">
-  //           <div className="bg-white hidden md:block rounded-xl shadow p-4">
-  //             <h4 className="font-bold text-lg mb-4 text-purple-700">Categories</h4>
-  //             <ul className="space-y-2 text-gray-700 text-sm md:text-base">
-  //               <li>
-  //                 <Link to="/" className="hover:text-purple-600 transition">Home</Link>
-  //               </li>
-  //               {/* Add more static categories if needed */}
-  //             </ul>
-  //           </div>
+//  {/* Sidebar */}
+//         <aside className="w-full lg:w-64 flex-shrink-0 space-y-6">
+//           <div className="bg-white hidden md:block rounded-xl shadow p-4">
+//             <h4 className="font-bold text-lg mb-4 text-purple-700">Categories</h4>
+//             <ul className="space-y-2 text-gray-700 text-sm md:text-base">
+//               <li>
+//                 <Link to="/" className="hover:text-purple-600 transition">Home</Link>
+//               </li>
+//               {/* Add more static categories if needed */}
+//             </ul>
+//           </div>
 
-  //           <div className="bg-white rounded-xl hidden md:block shadow p-4 space-y-3">
-  //             <h4 className="font-bold text-lg text-purple-700">Sponsored Ads</h4>
-  //             {[...Array(2)].map((_, i) => (
-  //               <div
-  //                 key={i}
-  //                 className="bg-gray-100 h-32 md:h-40 flex items-center justify-center text-gray-500 rounded-lg text-sm md:text-base"
-  //               >
-  //                 Google Ad Space
-  //               </div>
-  //             ))}
-  //           </div>
-  //         </aside>
+//           <div className="bg-white rounded-xl hidden md:block shadow p-4 space-y-3">
+//             <h4 className="font-bold text-lg text-purple-700">Sponsored Ads</h4>
+//             {[...Array(2)].map((_, i) => (
+//               <div
+//                 key={i}
+//                 className="bg-gray-100 h-32 md:h-40 flex items-center justify-center text-gray-500 rounded-lg text-sm md:text-base"
+//               >
+//                 Google Ad Space
+//               </div>
+//             ))}
+//           </div>
+//         </aside>

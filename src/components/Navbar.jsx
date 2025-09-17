@@ -327,3 +327,51 @@ const Navbar = ({
 };
 
 export default Navbar;
+
+
+// import React, { useState } from "react";
+// import DesktopNavbar from "./DesktopNavbar";
+// import MobileTopNavbar from "./MobileTopNavbar";
+// import MobileBottomNav from "./MobileBottomNav";
+// import LocationSelector from "./LocationSelector";
+
+// const Navbar = ({ title, city = "Indore", state = "Madhya Pradesh" }) => {
+//   const [showLocationPage, setShowLocationPage] = useState(false);
+//   const [location, setLocation] = useState("");
+//   const [currentLocation, setCurrentLocation] = useState("");
+
+//   const getLocation = () => {
+//     if (navigator.geolocation) {
+//       navigator.geolocation.getCurrentPosition(async (position) => {
+//         const { latitude, longitude } = position.coords;
+//         const response = await fetch(
+//           `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+//         );
+//         const data = await response.json();
+//         const city = data.address.city || data.address.town || data.address.village;
+//         const state = data.address.state;
+//         setLocation(`${city}, ${state}`);
+//         setCurrentLocation(`${city}, ${state}`);
+//       });
+//     }
+//   };
+
+//   return (
+//     <>
+//       <DesktopNavbar title={title} city={city} state={state} />
+//       <MobileTopNavbar title={title} city={city} state={state} />
+//       <MobileBottomNav />
+//       {showLocationPage && (
+//         <LocationSelector
+//           location={location}
+//           setLocation={setLocation}
+//           setShowLocationPage={setShowLocationPage}
+//           getLocation={getLocation}
+//           currentLocation={currentLocation}
+//         />
+//       )}
+//     </>
+//   );
+// };
+
+// export default Navbar;

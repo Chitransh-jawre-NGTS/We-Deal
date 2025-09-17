@@ -16,15 +16,24 @@ const SearchPage = () => {
   const navigate = useNavigate();
 
   // Fetch all products from API
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await productApi.getAll();
-        const products = Array.isArray(response.data.products)
-          ? response.data.products
-          : [];
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const response = await productApi.getAll();
+      const products = Array.isArray(response.data.products)
+        ? response.data.products
+        : [];
 
-        if (query) {
+      if (query) {
+        // 1️⃣ First, try to match category (outside fields)
+        const categoryMatches = products.filter(
+          (p) => p.Category?.toLowerCase() === query // exact match
+        );
+
+        if (categoryMatches.length > 0) {
+          setResults(categoryMatches);
+        } else {
+          // 2️⃣ If no category matches, search by Brand, Model, or location
           const filtered = products.filter(
             (p) =>
               p.fields.Brand.toLowerCase().includes(query) ||
@@ -32,17 +41,19 @@ const SearchPage = () => {
               (p.location && p.location.toLowerCase().includes(query))
           );
           setResults(filtered);
-        } else {
-          setResults(products);
         }
-      } catch (err) {
-        console.error("Error fetching products:", err);
-        setResults([]);
+      } else {
+        setResults(products);
       }
-    };
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      setResults([]);
+    }
+  };
 
-    fetchProducts();
-  }, [query]);
+  fetchProducts();
+}, [query]);
+
 
   // Handle sorting
   const handleSort = (option) => {

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { FaTrashAlt, FaArrowLeft } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import httpClient from "../../utils/httpClient"; // your axios instance
+import { wishlistApi } from "../../api/wishlist"; // ✅ import API functions
 
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -12,8 +12,8 @@ const Wishlist = () => {
   // Fetch wishlist from backend
   const fetchWishlist = async () => {
     try {
-      const res = await httpClient.get("/wishlist");
-      setWishlist(res.data.products || []); // assuming wishlist has "products" array
+      const res = await wishlistApi.get();
+      setWishlist(res.data.products || []);
     } catch (err) {
       console.error("Error fetching wishlist:", err);
     } finally {
@@ -28,8 +28,8 @@ const Wishlist = () => {
   // Remove product from wishlist
   const removeItem = async (productId) => {
     try {
-      await httpClient.post("/wishlist/remove", { productId });
-      setWishlist(wishlist.filter((item) => item._id !== productId));
+      await wishlistApi.remove(productId);
+      setWishlist((prev) => prev.filter((item) => item._id !== productId));
     } catch (err) {
       console.error("Error removing from wishlist:", err);
     }
@@ -66,7 +66,10 @@ const Wishlist = () => {
                 className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col hover:shadow-2xl transition transform hover:-translate-y-1"
               >
                 {/* Product Image */}
-                <Link to={`/product/${item._id}`} state={{ product: item, allProducts: wishlist }}>
+                <Link
+                  to={`/product/${item._id}`}
+                  state={{ product: item, allProducts: wishlist }}
+                >
                   <img
                     src={item.images?.[0] || "/placeholder.png"}
                     alt={item.title || "Product"}

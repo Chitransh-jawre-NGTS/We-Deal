@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Clock, CheckCircle, XCircle } from "lucide-react";
 import { FaArrowLeft } from "react-icons/fa";
-import axios from "axios";
-
+import { productApi } from "../../api/product";
 
 const SellProducts = () => {
   const navigate = useNavigate();
@@ -11,35 +10,31 @@ const SellProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Example: Get userId from localStorage (or props/context if you already store it differently)
-const userId = ("68c835462d0f254471957f80"); // ✅ fixed
+  const userId = "68c835462d0f254471957f80"; // Example userId (or get from auth state)
 
-useEffect(() => {
-  const fetchUserProducts = async () => {
-    if (!userId) {
-      setError("User ID not found.");
-      setLoading(false);
-      return;
-    }
+  useEffect(() => {
+    const fetchUserProducts = async () => {
+      if (!userId) {
+        setError("User ID not found.");
+        setLoading(false);
+        return;
+      }
 
-    try {
-      setLoading(true);
-      setError("");
-      const res = await axios.get(`http://localhost:5000/api/product/68c835462d0f254471957f80`, {
-        withCredentials: true,
-      });
-      setProducts(res.data.products || []);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load products.");
-    } finally {
-      setLoading(false);
-    }
-  };
+      try {
+        setLoading(true);
+        setError("");
+        const res = await productApi.getUserProducts(userId); // ✅ Use API file
+        setProducts(res.data.products || []);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load products.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchUserProducts();
-}, [userId]);
-
+    fetchUserProducts();
+  }, [userId]);
 
   return (
     <div className="max-h-screen bg-white pt-4 pb-40 md:pt-24 md:pb-10 px-4 md:px-6 max-w-[1400px] mx-auto">

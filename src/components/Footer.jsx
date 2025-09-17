@@ -13,7 +13,7 @@ const Footer = () => {
 
    <>
       {/* Call-to-Action */}
-            <section className="py-12 md:py-16 mb-5 bg-purple-600 text-white text-center px-4">
+            <section className="py-12 md:py-16 mb-5 lg:mb-0 bg-blue-700 text-white text-center px-4">
                 <h3 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6">Start Selling Today!</h3>
                 <p className="mb-4 md:mb-6 max-w-md md:max-w-lg mx-auto text-sm md:text-base">
                     Post your first ad and reach thousands of buyers instantly.
@@ -22,7 +22,7 @@ const Footer = () => {
                     Post Free Ad
                 </button>
             </section>
-    <footer className="bg-purple-900 hidden md:block text-white py-16 px-6">
+    <footer className="bg-blue-900 hidden md:block text-white py-16 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
         {/* Brand Info */}
         <div>

@@ -5,7 +5,7 @@ import Landing from "./pages/home";
 import CategoryDetails from "./components/ProductCategory";
 import ProductDescription from "./components/ProductDescription";
 import Account from "./pages/Account/Index";
-import Orders from "./pages/Orders.jsx";
+import Orders from "./pages/Listings/index.jsx";
 import Sell from "./pages/Sell/index.jsx";
 import Wishlist from "./pages/Wishlist/page.jsx";
 import ProfileVerification from "./pages/Profile/index.jsx";
@@ -21,10 +21,12 @@ import ImageUpload from "./pages/ImageUpload/index.jsx";
 import SearchPage from "./pages/Search/index.jsx";
 
 import ProtectedRoute from "./routes/ProtectedRoutes.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 
 function App() {
   return (
     <div className="relative">
+        <ScrollToTop/>
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Landing />} />
@@ -89,7 +91,7 @@ function App() {
           }
         />
         <Route
-          path="/chat/:id"
+          path="/chatroom/:id"
           element={
             <ProtectedRoute>
               <ChatRoom />
