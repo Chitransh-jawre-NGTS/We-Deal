@@ -26,7 +26,7 @@ const Categories = () => {
   const navigate = useNavigate();
 
   const handleClick = (category) => {
-    navigate(`/category/${category.toLowerCase()}`);
+    navigate(`/categorydetails`);
   };
 
   // Duplicate categories for infinite scroll effect

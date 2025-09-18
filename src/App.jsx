@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 
 import Landing from "./pages/home";
-import CategoryDetails from "./components/ProductCategory";
+import CategoryDetails from "./components/CategoryDetails.jsx";
 import ProductDescription from "./components/ProductDescription";
 import Account from "./pages/Account/Index";
 import Orders from "./pages/Listings/index.jsx";
@@ -22,6 +22,7 @@ import SearchPage from "./pages/Search/index.jsx";
 
 import ProtectedRoute from "./routes/ProtectedRoutes.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
+import AboutUs from "./pages/aboutus/index.jsx";
 
 function App() {
   return (
@@ -30,7 +31,7 @@ function App() {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Landing />} />
-        <Route path="/category/:category" element={<CategoryDetails />} />
+        <Route path="/categorydetails" element={<CategoryDetails />} />
         <Route
           path="/product/:productId"
           element={<ProductDescription />}
@@ -40,6 +41,7 @@ function App() {
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/help" element={<ChatbotPage />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/aboutus" element={<AboutUs/>} />
 
         {/* ✅ Protected routes */}
         <Route

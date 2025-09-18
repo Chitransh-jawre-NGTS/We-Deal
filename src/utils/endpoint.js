@@ -1,24 +1,4 @@
-// // src/api/endpoints.js
-// const endpoints = {
-//   auth: {
-//     sendOtp: "/auth/send-otp",
-//     verifyOtp: "/auth/verify-otp",
-//   },
-//   user: {
-//     profile: "/user/profile",
-//   },
-//   product: {
-//     list: "/get-products",
-//     create: "/create",
-//     byId: (id) => `/product/${id}`,
-//     update: (id) => `/update/${id}`,
-//     delete: (id) => `/delete/${id}`,
-//     userProducts: "/user-products",
-//   },
-// };
-
-// export default endpoints;
-
+// src/api/endpoints.js
 const API_BASE = "/api";
 
 const endpoints = {
@@ -38,6 +18,9 @@ const endpoints = {
     userProducts: (userId) => `${API_BASE}/product/${userId}`,
   },
   chat: {
+    // ✅ Marketplace chat endpoints
+    findOrCreateByProduct: (productId) =>
+      `${API_BASE}/chat/findOrCreateChatByProduct/${productId}`,
     byId: (chatId) => `${API_BASE}/${chatId}`,
     list: `${API_BASE}/chats`,
   },

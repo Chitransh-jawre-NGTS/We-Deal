@@ -1,22 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { FaArrowLeft, FaPaperPlane, FaUserCircle } from "react-icons/fa";
 import { socket } from "../utils/socket";
-import { chatApi } from "../api/chatApi"; // ✅ import API
+import { chatApi } from "../api/chatApi";
 
 const ChatRoom = () => {
   const { id: chatId } = useParams();
   const userId = localStorage.getItem("_Id");
   const [messages, setMessages] = useState([]);
   const [newMsg, setNewMsg] = useState("");
+  const messagesEndRef = useRef(null);
 
-  // Fetch previous messages from backend
+  // Scroll to bottom whenever messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(scrollToBottom, [messages]);
+
+  // Fetch previous messages
   const fetchMessages = async () => {
     try {
-      const res = await chatApi.getMessages(chatId); // ✅ use API
+      const res = await chatApi.getMessages(chatId);
       setMessages(res.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch messages:", err);
     }
   };
 
@@ -25,34 +33,45 @@ const ChatRoom = () => {
 
     fetchMessages();
 
+    // Connect to socket
     socket.connect();
     socket.emit("joinChat", chatId);
 
-    socket.on("receiveMessage", (msg) => {
+    // Listen for incoming messages
+    const handleReceiveMessage = (msg) => {
       setMessages((prev) => [...prev, msg]);
-    });
+    };
+    socket.on("receiveMessage", handleReceiveMessage);
 
+    // Cleanup on unmount
     return () => {
-      socket.off("receiveMessage");
+      socket.off("receiveMessage", handleReceiveMessage);
       socket.disconnect();
     };
   }, [chatId]);
 
   const sendMessage = async () => {
-  if (!newMsg.trim()) return;
+    const text = newMsg.trim();
+    if (!text) return;
 
-  const message = { chatId, text: newMsg }; // remove sender
-  socket.emit("sendMessage", message);
+    const message = { chatId, text, sender: userId };
 
-  try {
-    await chatApi.sendMessage(chatId, { text: newMsg }); // only send text
-  } catch (err) {
-    console.error("Failed to send message to backend:", err);
-  }
+    // Optimistic UI update
+    setMessages((prev) => [...prev, message]);
+    setNewMsg("");
 
-  setNewMsg("");
-};
+    socket.emit("sendMessage", message);
 
+    try {
+      await chatApi.sendMessage(chatId, { text });
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    }
+  };
+
+  const handleEnterPress = (e) => {
+    if (e.key === "Enter") sendMessage();
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -69,10 +88,10 @@ const ChatRoom = () => {
 
       {/* Messages */}
       <div className="flex-1 p-4 overflow-y-auto space-y-3">
-        {messages.map((msg) => (
+        {messages.map((msg, idx) => (
           <div
-            key={msg._id || msg.id}
-            className={`max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl shadow-sm ${
+            key={msg._id || msg.id || idx}
+            className={`max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl shadow-sm break-words ${
               msg.sender === userId
                 ? "ml-auto bg-blue-600 text-white rounded-br-none"
                 : "mr-auto bg-gray-200 text-gray-800 rounded-bl-none"
@@ -81,6 +100,7 @@ const ChatRoom = () => {
             {msg.text}
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
@@ -89,12 +109,18 @@ const ChatRoom = () => {
           type="text"
           value={newMsg}
           onChange={(e) => setNewMsg(e.target.value)}
+          onKeyDown={handleEnterPress}
           placeholder="Type a message..."
           className="flex-1 border rounded-full px-4 py-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           onClick={sendMessage}
-          className="bg-blue-600 text-white p-3 rounded-full hover:bg-blue-700 transition"
+          disabled={!newMsg.trim()}
+          className={`p-3 rounded-full transition ${
+            newMsg.trim()
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-gray-300 text-gray-600 cursor-not-allowed"
+          }`}
         >
           <FaPaperPlane />
         </button>

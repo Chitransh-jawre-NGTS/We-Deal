@@ -32,7 +32,7 @@ const CategoryForm = () => {
     }
 
     setError(""); // clear error if valid
-    navigate("/upload-images", { state: { formValues } });
+    navigate("/upload-images", { state: { formValues , category: slug  } });
   };
 
   if (!category) {

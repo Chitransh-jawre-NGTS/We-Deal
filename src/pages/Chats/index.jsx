@@ -142,6 +142,10 @@
 // };
 
 // export default Chats;
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaSearch, FaEllipsisV, FaShoppingBag } from "react-icons/fa";
@@ -174,7 +178,10 @@ const Chats = () => {
   const handleDelete = (id) => alert(`Delete chat with ID: ${id}`);
   const handleBlock = (id) => alert(`Block chat with ID: ${id}`);
 
-  if (loading) return <p className="text-center mt-20 text-gray-500">Loading chats...</p>;
+  if (loading)
+    return (
+      <p className="text-center mt-20 text-gray-500">Loading chats...</p>
+    );
 
   return (
     <>
@@ -196,7 +203,8 @@ const Chats = () => {
               <FaShoppingBag className="text-6xl text-blue-400" />
               <h2 className="text-2xl font-semibold">No chats yet</h2>
               <p className="text-gray-400 max-w-xs">
-                You currently don’t have any chats. Browse listings and start conversations with sellers!
+                You currently don’t have any chats. Browse listings and start
+                conversations with sellers!
               </p>
               <Link
                 to="/"
@@ -211,17 +219,29 @@ const Chats = () => {
                 key={chat._id}
                 className="flex items-center gap-3 p-4 border-b bg-white hover:bg-blue-50 transition relative"
               >
-                <Link to={`/chatroom/${chat._id}`} className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-gray-800 truncate">{chat.name}</h4>
-                  <p className="text-sm text-gray-600 truncate">
-                    {chat.lastMessage?.text || ""}
-                  </p>
+                <Link to={`/chatroom/${chat._id}`} className="flex-1 min-w-0 flex items-center gap-3">
+                  {/* Avatar */}
+                  <img
+                    src={chat.avatar || "/default-avatar.png"}
+                    alt={chat.name}
+                    className="w-20 h-20  object-cover"
+                  />
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-gray-800 truncate">
+                      {chat.name}
+                    </h4>
+                    <p className="text-sm text-gray-600 truncate">
+                      {chat.lastMessage?.text || ""}
+                    </p>
+                  </div>
                 </Link>
 
                 <div className="relative ml-3">
                   <FaEllipsisV
                     className="text-gray-600 cursor-pointer"
-                    onClick={() => setMenuOpen(menuOpen === chat._id ? null : chat._id)}
+                    onClick={() =>
+                      setMenuOpen(menuOpen === chat._id ? null : chat._id)
+                    }
                   />
                   {menuOpen === chat._id && (
                     <div className="absolute right-0 top-6 w-32 bg-white shadow-md rounded-md text-sm z-50">

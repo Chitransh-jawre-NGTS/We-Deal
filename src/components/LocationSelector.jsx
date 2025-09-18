@@ -2,7 +2,13 @@ import React from "react";
 import { ArrowLeft } from "lucide-react";
 import { FaSearch, FaMapMarkerAlt } from "react-icons/fa";
 
-const LocationSelector = ({ location, setLocation, setShowLocationPage, getLocation, currentLocation }) => {
+const LocationSelector = ({
+  location,
+  setLocation,
+  setShowLocationPage,
+  getLocation,
+  currentLocation,
+}) => {
   return (
     <div className="fixed inset-0 bg-white z-[9999] flex flex-col">
       <div className="flex items-center gap-3 px-4 py-3 border-b shadow-sm">
@@ -27,7 +33,7 @@ const LocationSelector = ({ location, setLocation, setShowLocationPage, getLocat
 
       <div className="p-4">
         <button
-          onClick={getLocation}
+          onClick={getLocation} // uses Navbar's getLocation
           className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700"
         >
           <FaMapMarkerAlt />
@@ -35,7 +41,11 @@ const LocationSelector = ({ location, setLocation, setShowLocationPage, getLocat
         </button>
       </div>
 
-      {currentLocation && <div className="px-4 py-2 text-gray-700 text-sm">{location && <p className="mt-4">📍 {location}</p>}</div>}
+      {currentLocation && location && (
+        <div className="px-4 py-2 text-gray-700 text-sm">
+          <p className="mt-4">📍 {location}</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -82,5 +82,54 @@ export const categoryData = {
       { name: "Storage", type: "select", options: ["64GB", "128GB", "256GB", "512GB", "1TB"] },
       { name: "Price", type: "text" }
     ]
+  },
+
+  furniture: {
+    fields: [
+      { name: "Type", type: "select", options: ["Sofa", "Bed", "Dining Table", "Chair", "Cupboard", "Desk"] },
+      { name: "Material", type: "select", options: ["Wood", "Metal", "Plastic", "Leather", "Fabric"] },
+      { name: "Condition", type: "select", options: ["New", "Used - Like New", "Used - Good", "Used - Acceptable"] },
+      { name: "Price", type: "text" }
+    ]
+  },
+
+  electronics: {
+    fields: [
+      { name: "Type", type: "select", options: ["Laptop", "TV", "Tablet", "Camera", "Headphones", "Speakers"] },
+      { name: "Brand", type: "text" },
+      { name: "Model", type: "text" },
+      { name: "Condition", type: "select", options: ["New", "Used"] },
+      { name: "Price", type: "text" }
+    ]
+  },
+
+  "home-appliances": {
+    fields: [
+      { name: "Type", type: "select", options: ["Refrigerator", "Washing Machine", "Microwave", "AC", "Water Purifier"] },
+      { name: "Brand", type: "text" },
+      { name: "Model", type: "text" },
+      { name: "Condition", type: "select", options: ["New", "Used"] },
+      { name: "Price", type: "text" }
+    ]
+  },
+
+  jobs: {
+    fields: [
+      { name: "Role", type: "text" },
+      { name: "Company", type: "text" },
+      { name: "Experience Required", type: "text" },
+      { name: "Salary", type: "text" },
+      { name: "Location", type: "text" }
+    ]
+  },
+
+  fashion: {
+    fields: [
+      { name: "Type", type: "select", options: ["Men", "Women", "Kids"] },
+      { name: "Category", type: "select", options: ["Clothing", "Footwear", "Accessories"] },
+      { name: "Brand", type: "text" },
+      { name: "Size", type: "text" },
+      { name: "Price", type: "text" }
+    ]
   }
 };

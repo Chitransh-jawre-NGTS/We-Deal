@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaHeart, FaArrowLeft } from "react-icons/fa";
+import { FaHeart, FaArrowLeft, FaSearch, FaTimes } from "react-icons/fa";
 import { productApi } from "../../api/product";
 import FilterBar from "../../components/FilterBar";
+import Navbar from "../../components/Navbar";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -80,27 +81,40 @@ useEffect(() => {
 
   return (
     <>
-      {/* Top Bar */}
-      <div className="flex bg-white md-hidden sticky top-0 z-50">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-full hover:bg-gray-100 transition"
-        >
-          <FaArrowLeft className="text-gray-700" />
-        </button>
-        <form
-          onSubmit={handleSearchSubmit}
-          className="flex-1 flex items-center bg-gray-100 rounded-full px-3 py-2 shadow-inner"
-        >
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search for products or locations..."
-            className="w-full border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
-        </form>
-      </div>
+      <Navbar ShowMobileTop={false}/>
+     <div className="flex items-center bg-white sticky top-0 z-50 px-4 py-3 shadow-md">
+  {/* Back Button */}
+  <button
+    onClick={() => navigate(-1)}
+    className="p-2 rounded-full hover:bg-gray-100 transition"
+  >
+    <FaArrowLeft className="text-gray-700 text-lg" />
+  </button>
+
+  {/* Search Form */}
+  <form
+    onSubmit={handleSearchSubmit}
+    className="flex-1 relative flex items-center ml-3"
+  >
+    <FaSearch className="absolute left-3 text-gray-400 pointer-events-none" />
+    <input
+      type="text"
+      value={searchInput}
+      onChange={(e) => setSearchInput(e.target.value)}
+      placeholder="Search for products or locations..."
+      className="w-full pl-10 pr-10 py-2 rounded-full bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-inner"
+    />
+    {searchInput && (
+      <button
+        type="button"
+        onClick={() => setSearchInput("")}
+        className="absolute right-3 text-gray-500 hover:text-gray-700 transition"
+      >
+        <FaTimes />
+      </button>
+    )}
+  </form>
+</div>
 
       <FilterBar sortOption={sortOption} handleSort={handleSort} />
 

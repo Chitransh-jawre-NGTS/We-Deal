@@ -159,7 +159,7 @@ const ListingsPage = () => {
             ? products.map((item) => (
                 <div
                   key={item._id}
-                  className="relative bg-white border p-2 border-purple-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
+                  className="relative bg-white border p-2 border-blue-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
                 >
                   <FaHeart
                     onClick={() => toggleWishlist(item._id)}
@@ -177,13 +177,14 @@ const ListingsPage = () => {
                     }
                   />
                   <div className="md:p-4">
+                     <p className=" font-semibold text-lg md:text-base">
+                      ₹{Number(item.fields.Price).toLocaleString()}
+                    </p>
                     <h4 className="text-base md:text-lg font-bold mb-1">
                       {item.fields.Brand} {item.fields.Model}
                     </h4>
-                    <p className="text-purple-600 font-semibold text-sm md:text-base">
-                      ₹{Number(item.fields.Price).toLocaleString()}
-                    </p>
-                    <p className="text-gray-500 text-sm mb-1">Year: {item.fields.Year}</p>
+                   
+              <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
                     <p className="text-gray-400 text-xs">
                       Published: {new Date(item.createdAt).toLocaleDateString()}
                     </p>
