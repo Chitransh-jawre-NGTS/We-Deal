@@ -1,10 +1,10 @@
-// src/pages/Account.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
 import { logout } from "../../redux/slices/authSlice";
 import { cookies } from "../../utils/cookies";
+import { userApi } from "../../api/auth";
 import {
   User,
   ShoppingBag,
@@ -28,23 +28,40 @@ const menuItems = [
 const Account = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch user profile from API
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await userApi.getProfile();
+        setUser(res.data);
+      } catch (err) {
+        console.error("Failed to fetch profile", err);
+        toast.error("Failed to load user profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleLogout = () => {
-    // Clear Redux state
     dispatch(logout());
-
-    // Clear cookies
     cookies.remove("token");
-
-    // Clear localStorage
     localStorage.removeItem("token");
-
-    // Optional toast
     toast.success("Logged out successfully");
-
-    // Redirect to login
-    navigate("/");
+    navigate("/login");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        Loading profile...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -63,19 +80,17 @@ const Account = () => {
 
       {/* Profile Banner */}
       <section className="text-white pb-8 pt-2 px-4">
-        <div className="max-w-7xl mx-auto flex border border-blue-500 rounded-2xl p-2 items-center gap-6">
-          <div className="w-20 h-20 bg-red-200 border border-blue-300 rounded-full overflow-hidden flex-shrink-0">
+        <div className="max-w-7xl mx-auto flex border border-blue-500 rounded-2xl p-2 items-center gap-6 bg-white">
+          <div className="w-20 h-20 bg-gray-200 border border-blue-300 rounded-full overflow-hidden flex-shrink-0">
             <img
-              src="https://i.pravatar.cc/150?img=12"
-              alt="User Avatar"
+              src={user?.avatar || "https://via.placeholder.com/150"}
+              alt={user?.name || "User Avatar"}
               className="w-full h-full object-cover"
             />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-700">John Doe</h2>
-            <p className="text-sm opacity-90 text-gray-700">
-              johndoe@example.com
-            </p>
+            <h2 className="text-2xl font-bold text-gray-700">{user?.name || "No Name"}</h2>
+            <p className="text-sm opacity-90 text-gray-700">{user?.email || "No Email"}</p>
           </div>
         </div>
       </section>

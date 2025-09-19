@@ -23,8 +23,11 @@ import SearchPage from "./pages/Search/index.jsx";
 import ProtectedRoute from "./routes/ProtectedRoutes.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import AboutUs from "./pages/aboutus/index.jsx";
+import SellerPage from "./pages/sellerpage.jsx/index.jsx";
+import Settings from "./pages/settings/index.jsx";
 
 function App() {
+
   return (
     <div className="relative">
         <ScrollToTop/>
@@ -42,6 +45,9 @@ function App() {
         <Route path="/help" element={<ChatbotPage />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/aboutus" element={<AboutUs/>} />
+        <Route path="/seller/:sellerId" element={<SellerPage />} />
+        <Route path="/settings" element={<Settings />} />
+
 
         {/* ✅ Protected routes */}
         <Route

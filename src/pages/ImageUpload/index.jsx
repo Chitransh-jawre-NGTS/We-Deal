@@ -1,3 +1,4 @@
+// src/pages/ImageUpload.jsx
 import React, { useState } from "react";
 import { FaArrowLeft, FaTrash } from "react-icons/fa";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -12,6 +13,12 @@ const ImageUpload = () => {
 
   const formDataObj = location.state?.formValues || {};
   const category = location.state?.category || "general";
+  let coords = location.state?.coords || null; // coordinates passed
+
+  // ✅ Fallback to city center if coords missing
+  if (!coords) {
+    coords = { longitude: 75.8577, latitude: 22.7196 }; // Indore center
+  }
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -39,6 +46,15 @@ const ImageUpload = () => {
       const formData = new FormData();
       formData.append("fields", JSON.stringify(formDataObj));
       formData.append("category", category);
+
+      // ✅ Always append valid coordinates
+      formData.append(
+        "location",
+        JSON.stringify({
+          type: "Point",
+          coordinates: [coords.longitude, coords.latitude],
+        })
+      );
 
       images.forEach((img) => formData.append("images", img));
 

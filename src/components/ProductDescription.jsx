@@ -2,8 +2,13 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaArrowLeft, FaSearch } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaSearch } from "react-icons/fa";
 import Navbar from "./Navbar";
+import { chatApi } from "../api/chatApi"; // ✅ import the object
+
+// ...
+
+
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -34,8 +39,8 @@ const ProductDescription = () => {
   return (
     <>
       {/* Topbar */}
-      {/* <Navbar showBottomNav={false} showMobileMenu={false}/> */}
-      <div className="flex bg-white sticky top-0 z-50 shadow-sm px-3 py-2 items-center gap-2">
+      <Navbar showBottomNav={false} showMobileMenu={false} ShowMobileTop={false} />
+      <div className="flex bg-white md:hidden sticky top-0 z-50 shadow-sm px-3 py-2 items-center gap-2">
         <button
           onClick={() => navigate(-1)}
           className="p-2 rounded-full hover:bg-gray-100 transition"
@@ -111,6 +116,80 @@ const ProductDescription = () => {
                 {product.description || "No description provided."}
               </p>
             </div>
+
+            {/* Buttons */}
+            <div className="flex flex-wrap gap-4 mt-4">
+              <button className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition">
+                Make a Deal
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const productId = product._id;
+                    let token = localStorage.getItem("token");
+                    if (!token) {
+                      const match = document.cookie.match(/token=([^;]+)/);
+                      token = match ? match[1] : null;
+                    }
+
+                    const data = await findOrCreateByProduct(productId, token); // ✅ Fixed function call
+                    const chatId = data._id;
+                    navigate(`/chatroom/${chatId}`);
+                  } catch (err) {
+                    console.error("Error opening chat:", err);
+                    alert(err.message);
+                  }
+                }}
+                className="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition"
+              >
+                Chat
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Seller Section */}
+        <section className="px-4 md:px-16 max-w-7xl mx-auto mb-6">
+          <div
+            onClick={() => navigate(`/seller/${product.sellerId}`)}
+            className="flex items-center justify-between bg-white p-4 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition"
+          >
+            <div className="flex items-center gap-4">
+              {/* Seller Avatar */}
+              <img
+                src={product.seller?.avatar || "/placeholder-avatar.png"}
+                alt={product.seller?.name || "Seller"}
+                className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover border"
+              />
+              {/* Seller Name */}
+              <div>
+                <p className="text-gray-800 font-semibold text-sm md:text-base">
+                  {product.seller?.name || "Unknown Seller"}
+                </p>
+                <p className="text-gray-500 text-xs md:text-sm">View Seller Details</p>
+              </div>
+            </div>
+            {/* Right Arrow Icon */}
+            <FaArrowRight className="text-gray-400 text-lg md:text-xl" />
+          </div>
+        </section>
+
+        {/* Report Ad Section */}
+        <section className="px-4 md:px-16 max-w-7xl mx-auto mb-6">
+          <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-md">
+            <div>
+              <p className="text-gray-500 text-sm md:text-base">
+                Ad ID: <span className="font-mono text-gray-800">{product._id}</span>
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                alert(`Ad ID ${product._id} reported!`);
+              }}
+              className="px-4 py-2 bg-red-600 text-white text-sm md:text-base rounded-xl hover:bg-red-700 transition"
+            >
+              Report Ad
+            </button>
           </div>
         </section>
 
@@ -122,13 +201,15 @@ const ProductDescription = () => {
           <div className="w-full h-64 md:h-96 lg:h-[28rem] rounded-xl overflow-hidden shadow-md border">
             <iframe
               title="Product Location"
-              src={`https://www.google.com/maps?q=${encodeURIComponent(
-                "Indore, Madhya Pradesh"
-              )}&output=embed`}
+              src={
+                product.location?.coordinates
+                  ? `https://www.google.com/maps?q=${product.location.coordinates[1]},${product.location.coordinates[0]}&output=embed`
+                  : "https://www.google.com/maps?q=0,0&output=embed"
+              }
               className="w-full h-full border-0"
               allowFullScreen=""
               loading="lazy"
-            ></iframe>
+            />
           </div>
           <p className="mt-2 text-sm md:text-base text-gray-600">Indore, Madhya Pradesh</p>
         </section>
@@ -149,32 +230,12 @@ const ProductDescription = () => {
                   token = match ? match[1] : null;
                 }
 
-                console.log("Token being sent:", token);
-
-                if (!token) {
-                  console.error("No auth token found. Please login first.");
-                  return;
-                }
-
-                const res = await fetch(
-                  `http://localhost:5000/api/findOrCreateChatByProduct/${productId}`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${token}`,
-                    },
-                    credentials: "include",
-                  }
-                );
-
-                const data = await res.json();
+                const data = await chatApi.findOrCreateByProduct(productId, token);// ✅ Fixed function call
                 const chatId = data._id;
-
                 navigate(`/chatroom/${chatId}`);
               } catch (err) {
                 console.error("Error opening chat:", err);
-                console.log(err.message);
+                alert(err.message);
               }
             }}
             className="flex-1 px-6 py-3 bg-white border-2 border-purple-600 text-purple-600 font-semibold rounded-2xl hover:bg-purple-50 transition text-sm md:text-base"
@@ -188,11 +249,6 @@ const ProductDescription = () => {
 };
 
 export default ProductDescription;
-
-
-
-
-
 
 
 

@@ -5,28 +5,50 @@ import Navbar from "../../components/Navbar";
 
 const Store = () => {
   return (
-   <>
-   <Navbar/>
-    <div className="h-100 flex flex-col items-center justify-center bg-gray-50 px-6 text-center">
-      <div className="bg-white shadow-md rounded-2xl p-8 max-w-md w-full">
-        <div className="flex justify-center mb-4">
-          <div className="w-20 h-20 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full">
-            <FaStore className="text-4xl" />
+    <>
+      <Navbar />
+      <div
+        className="min-h-screen flex flex-col items-center justify-center px-6 text-center relative bg-cover bg-center"
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1502877338535-766e1452684a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1740&q=80')",
+        }}
+      >
+        {/* Gradient Overlay for readability */}
+        <div className="absolute inset-0 bg-black/40"></div>
+
+        {/* Content */}
+        <div className="relative z-10 bg-white/40 backdrop-blur-md shadow-2xl rounded-3xl p-8 md:p-12 max-w-lg w-full transform transition duration-300 hover:scale-105">
+          {/* Icon Section */}
+          <div className="flex justify-center mb-6">
+            <div className="w-24 h-24 flex items-center justify-center bg-blue-100 text-blue-600 rounded-full shadow-inner">
+              <FaStore className="text-5xl animate-bounce" />
+            </div>
           </div>
+
+          {/* Title */}
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-4">
+            Not Serving in Your Area Yet
+          </h1>
+
+          {/* Subtitle */}
+          <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-8">
+            Don’t worry, we’re expanding quickly 🚀  
+            Soon we’ll be available in your city to serve you better.
+          </p>
+
+          {/* Coming Soon Button */}
+          <button className="w-full py-3 flex items-center justify-center gap-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 transition-all duration-300">
+            <FaClock className="animate-spin-slow" />
+            Coming Soon
+          </button>
         </div>
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          Not Serving in Your Area Yet
-        </h1>
-        <p className="text-gray-600 text-sm leading-relaxed mb-6">
-          Don’t worry, we’re expanding quickly 🚀  
-          Soon we’ll be available in your city to serve you better.
+
+        {/* Footer / Extra Note */}
+        <p className="relative z-10 mt-10 text-white/80 text-sm">
+          📍 Stay tuned for updates in your area.
         </p>
-        <button className="w-full py-2 flex items-center justify-center gap-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition">
-          <FaClock />
-          Coming Soon
-        </button>
       </div>
-    </div>
     </>
   );
 };

@@ -28,8 +28,8 @@ httpClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       console.error("Unauthorized! Redirect to login.");
-      storage.remove("token");
-      storage.remove("user");
+      // storage.remove("token");
+      // storage.remove("user");
       // window.location.href = "/login";
     }
     return Promise.reject(error);

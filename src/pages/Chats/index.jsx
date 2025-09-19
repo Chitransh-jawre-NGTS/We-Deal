@@ -185,10 +185,10 @@ const Chats = () => {
 
   return (
     <>
-      <Navbar showTopBar={false} showMobileMenu={false} />
+      <Navbar showTopBar={false} ShowMobileTop={false} showMobileMenu={false} />
       <div className="min-h-screen bg-gray-100 flex flex-col">
         {/* Header */}
-        <header className="text-white px-4 py-3 flex items-center justify-between shadow-md sticky top-0 z-50">
+        <header className="text-white md:hidden px-4 py-3 flex items-center justify-between shadow-md sticky top-0 z-50">
           <h1 className="text-3xl font-bold text-gray-700">Chats</h1>
           <div className="flex items-center gap-4 text-xl">
             <FaSearch className="cursor-pointer hover:text-gray-200 transition" />

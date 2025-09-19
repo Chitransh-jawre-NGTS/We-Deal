@@ -44,7 +44,7 @@ const CategoryPage = () => {
       <div className="flex h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
         {/* Sidebar (Always visible on large, scroll on small/medium) */}
         <aside
-          className=" w-30  lg:max-w-54 bg-white/80 backdrop-blur-xl border-r border-gray-200 
+          className=" w-30  lg:w-64 bg-white/80 backdrop-blur-xl border-r border-gray-200 
           p-4 overflow-y-auto shadow-lg flex flex-col items-center space-y-6 
           scrollbar-hide"
         >

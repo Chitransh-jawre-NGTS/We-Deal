@@ -1,181 +1,168 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { CheckCircle, User, Phone, Briefcase, Shield } from "lucide-react";
-
-const steps = [
-  { id: 1, title: "Basic Info", icon: User },
-  { id: 2, title: "Contact Info", icon: Phone },
-  { id: 3, title: "Business Details", icon: Briefcase },
-  { id: 4, title: "Verification", icon: Shield },
-];
+import { FaUser, FaEnvelope, FaIdCard, FaUpload, FaPhone } from "react-icons/fa";
+import { storage } from "../../utils/localstorage";
+import { userApi } from "../../api/auth"; // ✅ using userApi
 
 const ProfileVerification = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+  const user = storage.get("user"); // ✅ from localStorage
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    shopName: "",
-    document: "",
+    name: user?.name || "",
+    email: user?.email || "",
+    aadhaarNumber: user?.aadhaarNumber || "",
   });
+  const [avatar, setAvatar] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const nextStep = () => {
-    if (currentStep < steps.length) setCurrentStep(currentStep + 1);
+  const handleFileChange = (e) => {
+    setAvatar(e.target.files[0]);
   };
 
-  const prevStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const isComplete = currentStep > steps.length;
+    const user = storage.get("user");
+    if (!user || !user._id) return alert("Login required");
+
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("email", formData.email);
+    data.append("aadhaarNumber", formData.aadhaarNumber);
+    if (avatar) data.append("avatar", avatar);
+
+    try {
+      const res = await userApi.updateProfile(user._id, data);
+      alert("Profile updated successfully!");
+      storage.set("user", res.data); // update local storage
+    } catch (err) {
+      console.error(err);
+      alert("Profile update failed");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-10 md:px-10 flex flex-col items-center">
-      {/* Progress Bar */}
-      <div className="w-full max-w-2xl mb-10">
-        <div className="flex justify-between items-center mb-2">
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            return (
-              <div
-                key={step.id}
-                className={`flex flex-col items-center text-sm ${
-                  currentStep > step.id || isComplete
-                    ? "text-green-600"
-                    : currentStep === step.id
-                    ? "text-blue-600"
-                    : "text-gray-400"
-                }`}
-              >
-                <Icon className="w-6 h-6" />
-                <span>{step.title}</span>
-              </div>
-            );
-          })}
-        </div>
-        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-          <motion.div
-            className="h-2 bg-blue-600"
-            initial={{ width: 0 }}
-            animate={{
-              width: isComplete
-                ? "100%"
-                : `${((currentStep - 1) / steps.length) * 100}%`,
-            }}
-            transition={{ duration: 0.5 }}
-          />
+    <div className="min-h-screen flex flex-col items-center bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 p-6">
+      
+      {/* Display All User Data */}
+      <div className="bg-white/20 backdrop-blur-lg shadow-xl rounded-2xl p-6 w-full max-w-2xl mb-6 text-white">
+        <h2 className="text-2xl font-bold mb-4 text-center">Your Profile Info</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <strong>Name:</strong> {user?.name || "N/A"}
+          </div>
+          <div>
+            <strong>Email:</strong> {user?.email || "N/A"}
+          </div>
+          <div>
+            <strong>Phone:</strong> {user?.phone || "N/A"}
+          </div>
+          <div>
+            <strong>Aadhaar:</strong> {user?.aadhaarNumber || "N/A"}
+          </div>
+          <div className="col-span-2">
+            <strong>Avatar:</strong>
+            <img
+              src={user?.avatar || "https://via.placeholder.com/150"}
+              alt="Avatar"
+              className="w-24 h-24 rounded-full mt-2 border-2 border-white object-cover"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Step Form */}
-      {!isComplete ? (
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white shadow-lg rounded-xl p-6 w-full max-w-lg"
-        >
-          {currentStep === 1 && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Basic Info</h2>
-              <input
-                type="text"
-                name="name"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg mb-3"
-              />
-              <input
-                type="email"
-                name="email"
-                placeholder="Email Address"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-              />
-            </div>
-          )}
+      {/* Existing Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white/10 backdrop-blur-lg shadow-2xl rounded-2xl p-8 w-full max-w-lg text-white"
+      >
+        <h2 className="text-2xl font-bold mb-6 text-center">
+          Update Your Profile
+        </h2>
 
-          {currentStep === 2 && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Contact Info</h2>
-              <input
-                type="text"
-                name="phone"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-              />
-            </div>
-          )}
+        {/* Avatar Upload */}
+        <div className="mb-6 text-center">
+          <label htmlFor="avatar" className="cursor-pointer block">
+            <img
+              src={
+                avatar
+                  ? URL.createObjectURL(avatar)
+                  : user?.avatar || "https://via.placeholder.com/150"
+              }
+              alt="Avatar"
+              className="w-28 h-28 rounded-full mx-auto mb-3 object-cover border-4 border-white shadow-md hover:scale-105 transition"
+            />
+            <span className="flex items-center justify-center gap-2 text-sm bg-white/20 px-4 py-2 rounded-lg hover:bg-white/30 transition">
+              <FaUpload /> Upload Avatar
+            </span>
+          </label>
+          <input
+            type="file"
+            id="avatar"
+            name="avatar"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </div>
 
-          {currentStep === 3 && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Business Details</h2>
-              <input
-                type="text"
-                name="shopName"
-                placeholder="Shop/Business Name"
-                value={formData.shopName}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg"
-              />
-            </div>
-          )}
-
-          {currentStep === 4 && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Upload Verification</h2>
-              <input
-                type="file"
-                name="document"
-                onChange={(e) =>
-                  setFormData({ ...formData, document: e.target.files[0] })
-                }
-                className="w-full p-3 border rounded-lg"
-              />
-            </div>
-          )}
-
-          {/* Buttons */}
-          <div className="flex justify-between mt-6">
-            <button
-              onClick={prevStep}
-              disabled={currentStep === 1}
-              className="px-4 py-2 rounded-md border text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-            >
-              Back
-            </button>
-            <button
-              onClick={nextStep}
-              className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              {currentStep === steps.length ? "Finish" : "Next"}
-            </button>
+        {/* Name */}
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium">Full Name</label>
+          <div className="flex items-center bg-white/20 rounded-lg px-3">
+            <FaUser className="text-gray-200 mr-2" />
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter full name"
+              className="w-full bg-transparent border-none py-2 text-white placeholder-gray-300 focus:outline-none"
+            />
           </div>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="bg-white p-10 rounded-xl shadow-lg text-center max-w-md"
+        </div>
+
+        {/* Email */}
+        <div className="mb-4">
+          <label className="block mb-1 text-sm font-medium">Email</label>
+          <div className="flex items-center bg-white/20 rounded-lg px-3">
+            <FaEnvelope className="text-gray-200 mr-2" />
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter email"
+              className="w-full bg-transparent border-none py-2 text-white placeholder-gray-300 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Aadhaar */}
+        <div className="mb-6">
+          <label className="block mb-1 text-sm font-medium">
+            Aadhaar Number
+          </label>
+          <div className="flex items-center bg-white/20 rounded-lg px-3">
+            <FaIdCard className="text-gray-200 mr-2" />
+            <input
+              type="text"
+              name="aadhaarNumber"
+              value={formData.aadhaarNumber}
+              onChange={handleChange}
+              placeholder="Enter Aadhaar Number"
+              className="w-full bg-transparent border-none py-2 text-white placeholder-gray-300 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-gradient-to-r from-pink-500 to-yellow-500 py-3 rounded-lg font-semibold shadow-lg hover:opacity-90 transition"
         >
-          <CheckCircle className="w-14 h-14 text-green-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Profile Verified
-          </h2>
-          <p className="text-gray-600">You’ve successfully completed your profile!</p>
-          <span className="inline-block mt-4 px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-            ✅ Verified Badge Granted
-          </span>
-        </motion.div>
-      )}
+          Save Changes
+        </button>
+      </form>
     </div>
   );
 };

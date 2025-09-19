@@ -6,7 +6,7 @@ import { wishlistApi } from "../api/wishlist"; // your wishlist API
 import httpClient from "../utils/httpClient"; // if using axios instance
 
 
-  const categoriesList = [
+const categoriesList = [
   "Mobiles",
   "Cars",
   "Furniture",
@@ -107,32 +107,32 @@ const ListingsPage = () => {
       {/* Sidebar */}
       <aside className="w-full lg:w-64 flex-shrink-0 space-y-6">
 
-      <div className="bg-white rounded-2xl hidden  lg:block shadow-xl p-6">
-  <h4 className="font-extrabold text-xl mb-5 text-purple-700 tracking-wide">
-    Categories
-  </h4>
-  <ul className="space-y-3">
-    {categoriesList.map((cat, idx) => (
-      <li key={idx}>
-        <Link
-          to={`/category/${cat.toLowerCase()}`}
-          className="flex items-center justify-between px-4 py-2 rounded-xl hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg group"
-        >
-          <span className="font-medium group-hover:font-semibold">{cat}</span>
-          <svg
-            className="w-4 h-4 text-purple-500 group-hover:text-white transition-colors"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </Link>
-      </li>
-    ))}
-  </ul>
-</div>
+        <div className="bg-white rounded-2xl hidden  lg:block shadow-xl p-6">
+          <h4 className="font-extrabold text-xl mb-5 text-purple-700 tracking-wide">
+            Categories
+          </h4>
+          <ul className="space-y-3">
+            {categoriesList.map((cat, idx) => (
+              <li key={idx}>
+                <Link
+                  to={`/category/${cat.toLowerCase()}`}
+                  className="flex items-center justify-between px-4 py-2 rounded-xl hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg group"
+                >
+                  <span className="font-medium group-hover:font-semibold">{cat}</span>
+                  <svg
+                    className="w-4 h-4 text-purple-500 group-hover:text-white transition-colors"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         <div className="bg-white rounded-xl shadow p-4">
           <h4 className="font-bold text-lg text-purple-700 mb-3">Sort Products</h4>
@@ -156,16 +156,15 @@ const ListingsPage = () => {
           {loading
             ? Array.from({ length: 8 }).map((_, idx) => <ProductSkeleton key={idx} />)
             : products.length > 0
-            ? products.map((item) => (
+              ? products.map((item) => (
                 <div
                   key={item._id}
                   className="relative bg-white border p-2 border-blue-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
                 >
                   <FaHeart
                     onClick={() => toggleWishlist(item._id)}
-                    className={`absolute top-5 right-3 text-lg cursor-pointer transition ${
-                      wishlist.includes(item._id) ? "text-red-500" : "text-white"
-                    }`}
+                    className={`absolute top-5 right-3 text-lg cursor-pointer transition ${wishlist.includes(item._id) ? "text-red-500" : "text-white"
+                      }`}
                   />
                   <img
                     src={item.images[0]}
@@ -177,21 +176,24 @@ const ListingsPage = () => {
                     }
                   />
                   <div className="md:p-4">
-                     <p className=" font-semibold text-lg md:text-base">
-                      ₹{Number(item.fields.Price).toLocaleString()}
+                    <p className="text-gray-800 font-semibold text-lg md:text-base">
+                      {item.fields.Price
+                        ? `₹${Number(item.fields.Price).toLocaleString()}`
+                        : item.fields.Role || "N/A"}
                     </p>
+
                     <h4 className="text-base md:text-lg font-bold mb-1">
                       {item.fields.Brand} {item.fields.Model}
                     </h4>
-                   
-              <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
+
+                    <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
                     <p className="text-gray-400 text-xs">
                       Published: {new Date(item.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
               ))
-            : <p className="text-gray-500 col-span-full">No products found</p>}
+              : <p className="text-gray-500 col-span-full">No products found</p>}
         </div>
       </main>
     </section>

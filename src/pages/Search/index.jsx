@@ -17,7 +17,7 @@ const SearchPage = () => {
   const navigate = useNavigate();
 
   // Fetch all products from API
-useEffect(() => {
+  useEffect(() => {
   const fetchProducts = async () => {
     try {
       const response = await productApi.getAll();
@@ -26,20 +26,20 @@ useEffect(() => {
         : [];
 
       if (query) {
-        // 1️⃣ First, try to match category (outside fields)
+        // 1️⃣ Category partial match
         const categoryMatches = products.filter(
-          (p) => p.Category?.toLowerCase() === query // exact match
+          (p) => p.category?.toLowerCase().includes(query)
         );
 
         if (categoryMatches.length > 0) {
           setResults(categoryMatches);
         } else {
-          // 2️⃣ If no category matches, search by Brand, Model, or location
+          // 2️⃣ Brand, Model, or Location partial match
           const filtered = products.filter(
             (p) =>
-              p.fields.Brand.toLowerCase().includes(query) ||
-              p.fields.Model.toLowerCase().includes(query) ||
-              (p.location && p.location.toLowerCase().includes(query))
+              p.fields.Brand?.toLowerCase().includes(query) ||
+              p.fields.Model?.toLowerCase().includes(query) ||
+              p.fields.Location?.toLowerCase().includes(query)
           );
           setResults(filtered);
         }
@@ -81,40 +81,40 @@ useEffect(() => {
 
   return (
     <>
-      <Navbar ShowMobileTop={false}/>
-     <div className="flex items-center bg-white sticky top-0 z-50 px-4 py-3 shadow-md">
-  {/* Back Button */}
-  <button
-    onClick={() => navigate(-1)}
-    className="p-2 rounded-full hover:bg-gray-100 transition"
-  >
-    <FaArrowLeft className="text-gray-700 text-lg" />
-  </button>
+      <Navbar ShowMobileTop={false} />
+      <div className="flex items-center bg-white sticky top-0 z-50 px-4 py-3 shadow-md">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-full hover:bg-gray-100 transition"
+        >
+          <FaArrowLeft className="text-gray-700 text-lg" />
+        </button>
 
-  {/* Search Form */}
-  <form
-    onSubmit={handleSearchSubmit}
-    className="flex-1 relative flex items-center ml-3"
-  >
-    <FaSearch className="absolute left-3 text-gray-400 pointer-events-none" />
-    <input
-      type="text"
-      value={searchInput}
-      onChange={(e) => setSearchInput(e.target.value)}
-      placeholder="Search for products or locations..."
-      className="w-full pl-10 pr-10 py-2 rounded-full bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-inner"
-    />
-    {searchInput && (
-      <button
-        type="button"
-        onClick={() => setSearchInput("")}
-        className="absolute right-3 text-gray-500 hover:text-gray-700 transition"
-      >
-        <FaTimes />
-      </button>
-    )}
-  </form>
-</div>
+        {/* Search Form */}
+        <form
+          onSubmit={handleSearchSubmit}
+          className="flex-1 relative flex items-center ml-3"
+        >
+          <FaSearch className="absolute left-3 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search for products or locations..."
+            className="w-full pl-10 pr-10 py-2 rounded-full bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-inner"
+          />
+          {searchInput && (
+            <button
+              type="button"
+              onClick={() => setSearchInput("")}
+              className="absolute right-3 text-gray-500 hover:text-gray-700 transition"
+            >
+              <FaTimes />
+            </button>
+          )}
+        </form>
+      </div>
 
       <FilterBar sortOption={sortOption} handleSort={handleSort} />
 
@@ -155,9 +155,14 @@ useEffect(() => {
                         {item.fields.Brand} {item.fields.Model}
                       </h4>
                       <p className="text-gray-800 font-semibold text-sm md:text-base">
-                        ₹{Number(item.fields.Price).toLocaleString()}
+  {item.fields.Price
+    ? `₹${Number(item.fields.Price).toLocaleString()}`
+    : item.fields.Role || "N/A"}
+</p>
+
+                      <p className="text-gray-500 text-sm mb-1">
+                        {item.fields.Location || "Unknown location"}
                       </p>
-                      <p className="text-gray-500 text-sm mb-1">{item.location}</p>
                       <p className="text-gray-400 text-xs">
                         Published: {new Date(item.createdAt).toLocaleDateString()}
                       </p>

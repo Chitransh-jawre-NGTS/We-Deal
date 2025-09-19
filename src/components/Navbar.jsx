@@ -338,74 +338,50 @@
 
 
 
-
-
-
-
 import React, { useState, useEffect } from "react";
 import DesktopNavbar from "./DextopNavbar";
 import MobileTopNavbar from "./MobileTopNavbar";
 import MobileBottomNav from "./MobileBottomNav";
-import LocationSelector from "./LocationSelector";
-
 import { useNavigate } from "react-router-dom";
+import { getUserLocation } from "../api/location"; // ✅ import utility
 
-const Navbar = ({ title ,ShowBottomNav=true, ShowDextopTop=true,ShowMobileTop=true }) => {
+const Navbar = ({ title, ShowBottomNav = true, ShowDextopTop = true, ShowMobileTop = true }) => {
   const navigate = useNavigate();
   const [currentLocation, setCurrentLocation] = useState(
     localStorage.getItem("userLocation") || ""
   );
   const [selectedLocation, setSelectedLocation] = useState("");
 
-  const getLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-            );
-            const data = await response.json();
-            const city =
-              data.address.city || data.address.town || data.address.village || "Unknown City";
-            const state = data.address.state || "Unknown State";
-            const loc = `${city}, ${state}`;
-            setCurrentLocation(loc);
-            localStorage.setItem("userLocation", loc);
-          } catch (error) {
-            console.error("Failed to fetch location:", error);
-          }
-        },
-        (error) => console.error("Geolocation error:", error)
-      );
+  useEffect(() => {
+    if (!currentLocation) {
+      (async () => {
+        const loc = await getUserLocation();
+        setCurrentLocation(loc);
+      })();
     }
-  };
+  }, []);
 
   return (
     <>
-     {ShowDextopTop && (
-       <DesktopNavbar
-        title={title}
-        city={(selectedLocation || currentLocation).split(",")[0]}
-        state={(selectedLocation || currentLocation).split(",")[1]}
-        onLocationClick={() => navigate("/select-location")} // clickable
-      />
-     )}
-     {ShowMobileTop && (
-       <MobileTopNavbar
-        title={title}
-        city={(selectedLocation || currentLocation).split(",")[0]}
-        state={(selectedLocation || currentLocation).split(",")[1]}
-        onLocationClick={() => navigate("/select-location")} // clickable
-      />
-     )}
-     {ShowBottomNav && (
-       <MobileBottomNav />
-     )}
+      {ShowDextopTop && (
+        <DesktopNavbar
+          title={title}
+          city={(selectedLocation || currentLocation).split(",")[0]}
+          state={(selectedLocation || currentLocation).split(",")[1]}
+          onLocationClick={() => navigate("/select-location")}
+        />
+      )}
+      {ShowMobileTop && (
+        <MobileTopNavbar
+          title={title}
+          city={(selectedLocation || currentLocation).split(",")[0]}
+          state={(selectedLocation || currentLocation).split(",")[1]}
+          onLocationClick={() => navigate("/select-location")}
+        />
+      )}
+      {ShowBottomNav && <MobileBottomNav />}
     </>
   );
 };
-
 
 export default Navbar;
