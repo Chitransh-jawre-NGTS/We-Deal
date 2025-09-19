@@ -1,0 +1,39 @@
+import React from "react";
+import { motion } from "framer-motion";
+
+const LoadingPage = () => {
+  const text = "WeDeals";
+
+  return (
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "linear-gradient(135deg, #1a1a1a, #4b0082, #000000)",
+      }}
+    >
+      <h1 style={{ fontSize: "5rem", color: "white", display: "flex" }}>
+        {text.split("").map((char, idx) => (
+          <motion.span
+            key={idx}
+            initial={{ y: 0 }}
+            animate={{ y: [0, -20, 0] }} // bounce effect
+            transition={{
+              repeat: Infinity,
+              duration: 0.6,
+              delay: idx * 0.1,
+            }}
+            style={{ display: "inline-block", margin: "0 2px" }}
+          >
+            {char}
+          </motion.span>
+        ))}
+      </h1>
+    </div>
+  );
+};
+
+export default LoadingPage;

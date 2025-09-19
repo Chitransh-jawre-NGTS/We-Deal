@@ -159,6 +159,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaSearch, FaEllipsisV, FaShoppingBag, FaPaperPlane } from "react-icons/fa";
 import Navbar from "../../components/Navbar";
 import { chatApi } from "../../api/chatApi";
+import LoadingPage from "../../components/LoadingPage";
 
 const Chats = () => {
   const [chats, setChats] = useState([]);
@@ -217,7 +218,7 @@ const Chats = () => {
 
   if (loading)
     return (
-      <p className="text-center mt-20 text-gray-500">Loading chats...</p>
+      <LoadingPage/>
     );
 
   return (

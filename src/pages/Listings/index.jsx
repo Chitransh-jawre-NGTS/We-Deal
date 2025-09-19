@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Clock, CheckCircle, XCircle } from "lucide-react";
+import { Clock, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { FaArrowLeft } from "react-icons/fa";
 import { productApi } from "../../api/product";
 
@@ -10,8 +10,9 @@ const SellProducts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const userId = "68c835462d0f254471957f80"; // Example userId (or get from auth state)
+  const userId = "68c835462d0f254471957f80"; // Example userId (replace with auth state)
 
+  // ✅ Fetch user products
   useEffect(() => {
     const fetchUserProducts = async () => {
       if (!userId) {
@@ -23,7 +24,7 @@ const SellProducts = () => {
       try {
         setLoading(true);
         setError("");
-        const res = await productApi.getUserProducts(userId); // ✅ Use API file
+        const res = await productApi.getUserProducts(userId);
         setProducts(res.data.products || []);
       } catch (err) {
         console.error(err);
@@ -35,6 +36,21 @@ const SellProducts = () => {
 
     fetchUserProducts();
   }, [userId]);
+
+  // ✅ Delete product
+  const handleDelete = async (productId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this product?");
+    if (!confirmDelete) return;
+
+    try {
+      await productApi.delete(productId); // Call delete API
+      // Remove product from UI
+      setProducts(products.filter((p) => p._id !== productId));
+    } catch (err) {
+      console.error("Failed to delete product:", err);
+      alert("Failed to delete product. Please try again.");
+    }
+  };
 
   return (
     <div className="max-h-screen bg-white pt-4 pb-40 md:pt-24 md:pb-10 px-4 md:px-6 max-w-[1400px] mx-auto">
@@ -100,6 +116,14 @@ const SellProducts = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Delete Button */}
+                <button
+                  onClick={() => handleDelete(product._id)}
+                  className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+                >
+                  <Trash2 className="w-4 h-4" /> Delete
+                </button>
               </div>
             ))}
           </div>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FaHeart, FaArrowLeft, FaSearch, FaTimes } from "react-icons/fa";
+import { FaHeart, FaShareAlt, FaArrowLeft, FaSearch, FaTimes } from "react-icons/fa";
 import { productApi } from "../../api/product";
+import { wishlistApi } from "../../api/wishlist";
 import FilterBar from "../../components/FilterBar";
 import Navbar from "../../components/Navbar";
 
@@ -14,47 +15,59 @@ const SearchPage = () => {
   const [results, setResults] = useState([]);
   const [sortOption, setSortOption] = useState("");
   const [searchInput, setSearchInput] = useState(query);
+  const [wishlist, setWishlist] = useState([]);
   const navigate = useNavigate();
 
   // Fetch all products from API
   useEffect(() => {
-  const fetchProducts = async () => {
-    try {
-      const response = await productApi.getAll();
-      const products = Array.isArray(response.data.products)
-        ? response.data.products
-        : [];
+    const fetchProducts = async () => {
+      try {
+        const response = await productApi.getAll();
+        const products = Array.isArray(response.data.products) ? response.data.products : [];
 
-      if (query) {
-        // 1️⃣ Category partial match
-        const categoryMatches = products.filter(
-          (p) => p.category?.toLowerCase().includes(query)
-        );
-
-        if (categoryMatches.length > 0) {
-          setResults(categoryMatches);
-        } else {
-          // 2️⃣ Brand, Model, or Location partial match
-          const filtered = products.filter(
-            (p) =>
-              p.fields.Brand?.toLowerCase().includes(query) ||
-              p.fields.Model?.toLowerCase().includes(query) ||
-              p.fields.Location?.toLowerCase().includes(query)
+        if (query) {
+          // 1️⃣ Category partial match
+          const categoryMatches = products.filter(
+            (p) => p.category?.toLowerCase().includes(query)
           );
-          setResults(filtered);
+
+          if (categoryMatches.length > 0) {
+            setResults(categoryMatches);
+          } else {
+            // 2️⃣ Brand, Model, or Location partial match
+            const filtered = products.filter(
+              (p) =>
+                p.fields.Brand?.toLowerCase().includes(query) ||
+                p.fields.Model?.toLowerCase().includes(query) ||
+                p.fields.Location?.toLowerCase().includes(query)
+            );
+            setResults(filtered);
+          }
+        } else {
+          setResults(products);
         }
-      } else {
-        setResults(products);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        setResults([]);
       }
-    } catch (err) {
-      console.error("Error fetching products:", err);
-      setResults([]);
-    }
-  };
+    };
 
-  fetchProducts();
-}, [query]);
+    fetchProducts();
+  }, [query]);
 
+  // Fetch wishlist
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        const res = await wishlistApi.get();
+        const productIds = res.data.products.map((p) => p._id);
+        setWishlist(productIds);
+      } catch (err) {
+        console.error("Error fetching wishlist", err);
+      }
+    };
+    fetchWishlist();
+  }, []);
 
   // Handle sorting
   const handleSort = (option) => {
@@ -74,24 +87,38 @@ const SearchPage = () => {
     setResults(sortedItems);
   };
 
+  // Handle search submission
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     navigate(`/search?query=${searchInput}`);
   };
 
+  // Toggle wishlist
+  const toggleWishlist = async (productId) => {
+    try {
+      if (wishlist.includes(productId)) {
+        const res = await wishlistApi.remove(productId);
+        setWishlist(res.data.products.map((p) => p._id));
+      } else {
+        const res = await wishlistApi.add(productId);
+        setWishlist(res.data.products.map((p) => p._id));
+      }
+    } catch (err) {
+      console.error("Error updating wishlist", err);
+    }
+  };
+
   return (
     <>
       <Navbar ShowMobileTop={false} />
+      {/* Mobile Search Bar */}
       <div className="flex items-center md:hidden bg-white sticky top-0 z-50 px-4 py-3 shadow-md">
-        {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
           className="p-2 rounded-full hover:bg-gray-100 transition"
         >
           <FaArrowLeft className="text-gray-700 text-lg" />
         </button>
-
-        {/* Search Form */}
         <form
           onSubmit={handleSearchSubmit}
           className="flex-1 relative flex items-center ml-3"
@@ -131,35 +158,66 @@ const SearchPage = () => {
               {results.map((item, idx) => (
                 <React.Fragment key={idx}>
                   <div
+                    className="relative bg-white border p-2 border-gray-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
                     onClick={() =>
                       navigate(`/product/${item._id}`, {
                         state: { product: item, allProducts: results },
                       })
                     }
-                    className="relative bg-white border p-2 border-gray-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
                   >
                     {item.featured && (
                       <span className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded">
                         Featured
                       </span>
                     )}
-                    <FaHeart className="absolute top-5 right-3 text-white border-gray-500 text-lg cursor-pointer" />
+
+                    {/* Heart Icon */}
+                    <FaHeart
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleWishlist(item._id);
+                      }}
+                      className={`absolute top-5 right-3 text-lg cursor-pointer transition ${
+                        wishlist.includes(item._id) ? "text-red-500" : "text-white"
+                      }`}
+                    />
+
+                    {/* Share Icon */}
+                    <FaShareAlt
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const url = `${window.location.origin}/product/${item._id}`;
+                        if (navigator.share) {
+                          navigator
+                            .share({
+                              title: `${item.fields.Brand} ${item.fields.Model}`,
+                              url,
+                            })
+                            .catch((err) => console.error("Error sharing:", err));
+                        } else {
+                          navigator.clipboard.writeText(url);
+                          alert("Product link copied to clipboard!");
+                        }
+                      }}
+                      className="absolute top-12 right-3 text-white text-lg cursor-pointer hover:text-green-500 transition"
+                    />
+
                     <img
                       src={item.images?.[0] || "/placeholder.png"}
                       alt={`${item.fields.Brand} ${item.fields.Model}`}
                       className="w-full h-40 md:h-48 object-cover"
                       loading="lazy"
                     />
+
                     <div className="md:p-4">
                       <h4 className="text-base md:text-lg font-bold mb-1">
                         {item.fields.Brand} {item.fields.Model}
                       </h4>
                       <p className="text-gray-800 font-semibold text-sm md:text-base">
-  {item.fields.Price
-    ? `₹${Number(item.fields.Price).toLocaleString()}`
-    : item.fields.Role || "N/A"}
-</p>
-
+                        {item.fields.Price
+                          ? `₹${Number(item.fields.Price).toLocaleString()}`
+                          : item.fields.Role || "N/A"}
+                      </p>
                       <p className="text-gray-500 text-sm mb-1">
                         {item.fields.Location || "Unknown location"}
                       </p>

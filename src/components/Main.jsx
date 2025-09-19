@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaShareAlt } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { productApi } from "../api/product";
-import { wishlistApi } from "../api/wishlist"; // your wishlist API
-import httpClient from "../utils/httpClient"; // if using axios instance
-
+import { wishlistApi } from "../api/wishlist";
+import { calculateDistance } from "../utils/distance";
 
 const categoriesList = [
   "Mobiles",
@@ -17,22 +16,60 @@ const categoriesList = [
   "Sports",
 ];
 
-
-
 const ListingsPage = () => {
   const [products, setProducts] = useState([]);
-  const [wishlist, setWishlist] = useState([]); // store wishlist product IDs
+  const [wishlist, setWishlist] = useState([]);
   const [sortOption, setSortOption] = useState("");
   const [loading, setLoading] = useState(true);
+  const [userCoords, setUserCoords] = useState(null);
   const navigate = useNavigate();
 
+  // Get user location
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserCoords({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        });
+      },
+      (err) => console.error("Location error:", err)
+    );
+  }, []);
 
-  // Fetch products
+  // Fetch products and calculate distance
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await productApi.getAll();
-        setProducts(Array.isArray(response.data.products) ? response.data.products : []);
+        let fetchedProducts = Array.isArray(response.data.products)
+          ? response.data.products
+          : [];
+
+        if (userCoords) {
+          fetchedProducts = fetchedProducts.map((p) => {
+            if (p.location?.lat && p.location?.lon) {
+              const distance = calculateDistance(
+                userCoords.latitude,
+                userCoords.longitude,
+                p.location.lat,
+                p.location.lon
+              );
+              return { ...p, distance };
+            }
+            return { ...p, distance: Infinity };
+          });
+
+          fetchedProducts.sort((a, b) => {
+            const getGroup = (d) => (d <= 10 ? 1 : d <= 50 ? 2 : d <= 100 ? 3 : 4);
+            const groupA = getGroup(a.distance);
+            const groupB = getGroup(b.distance);
+            if (groupA !== groupB) return groupA - groupB;
+            return a.distance - b.distance;
+          });
+        }
+
+        setProducts(fetchedProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -41,23 +78,23 @@ const ListingsPage = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [userCoords]);
 
   // Fetch wishlist
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
-        const res = await wishlistApi.get(); // GET /wishlist
-        const productIds = res.data.products.map(p => p._id);
+        const res = await wishlistApi.get();
+        const productIds = res.data.products.map((p) => p._id);
         setWishlist(productIds);
       } catch (err) {
         console.error("Error fetching wishlist", err);
       }
     };
-
     fetchWishlist();
   }, []);
 
+  // Sorting handler
   const handleSort = (option) => {
     setSortOption(option);
     const sortedItems = [...products];
@@ -75,18 +112,35 @@ const ListingsPage = () => {
     setProducts(sortedItems);
   };
 
-  // Toggle wishlist
+  // Wishlist toggle
   const toggleWishlist = async (productId) => {
     try {
       if (wishlist.includes(productId)) {
         const res = await wishlistApi.remove(productId);
-        setWishlist(res.data.products.map(p => p._id));
+        setWishlist(res.data.products.map((p) => p._id));
       } else {
         const res = await wishlistApi.add(productId);
-        setWishlist(res.data.products.map(p => p._id));
+        setWishlist(res.data.products.map((p) => p._id));
       }
     } catch (err) {
       console.error("Error updating wishlist", err);
+    }
+  };
+
+  // Share product
+  const shareProduct = (productId) => {
+    const url = `${window.location.origin}/product/${productId}`;
+    if (navigator.share) {
+      navigator
+        .share({
+          title: "Check out this product",
+          url,
+        })
+        .catch((err) => console.error("Error sharing:", err));
+    } else {
+      // fallback: copy link to clipboard
+      navigator.clipboard.writeText(url);
+      alert("Product link copied to clipboard!");
     }
   };
 
@@ -106,9 +160,8 @@ const ListingsPage = () => {
     <section className="py-8 md:py-16 px-4 md:px-16 max-w-9xl mx-auto flex flex-col lg:flex-row gap-8">
       {/* Sidebar */}
       <aside className="w-full lg:w-64 flex-shrink-0 space-y-6">
-
-        <div className="bg-white rounded-2xl hidden  lg:block shadow-xl p-6">
-          <h4 className="font-extrabold text-xl mb-5 text-purple-700 tracking-wide">
+        <div className="bg-white rounded-2xl hidden lg:block shadow-xl p-6">
+          <h4 className="font-extrabold text-xl mb-5 text-blue-700 tracking-wide">
             Categories
           </h4>
           <ul className="space-y-3">
@@ -116,11 +169,11 @@ const ListingsPage = () => {
               <li key={idx}>
                 <Link
                   to={`/search?query=${encodeURIComponent(cat.toLowerCase())}`}
-                  className="flex items-center justify-between px-4 py-2 rounded-xl hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg group"
+                  className="flex items-center justify-between px-4 py-2 rounded-xl hover:bg-gradient-to-r hover:from-blue-500 hover:to-pink-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg group"
                 >
                   <span className="font-medium group-hover:font-semibold">{cat}</span>
                   <svg
-                    className="w-4 h-4 text-purple-500 group-hover:text-white transition-colors"
+                    className="w-4 h-4 text-blue-500 group-hover:text-white transition-colors"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
@@ -135,11 +188,11 @@ const ListingsPage = () => {
         </div>
 
         <div className="bg-white rounded-xl shadow p-4">
-          <h4 className="font-bold text-lg text-purple-700 mb-3">Sort Products</h4>
+          <h4 className="font-bold text-lg text-blue-700 mb-3">Sort Products</h4>
           <select
             value={sortOption}
             onChange={(e) => handleSort(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-purple-500"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select</option>
             <option value="priceLowHigh">Price: Low to High</option>
@@ -156,16 +209,24 @@ const ListingsPage = () => {
           {loading
             ? Array.from({ length: 8 }).map((_, idx) => <ProductSkeleton key={idx} />)
             : products.length > 0
-              ? products.map((item) => (
+            ? products.map((item) => (
                 <div
                   key={item._id}
                   className="relative bg-white border p-2 border-blue-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
                 >
+                  {/* Heart Icon */}
                   <FaHeart
                     onClick={() => toggleWishlist(item._id)}
-                    className={`absolute top-5 right-3 text-lg cursor-pointer transition ${wishlist.includes(item._id) ? "text-red-500" : "text-white"
-                      }`}
+                    className={`absolute top-5 right-3 text-lg cursor-pointer transition ${
+                      wishlist.includes(item._id) ? "text-red-500" : "text-white"
+                    }`}
                   />
+                  {/* Share Icon */}
+                  <FaShareAlt
+                    onClick={() => shareProduct(item._id)}
+                    className="absolute top-12 right-3 text-lg cursor-pointer text-white hover:text-green-500 transition"
+                  />
+
                   <img
                     src={item.images[0]}
                     alt={`${item.fields.Brand} ${item.fields.Model}`}
@@ -187,13 +248,20 @@ const ListingsPage = () => {
                     </h4>
 
                     <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
+
+                    {item.distance !== undefined && item.distance !== Infinity && (
+                      <p className="text-green-600 text-xs font-medium">
+                        📍 {item.distance.toFixed(1)} km away
+                      </p>
+                    )}
+
                     <p className="text-gray-400 text-xs">
                       Published: {new Date(item.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
               ))
-              : <p className="text-gray-500 col-span-full">No products found</p>}
+            : <p className="text-gray-500 col-span-full">No products found</p>}
         </div>
       </main>
     </section>

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { FaTrashAlt, FaArrowLeft } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import { wishlistApi } from "../../api/wishlist"; // ✅ import API functions
+import { wishlistApi } from "../../api/wishlist"; // API for wishlist actions
 
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState([]);
@@ -12,7 +12,8 @@ const Wishlist = () => {
   // Fetch wishlist from backend
   const fetchWishlist = async () => {
     try {
-      const res = await wishlistApi.get();
+      setLoading(true);
+      const res = await wishlistApi.get(); // GET /wishlist
       setWishlist(res.data.products || []);
     } catch (err) {
       console.error("Error fetching wishlist:", err);
@@ -28,7 +29,8 @@ const Wishlist = () => {
   // Remove product from wishlist
   const removeItem = async (productId) => {
     try {
-      await wishlistApi.remove(productId);
+      await wishlistApi.remove(productId); // DELETE /wishlist/:productId
+      // Update state locally after removal
       setWishlist((prev) => prev.filter((item) => item._id !== productId));
     } catch (err) {
       console.error("Error removing from wishlist:", err);
@@ -72,7 +74,7 @@ const Wishlist = () => {
                 >
                   <img
                     src={item.images?.[0] || "/placeholder.png"}
-                    alt={item.title || "Product"}
+                    alt={item.fields?.Brand || "Product"}
                     className="w-full h-48 object-cover hover:scale-105 transition"
                   />
                 </Link>
@@ -84,7 +86,7 @@ const Wishlist = () => {
                       {item.fields?.Brand} {item.fields?.Model}
                     </h2>
                     <p className="text-blue-600 font-bold mt-1">
-                      ₹{Number(item.fields?.Price).toLocaleString()}
+                      ₹{Number(item.fields?.Price || 0).toLocaleString()}
                     </p>
                   </div>
 

@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   ChevronRight,
 } from "lucide-react";
+import LoadingPage from "../../components/LoadingPage";
 
 const menuItems = [
   { label: "My Profile", icon: User, to: "/profile" },
@@ -57,9 +58,7 @@ const Account = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Loading profile...
-      </div>
+      <LoadingPage/>
     );
   }
 
