@@ -30,7 +30,9 @@
 
 
 // src/api/endpoints.js
-const API_BASE = import.meta.env.VITE_API_URL; // ✅ use env var
+
+// 🚨 Temporary: Directly use your deployed API
+const API_BASE = "https://we-deal-backend.onrender.com/api";
 
 const endpoints = {
   auth: {
