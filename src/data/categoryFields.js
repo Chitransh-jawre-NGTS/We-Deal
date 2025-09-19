@@ -80,6 +80,7 @@ export const categoryData = {
         }
       },
       { name: "Storage", type: "select", options: ["64GB", "128GB", "256GB", "512GB", "1TB"] },
+       { name: "Year", type: "text" },
       { name: "Price", type: "text" }
     ]
   },
@@ -89,7 +90,8 @@ export const categoryData = {
       { name: "Type", type: "select", options: ["Sofa", "Bed", "Dining Table", "Chair", "Cupboard", "Desk"] },
       { name: "Material", type: "select", options: ["Wood", "Metal", "Plastic", "Leather", "Fabric"] },
       { name: "Condition", type: "select", options: ["New", "Used - Like New", "Used - Good", "Used - Acceptable"] },
-      { name: "Price", type: "text" }
+      { name: "Price", type: "text" },
+       { name: "Year", type: "text" },
     ]
   },
 
@@ -99,7 +101,8 @@ export const categoryData = {
       { name: "Brand", type: "text" },
       { name: "Model", type: "text" },
       { name: "Condition", type: "select", options: ["New", "Used"] },
-      { name: "Price", type: "text" }
+      { name: "Price", type: "text" },
+       { name: "Year", type: "text" },
     ]
   },
 
@@ -109,7 +112,8 @@ export const categoryData = {
       { name: "Brand", type: "text" },
       { name: "Model", type: "text" },
       { name: "Condition", type: "select", options: ["New", "Used"] },
-      { name: "Price", type: "text" }
+      { name: "Price", type: "text" },
+       { name: "Year", type: "text" },
     ]
   },
 
@@ -119,7 +123,8 @@ export const categoryData = {
       { name: "Company", type: "text" },
       { name: "Experience Required", type: "text" },
       { name: "Salary", type: "text" },
-      { name: "Location", type: "text" }
+      { name: "Location", type: "text" },
+       { name: "Year", type: "text" },
     ]
   },
 
@@ -129,7 +134,8 @@ export const categoryData = {
       { name: "Category", type: "select", options: ["Clothing", "Footwear", "Accessories"] },
       { name: "Brand", type: "text" },
       { name: "Size", type: "text" },
-      { name: "Price", type: "text" }
+      { name: "Price", type: "text" },
+       { name: "Year", type: "text" },
     ]
   }
 };

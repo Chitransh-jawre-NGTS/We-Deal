@@ -82,7 +82,7 @@ const SearchPage = () => {
   return (
     <>
       <Navbar ShowMobileTop={false} />
-      <div className="flex items-center bg-white sticky top-0 z-50 px-4 py-3 shadow-md">
+      <div className="flex items-center md:hidden bg-white sticky top-0 z-50 px-4 py-3 shadow-md">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}

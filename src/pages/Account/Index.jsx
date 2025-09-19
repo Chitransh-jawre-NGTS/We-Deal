@@ -18,7 +18,7 @@ import {
 
 const menuItems = [
   { label: "My Profile", icon: User, to: "/profile" },
-  { label: "My Listings", icon: ShoppingBag, to: "/orders" },
+  { label: "My Listings", icon: ShoppingBag, to: "/my-listings" },
   { label: "Wishlist", icon: Heart, to: "/wishlist" },
   { label: "Settings", icon: Settings, to: "/settings" },
   { label: "Help Center", icon: HelpCircle, to: "/help" },

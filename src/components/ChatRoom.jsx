@@ -74,7 +74,7 @@ const ChatRoom = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="h-screen w-auto flex flex-col bg-gray-50">
       {/* Header */}
       <header className="flex items-center bg-blue-600 text-white p-4 shadow-md sticky top-0 z-50">
         <Link to="/chat" className="mr-3">

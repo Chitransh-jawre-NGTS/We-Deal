@@ -115,7 +115,7 @@ const ListingsPage = () => {
             {categoriesList.map((cat, idx) => (
               <li key={idx}>
                 <Link
-                  to={`/category/${cat.toLowerCase()}`}
+                  to={`/search?query=${encodeURIComponent(cat.toLowerCase())}`}
                   className="flex items-center justify-between px-4 py-2 rounded-xl hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg group"
                 >
                   <span className="font-medium group-hover:font-semibold">{cat}</span>

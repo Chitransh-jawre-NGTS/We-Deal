@@ -66,10 +66,11 @@ const ProductDescription = () => {
       <div className="bg-gray-50 font-sans pb-32 md:pb-28">
         <section className="py-6 md:py-12 px-4 md:px-16 max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
           {/* Left: Images */}
+          {/* Left: Images */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex-1 flex gap-4 overflow-x-auto rounded-xl snap-x snap-mandatory scroll-smooth"
+            className="flex-1 relative flex gap-4 overflow-x-auto rounded-xl snap-x snap-mandatory scroll-smooth"
           >
             {product.images && product.images.length > 0 ? (
               product.images.map((img, idx) => (
@@ -87,7 +88,15 @@ const ProductDescription = () => {
                 className="w-full h-full object-cover rounded-xl border"
               />
             )}
+
+            {/* ✅ Total Images Counter (only visible on lg+) */}
+            {product.images && product.images.length > 0 && (
+              <div className="hidden lg:flex absolute bottom-4 right-4 bg-black/60 text-white text-sm font-medium px-3 py-1 rounded-full shadow-md">
+                {product.images.length} Images
+              </div>
+            )}
           </motion.div>
+
 
           {/* Right: Product Info */}
           <div className="flex-1 flex flex-col gap-5">
@@ -144,6 +153,21 @@ const ProductDescription = () => {
               >
                 Chat
               </button>
+              {/* Safety Instructions */}
+              <section className=" w-full ">
+                <div className=" border-l-4 w-full border-blue-400 p-4 rounded-lg shadow-sm">
+                  <h4 className="text-blue-800 font-semibold text-base md:text-lg mb-2">
+                    Stay Safe When Buying & Selling
+                  </h4>
+                  <ul className="list-disc pl-5 text-gray-700 text-sm md:text-base space-y-1">
+                    <li>Meet the seller in a safe, public place.</li>
+                    <li>Never share sensitive personal information.</li>
+                    <li>Inspect the product carefully before making payment.</li>
+                    <li>Prefer cash on delivery or secure payment methods.</li>
+                    <li>Trust your instincts — if something feels off, walk away.</li>
+                  </ul>
+                </div>
+              </section>
             </div>
           </div>
         </section>
@@ -214,8 +238,10 @@ const ProductDescription = () => {
           <p className="mt-2 text-sm md:text-base text-gray-600">Indore, Madhya Pradesh</p>
         </section>
 
+
+
         {/* Fixed Bottom Bar */}
-        <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg border-t p-4 flex flex-col md:flex-row justify-center gap-4 z-50">
+        <div className="fixed md:hidden bottom-0 left-0 w-full bg-white shadow-lg border-t p-4 flex flex-col md:flex-row justify-center gap-4 z-50">
           <button className="flex-1 px-6 py-3 bg-purple-600 text-white font-semibold rounded-2xl hover:bg-purple-700 transition text-sm md:text-base">
             Make a Deal
           </button>

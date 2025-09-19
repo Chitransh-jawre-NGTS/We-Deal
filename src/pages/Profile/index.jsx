@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { FaUser, FaEnvelope, FaIdCard, FaUpload, FaPhone } from "react-icons/fa";
 import { storage } from "../../utils/localstorage";
-import { userApi } from "../../api/auth"; // ✅ using userApi
+import { userApi } from "../../api/auth";
+import Footer from "../../components/Footer";
+import Navbar from "../../components/Navbar";
 
 const ProfileVerification = () => {
-  const user = storage.get("user"); // ✅ from localStorage
+  const user = storage.get("user");
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
@@ -22,7 +24,6 @@ const ProfileVerification = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const user = storage.get("user");
     if (!user || !user._id) return alert("Login required");
 
@@ -35,7 +36,7 @@ const ProfileVerification = () => {
     try {
       const res = await userApi.updateProfile(user._id, data);
       alert("Profile updated successfully!");
-      storage.set("user", res.data); // update local storage
+      storage.set("user", res.data);
     } catch (err) {
       console.error(err);
       alert("Profile update failed");
@@ -43,47 +44,13 @@ const ProfileVerification = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 p-6">
-      
-      {/* Display All User Data */}
-      <div className="bg-white/20 backdrop-blur-lg shadow-xl rounded-2xl p-6 w-full max-w-2xl mb-6 text-white">
-        <h2 className="text-2xl font-bold mb-4 text-center">Your Profile Info</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <strong>Name:</strong> {user?.name || "N/A"}
-          </div>
-          <div>
-            <strong>Email:</strong> {user?.email || "N/A"}
-          </div>
-          <div>
-            <strong>Phone:</strong> {user?.phone || "N/A"}
-          </div>
-          <div>
-            <strong>Aadhaar:</strong> {user?.aadhaarNumber || "N/A"}
-          </div>
-          <div className="col-span-2">
-            <strong>Avatar:</strong>
-            <img
-              src={user?.avatar || "https://via.placeholder.com/150"}
-              alt="Avatar"
-              className="w-24 h-24 rounded-full mt-2 border-2 border-white object-cover"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Existing Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white/10 backdrop-blur-lg shadow-2xl rounded-2xl p-8 w-full max-w-lg text-white"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          Update Your Profile
-        </h2>
-
-        {/* Avatar Upload */}
-        <div className="mb-6 text-center">
-          <label htmlFor="avatar" className="cursor-pointer block">
+   <>
+   <Navbar ShowBottomNav={false} ShowMobileTop={false}/>
+    <div className="min-h-screen bg-gray-50 p-8 flex justify-center">
+      <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Left Sidebar */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex flex-col items-center">
             <img
               src={
                 avatar
@@ -91,79 +58,120 @@ const ProfileVerification = () => {
                   : user?.avatar || "https://via.placeholder.com/150"
               }
               alt="Avatar"
-              className="w-28 h-28 rounded-full mx-auto mb-3 object-cover border-4 border-white shadow-md hover:scale-105 transition"
+              className="w-28 h-28 rounded-full border mb-4 object-cover"
             />
-            <span className="flex items-center justify-center gap-2 text-sm bg-white/20 px-4 py-2 rounded-lg hover:bg-white/30 transition">
-              <FaUpload /> Upload Avatar
-            </span>
-          </label>
-          <input
-            type="file"
-            id="avatar"
-            name="avatar"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-        </div>
+            <h2 className="text-lg font-semibold text-gray-800">{user?.name || "User"}</h2>
+            <p className="text-sm text-gray-500">{user?.email || "Email not provided"}</p>
 
-        {/* Name */}
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium">Full Name</label>
-          <div className="flex items-center bg-white/20 rounded-lg px-3">
-            <FaUser className="text-gray-200 mr-2" />
+            <label
+              htmlFor="avatar"
+              className="mt-3 text-sm text-blue-600 cursor-pointer hover:underline"
+            >
+              <FaUpload className="inline mr-1" /> Change Avatar
+            </label>
             <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter full name"
-              className="w-full bg-transparent border-none py-2 text-white placeholder-gray-300 focus:outline-none"
+              type="file"
+              id="avatar"
+              name="avatar"
+              onChange={handleFileChange}
+              className="hidden"
             />
+          </div>
+
+          {/* Verified Info */}
+          <div className="mt-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">
+              Confirmed Information
+            </h3>
+            <ul className="space-y-2 text-sm text-gray-600">
+              <li className="flex items-center gap-2">
+                <FaUser className="text-green-600" /> Identity
+              </li>
+              <li className="flex items-center gap-2">
+                <FaEnvelope className="text-green-600" /> Email address
+              </li>
+              <li className="flex items-center gap-2">
+                <FaPhone className="text-green-600" /> Phone number
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Email */}
-        <div className="mb-4">
-          <label className="block mb-1 text-sm font-medium">Email</label>
-          <div className="flex items-center bg-white/20 rounded-lg px-3">
-            <FaEnvelope className="text-gray-200 mr-2" />
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter email"
-              className="w-full bg-transparent border-none py-2 text-white placeholder-gray-300 focus:outline-none"
-            />
+        {/* Main Content */}
+        <div className="col-span-2">
+          {/* Profile Info Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-800">About {user?.name || "User"}</h2>
+              <button className="px-3 py-1.5 text-sm border rounded-lg hover:bg-gray-100">
+                Edit Profile
+              </button>
+            </div>
+            <p className="text-gray-600 text-sm">
+              Lives in {user?.location || "Not specified"}
+            </p>
           </div>
-        </div>
 
-        {/* Aadhaar */}
-        <div className="mb-6">
-          <label className="block mb-1 text-sm font-medium">
-            Aadhaar Number
-          </label>
-          <div className="flex items-center bg-white/20 rounded-lg px-3">
-            <FaIdCard className="text-gray-200 mr-2" />
-            <input
-              type="text"
-              name="aadhaarNumber"
-              value={formData.aadhaarNumber}
-              onChange={handleChange}
-              placeholder="Enter Aadhaar Number"
-              className="w-full bg-transparent border-none py-2 text-white placeholder-gray-300 focus:outline-none"
-            />
-          </div>
-        </div>
+          {/* Update Form */}
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+          >
+            <h3 className="text-md font-semibold mb-4 text-gray-800">Update Your Details</h3>
 
-        <button
-          type="submit"
-          className="w-full bg-gradient-to-r from-pink-500 to-yellow-500 py-3 rounded-lg font-semibold shadow-lg hover:opacity-90 transition"
-        >
-          Save Changes
-        </button>
-      </form>
+            {/* Name */}
+            <div className="mb-4">
+              <label className="block mb-1 text-sm font-medium text-gray-700">Full Name</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter full name"
+                className="w-full border rounded-lg px-3 py-2 text-gray-800 focus:ring focus:ring-blue-200 focus:outline-none"
+              />
+            </div>
+
+            {/* Email */}
+            <div className="mb-4">
+              <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter email"
+                className="w-full border rounded-lg px-3 py-2 text-gray-800 focus:ring focus:ring-blue-200 focus:outline-none"
+              />
+            </div>
+
+            {/* Aadhaar */}
+            <div className="mb-6">
+              <label className="block mb-1 text-sm font-medium text-gray-700">
+                Aadhaar Number
+              </label>
+              <input
+                type="text"
+                name="aadhaarNumber"
+                value={formData.aadhaarNumber}
+                onChange={handleChange}
+                placeholder="Enter Aadhaar Number"
+                className="w-full border rounded-lg px-3 py-2 text-gray-800 focus:ring focus:ring-blue-200 focus:outline-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition"
+            >
+              Save Changes
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
+    </>
+
   );
 };
 

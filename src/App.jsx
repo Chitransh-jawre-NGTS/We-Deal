@@ -59,7 +59,7 @@ function App() {
           }
         />
         <Route
-          path="/orders"
+          path="/my-listings"
           element={
             <ProtectedRoute>
               <Orders />
