@@ -18,10 +18,10 @@ const Landing = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  if (loading) {
-    // Show loading page while loading is true
-    return <LoadingPage />;
-  }
+  // if (loading) {
+  //   // Show loading page while loading is true
+  //   return <LoadingPage />;
+  // }
 
   return (
     <>
@@ -29,7 +29,7 @@ const Landing = () => {
       <div className="font-sans bg-gray-50 min-h-screen">
         {/* Notification Bar */}
         <div className="bg-purple-700 text-white text-center py-2 text-sm md:text-base">
-          🎉 New Users Get Extra Visibility! Post your ad today for free!
+           New Users Get Extra Visibility! Post your ad today for free!
         </div>
 
         <HeroCarousel />

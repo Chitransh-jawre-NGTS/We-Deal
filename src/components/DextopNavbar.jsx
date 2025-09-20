@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaChevronDown, FaCommentDots, FaHeart, FaMapMarkerAlt, FaSearch } from "react-icons/fa";
 import { userApi } from "../api/auth"; 
 import { getCurrentCoords } from "../api/location"; // ✅ your geolocation util
+import logo from "../assets/images/myweblogo/ChatGPT Image Sep 20, 2025, 11_04_57 PM.png"; 
 
 const categories = [
   "All Categories",
@@ -24,6 +25,16 @@ const DesktopNavbar = ({ title, city, state, onLocationClick }) => {
 
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const searchPlaceholders = ["Cars", "Mobiles", "Bikes", "Furniture"];
+const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setPlaceholderIndex((prev) => (prev + 1) % searchPlaceholders.length);
+  }, 2000); // change every 2 seconds
+
+  return () => clearInterval(interval);
+}, []);
 
   // ✅ Load user profile
   useEffect(() => {
@@ -94,9 +105,13 @@ const DesktopNavbar = ({ title, city, state, onLocationClick }) => {
   return (
     <header className="bg-white w-full shadow sticky top-0 z-50">
       <div className="hidden md:flex items-center justify-between px-6 py-4 max-w-[1500px] mx-auto">
-        <Link to="/" className="text-3xl font-bold text-gray-700">
-          {title || "WeDeal"}
-        </Link>
+     <Link to="/" className="flex items-center">
+  <img
+    src={logo}
+    alt="WeDeal Logo"
+    className="h-10 w-auto object-contain " // adjust size as needed
+  />
+</Link>
 
         {/* 🔍 Search & Location */}
         <div className="flex items-center gap-4 flex-1 mx-6 relative">
@@ -144,14 +159,15 @@ const DesktopNavbar = ({ title, city, state, onLocationClick }) => {
 
           {/* Search bar */}
           <div className="relative flex-1">
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Find Cars, Mobile Phones and more..."
-              className="w-full border border-gray-300 rounded-md px-4 py-2 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-            />
+          <input
+  type="text"
+  value={query}
+  onChange={(e) => setQuery(e.target.value)}
+  placeholder={`Find ${searchPlaceholders[placeholderIndex]} and more...`}
+  className="w-full border border-gray-300 rounded-md px-4 py-2 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+/>
+
             <button
               onClick={handleSearch}
               className="absolute right-1 top-1 bottom-1 px-3 bg-blue-600 text-white rounded-r-md hover:bg-blue-700 transition flex items-center justify-center"

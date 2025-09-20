@@ -34,7 +34,7 @@ const Categories = () => {
 
   return (
     <div className="bg-gray-50 font-sans">
-      <section className="py-2 md:py-16 px-4 md:px-16 text-center">
+      <section className="pt-2 md:pt-8 px-4 md:px-16 text-center">
         <h2 className="text-3xl md:text-5xl font-extrabold text-blue-800 mb-4 md:mb-6">
           Explore Categories
         </h2>

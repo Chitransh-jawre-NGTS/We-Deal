@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaSearch, FaTimes } from "react-icons/fa";
+import logo from "../assets/images/myweblogo/ChatGPT Image Sep 20, 2025, 11_04_57 PM.png"; 
 
 const MobileTopNavbar = ({ title, city, state }) => {
   const [query, setQuery] = useState("");
@@ -41,7 +42,13 @@ const MobileTopNavbar = ({ title, city, state }) => {
       {/* Top Navbar */}
       <div className="md:hidden fixed top-0 left-0 w-full bg-white shadow z-50">
         <div className="flex items-center justify-between px-4 py-3">
-          <Link to="/" className="text-2xl font-bold text-blue-500">{title || "WeDeal"}</Link>
+           <Link to="/" className="flex items-center">
+            <img
+              src={logo}
+              alt="WeDeal Logo"
+              className="h-10 w-auto object-contain " // adjust size as needed
+            />
+          </Link>
           <div
             className="flex items-center gap-1 text-sm text-gray-700 cursor-pointer"
             onClick={() => setOverlayOpen(true)}

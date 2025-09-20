@@ -107,6 +107,22 @@ const SearchPage = () => {
       console.error("Error updating wishlist", err);
     }
   };
+    const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate a small delay for spinner
+    const timer = setTimeout(() => setLoading(false), 1000); // 1s spinner
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[200px]">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
 
   return (
     <>
@@ -146,88 +162,100 @@ const SearchPage = () => {
       <FilterBar sortOption={sortOption} handleSort={handleSort} />
 
       <section className="pb-8 md:py-16 px-4 md:px-16 max-w-9xl mx-auto flex flex-col lg:flex-row gap-8">
-        <main className="flex-1 flex flex-col gap-6">
-          <h1 className="text-xl font-semibold mb-4">
+        <main className="flex-1 flex flex-col gap-4">
+          <h1 className="text-xl font-semibold mt-4 lg:mb-4">
             Here’s what we found for "{query}"
           </h1>
 
           {results.length === 0 ? (
             <p className="text-gray-500">No products found</p>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
+            <div className="grid grid-cols-1 mb-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
               {results.map((item, idx) => (
                 <React.Fragment key={idx}>
                   <div
-                    className="relative bg-white border p-2 border-gray-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
+                    className="relative bg-white border border-gray-300 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform
+        flex flex-col sm:flex-col md:flex-col lg:flex-col xl:flex-col" // fallback for bigger screens
                     onClick={() =>
                       navigate(`/product/${item._id}`, {
                         state: { product: item, allProducts: results },
                       })
                     }
                   >
-                    {item.featured && (
-                      <span className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded">
-                        Featured
-                      </span>
-                    )}
+                    {/* Small Device Layout (Image Left, Details Right) */}
+                    <div className="flex sm:block p-2">
+                      {/* Image */}
+                      <div className="relative w-32 h-28 flex-shrink-0 sm:w-full sm:h-40 md:h-48">
+                        <img
+                          src={item.images?.[0] || "/placeholder.png"}
+                          alt={`${item.fields.Brand} ${item.fields.Model}`}
+                          className="w-full h-full object-cover rounded"
+                          loading="lazy"
+                        />
 
-                    {/* Heart Icon */}
-                    <FaHeart
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleWishlist(item._id);
-                      }}
-                      className={`absolute top-5 right-3 text-lg cursor-pointer transition ${
-                        wishlist.includes(item._id) ? "text-red-500" : "text-white"
-                      }`}
-                    />
+                        {/* Featured Badge */}
+                        {item.featured && (
+                          <span className="absolute top-2 left-2 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded">
+                            Featured
+                          </span>
+                        )}
 
-                    {/* Share Icon */}
-                    <FaShareAlt
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const url = `${window.location.origin}/product/${item._id}`;
-                        if (navigator.share) {
-                          navigator
-                            .share({
-                              title: `${item.fields.Brand} ${item.fields.Model}`,
-                              url,
-                            })
-                            .catch((err) => console.error("Error sharing:", err));
-                        } else {
-                          navigator.clipboard.writeText(url);
-                          alert("Product link copied to clipboard!");
-                        }
-                      }}
-                      className="absolute top-12 right-3 text-white text-lg cursor-pointer hover:text-green-500 transition"
-                    />
 
-                    <img
-                      src={item.images?.[0] || "/placeholder.png"}
-                      alt={`${item.fields.Brand} ${item.fields.Model}`}
-                      className="w-full h-40 md:h-48 object-cover"
-                      loading="lazy"
-                    />
+                      </div>
 
-                    <div className="md:p-4">
-                      <h4 className="text-base md:text-lg font-bold mb-1">
-                        {item.fields.Brand} {item.fields.Model}
-                      </h4>
-                      <p className="text-gray-800 font-semibold text-sm md:text-base">
-                        {item.fields.Price
-                          ? `₹${Number(item.fields.Price).toLocaleString()}`
-                          : item.fields.Role || "N/A"}
-                      </p>
-                      <p className="text-gray-500 text-sm mb-1">
-                        {item.fields.Location || "Unknown location"}
-                      </p>
-                      <p className="text-gray-400 text-xs">
-                        Published: {new Date(item.createdAt).toLocaleDateString()}
-                      </p>
+                      {/* Details */}
+                      <div className="flex flex-col justify-between px-3 sm:px-0 sm:py-2">
+                        <h4 className="text-base md:text-lg font-bold mb-1">
+                          {item.fields.Brand} {item.fields.Model}
+                        </h4>
+                        <p className="text-gray-800 font-semibold text-sm md:text-base">
+                          {item.fields.Price
+                            ? `₹${Number(item.fields.Price).toLocaleString()}`
+                            : item.fields.Role || "N/A"}
+                        </p>
+                        <p className="text-gray-500 text-sm mb-1">
+                          {item.fields.Location || "Unknown location"}
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          Published: {new Date(item.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+
+                      {/* Wishlist + Share (absolute, top-right) */}
+                      <div className="absolute top-2 right-2 flex flex-col gap-2">
+                        <FaHeart
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleWishlist(item._id);
+                          }}
+                          className={`text-lg cursor-pointer bg-black transition ${wishlist.includes(item._id) ? "text-red-500" : "text-white"
+                            }`}
+                        />
+
+                        <FaShareAlt
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const url = `${window.location.origin}/product/${item._id}`;
+                            if (navigator.share) {
+                              navigator
+                                .share({
+                                  title: `${item.fields.Brand} ${item.fields.Model}`,
+                                  url,
+                                })
+                                .catch((err) => console.error("Error sharing:", err));
+                            } else {
+                              navigator.clipboard.writeText(url);
+                              alert("Product link copied to clipboard!");
+                            }
+                          }}
+                          className="text-white bg-black p-2 text-lg cursor-pointer hover:text-green-500 transition"
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  {(idx + 1) % 6 === 0 && (
+                  {/* Ad Banner after every 6 items */}
+                  {(idx + 1) % 8 === 0 && (
                     <div className="col-span-full w-full h-48 bg-gray-200 rounded-xl flex items-center justify-center text-gray-600 text-lg md:text-xl font-semibold">
                       Advertisement Banner
                     </div>
@@ -235,6 +263,7 @@ const SearchPage = () => {
                 </React.Fragment>
               ))}
             </div>
+
           )}
         </main>
       </section>

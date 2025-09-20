@@ -17,4 +17,7 @@ export const chatApi = {
   // ✅ Start/find chat for a product
   findOrCreateByProduct: (productId) =>
     httpClient.post(endpoints.chat.findOrCreateByProduct(productId)),
+
+  // ✅ Delete a chat by its ID
+  delete: (chatId) => httpClient.delete(endpoints.chat.byId(chatId)),
 };

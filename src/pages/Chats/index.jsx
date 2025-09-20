@@ -195,6 +195,11 @@ const Chats = () => {
 
     fetchChats();
   }, []);
+    useEffect(() => {
+    // Show spinner for 2 seconds
+    const timer = setTimeout(() => setLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleChatClick = (chat) => {
     if (isMobile) {
@@ -216,10 +221,13 @@ const Chats = () => {
     setNewMessage("");
   };
 
-  if (loading)
+   if (loading) {
     return (
-      <LoadingPage/>
+      <div className="flex items-center justify-center h-screen">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
     );
+  }
 
   return (
     <>
@@ -239,27 +247,26 @@ const Chats = () => {
           {/* Chat List - scrollable */}
           <div className="flex-1 overflow-y-auto">
             {chats.length === 0 ? (
-              <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 space-y-4 p-6">
-                <FaShoppingBag className="text-6xl text-blue-400" />
-                <h2 className="text-2xl font-semibold">No chats yet</h2>
-                <p className="text-gray-400 text-sm">
-                  You currently don’t have any chats. Browse listings and start
-                  conversations with sellers!
-                </p>
-                <Link
-                  to="/"
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-                >
-                  Browse Listings
-                </Link>
-              </div>
+             <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 space-y-4 p-6">
+      <FaShoppingBag className="text-6xl text-blue-400" />
+      <h2 className="text-2xl font-semibold">No chats yet</h2>
+      <p className="text-gray-400 text-sm">
+        You currently don’t have any chats. Browse listings and start
+        conversations with sellers!
+      </p>
+      <Link
+        to="/"
+        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+      >
+        Browse Listings
+      </Link>
+    </div>
             ) : (
               chats.map((chat) => (
                 <div
                   key={chat._id}
-                  className={`flex items-center gap-3 p-4 border-b hover:bg-blue-50 cursor-pointer relative ${
-                    selectedChat?._id === chat._id ? "bg-blue-100" : ""
-                  }`}
+                  className={`flex items-center gap-3 p-4 border-b hover:bg-blue-50 cursor-pointer relative ${selectedChat?._id === chat._id ? "bg-blue-100" : ""
+                    }`}
                   onClick={() => handleChatClick(chat)}
                 >
                   {/* Avatar */}
@@ -285,16 +292,51 @@ const Chats = () => {
                     }}
                   />
 
+
                   {menuOpen === chat._id && (
                     <div className="absolute right-0 top-12 w-32 bg-white shadow-md rounded-md text-sm z-50">
-                      <button className="w-full px-4 py-2 hover:bg-gray-100">
+                      <button
+                        className="w-full px-4 py-2 hover:bg-gray-100"
+                        onClick={async (e) => {
+                          e.stopPropagation(); // prevent triggering chat click
+                          const confirmDelete = window.confirm(
+                            "Are you sure you want to delete this chat?"
+                          );
+                          if (!confirmDelete) return;
+
+                          try {
+                            // Call API to delete chat
+                            await chatApi.delete(chat._id);
+
+                            // Update state
+                            setChats((prev) => prev.filter((c) => c._id !== chat._id));
+
+                            // Close menu
+                            setMenuOpen(null);
+
+                            // Clear selected chat if it was deleted
+                            if (selectedChat?._id === chat._id) setSelectedChat(null);
+                          } catch (err) {
+                            console.error("Failed to delete chat:", err);
+                            alert("Failed to delete chat. Please try again.");
+                          }
+                        }}
+                      >
                         Delete
                       </button>
-                      <button className="w-full px-4 py-2 hover:bg-gray-100">
+
+                      <button
+                        className="w-full px-4 py-2 hover:bg-gray-100"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          alert("Block functionality coming soon!");
+                        }}
+                      >
                         Block
                       </button>
                     </div>
                   )}
+
                 </div>
               ))
             )}
@@ -322,11 +364,10 @@ const Chats = () => {
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`p-2 rounded-lg max-w-xs ${
-                      msg.sender === "me"
+                    className={`p-2 rounded-lg max-w-xs ${msg.sender === "me"
                         ? "bg-blue-500 text-white self-end ml-auto"
                         : "bg-gray-200 text-gray-800"
-                    }`}
+                      }`}
                   >
                     {msg.text}
                   </div>

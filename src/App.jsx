@@ -25,12 +25,15 @@ import ScrollToTop from "./components/ScrollToTop.jsx";
 import AboutUs from "./pages/aboutus/index.jsx";
 import SellerPage from "./pages/sellerpage.jsx/index.jsx";
 import Settings from "./pages/settings/index.jsx";
+import ListingDetails from "./pages/listingDetails/index.jsx";
+import { Toaster } from "react-hot-toast";
 
 function App() {
 
   return (
     <div className="relative">
         <ScrollToTop/>
+          <Toaster position="top-right" reverseOrder={false} />
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Landing />} />
@@ -47,6 +50,7 @@ function App() {
         <Route path="/aboutus" element={<AboutUs/>} />
         <Route path="/seller/:sellerId" element={<SellerPage />} />
         <Route path="/settings" element={<Settings />} />
+         <Route path="/my-listings/:productId" element={<ListingDetails/>} />
 
 
         {/* ✅ Protected routes */}
@@ -59,7 +63,7 @@ function App() {
           }
         />
         <Route
-          path="/my-listings"
+          path="/my-listing"
           element={
             <ProtectedRoute>
               <Orders />

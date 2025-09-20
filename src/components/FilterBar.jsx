@@ -20,7 +20,7 @@ const FilterBar = ({ sortOption, handleSort }) => {
   const rightSelected = rightOptions.find(o => o.value === sortOption) || rightOptions[0];
 
   return (
-    <div className="fixed bottom-0 md:hidden left-0 right-0 z-50 bg-white shadow-md px-4 py-3 flex justify-between items-center max-w-[1500px] mx-auto">
+    <div className="fixed bottom-0 md:hidden left-0 right-0 z-50 bg-white border border-gray-300 shadow-md px-4 py-3 flex justify-between items-center max-w-[1500px] mx-auto">
       {/* Left Filter */}
       <div className="relative">
         <button

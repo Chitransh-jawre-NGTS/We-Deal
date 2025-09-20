@@ -7,21 +7,22 @@ import {
   FaLinkedinIn,
   FaTwitter,
 } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
     <>
       {/* Call-to-Action */}
-      <section className="py-12 md:py-16 mb-5 lg:mb-0 bg-blue-100 text-gray-900 text-center px-4">
+      <section className="py-12 md:py-16 mb-7 lg:mb-0 bg-blue-100 text-gray-900 text-center px-4">
         <h3 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6">
           Start Selling Today!
         </h3>
         <p className="mb-4 md:mb-6 max-w-md md:max-w-lg mx-auto text-sm md:text-base text-gray-700">
           Post your first ad and reach thousands of buyers instantly.
         </p>
-        <button className="px-6 md:px-8 py-3 md:py-4 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition">
+        <Link to={"/sell"} className="px-6 md:px-8 py-3 md:py-4 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition">
           Post Free Ad
-        </button>
+        </Link>
       </section>
 
       <footer className="bg-gray-100 hidden md:block text-gray-800 py-16 px-6">

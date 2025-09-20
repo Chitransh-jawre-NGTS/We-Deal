@@ -1,8 +1,8 @@
-// src/pages/ImageUpload.jsx
 import React, { useState } from "react";
 import { FaArrowLeft, FaTrash } from "react-icons/fa";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { productApi } from "../../api/product";
+import toast from "react-hot-toast"; // ✅ import toast
 
 const ImageUpload = () => {
   const [images, setImages] = useState([]);
@@ -13,30 +13,25 @@ const ImageUpload = () => {
 
   const formDataObj = location.state?.formValues || {};
   const category = location.state?.category || "general";
-  let coords = location.state?.coords || null; // coordinates passed
+  let coords = location.state?.coords || null;
 
-  // ✅ Fallback to city center if coords missing
-  if (!coords) {
-    coords = { longitude: 75.8577, latitude: 22.7196 }; // Indore center
-  }
+  if (!coords) coords = { longitude: 75.8577, latitude: 22.7196 };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (images.length + files.length > 8) {
-      alert("You can upload a maximum of 8 images.");
+      toast.error("You can upload a maximum of 8 images."); // ✅ hot toast
       return;
     }
     setImages((prev) => [...prev, ...files]);
     setError("");
   };
 
-  const removeImage = (index) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
+  const removeImage = (index) => setImages((prev) => prev.filter((_, i) => i !== index));
 
   const handleSubmit = async () => {
     if (images.length < 1) {
-      setError("Please upload at least 1 image.");
+      toast.error("Please upload at least 1 image."); // ✅ hot toast
       return;
     }
 
@@ -46,8 +41,6 @@ const ImageUpload = () => {
       const formData = new FormData();
       formData.append("fields", JSON.stringify(formDataObj));
       formData.append("category", category);
-
-      // ✅ Always append valid coordinates
       formData.append(
         "location",
         JSON.stringify({
@@ -55,17 +48,16 @@ const ImageUpload = () => {
           coordinates: [coords.longitude, coords.latitude],
         })
       );
-
       images.forEach((img) => formData.append("images", img));
 
       const response = await productApi.create(formData);
-
       console.log("Product created:", response.data);
-      alert("Ad submitted successfully!");
+
+      toast.success("Ad submitted successfully!"); // ✅ hot toast
       navigate("/");
     } catch (err) {
       console.error("Error creating product:", err);
-      setError("Failed to submit ad. Please try again.");
+      toast.error("Failed to submit ad. Please try again."); // ✅ hot toast
     } finally {
       setLoading(false);
     }
@@ -82,9 +74,7 @@ const ImageUpload = () => {
 
       <div className="p-4 space-y-4">
         <div className="bg-white p-4 rounded-lg shadow">
-          <label className="block text-sm font-medium mb-2">
-            Select 1–8 images
-          </label>
+          <label className="block text-sm font-medium mb-2">Select 1–8 images</label>
           <input
             type="file"
             accept="image/*"

@@ -12,14 +12,13 @@ import {
   Settings,
   HelpCircle,
   LogOut,
-  ArrowLeft,
   ChevronRight,
 } from "lucide-react";
-import LoadingPage from "../../components/LoadingPage";
+import Navbar from "../../components/Navbar";
 
 const menuItems = [
   { label: "My Profile", icon: User, to: "/profile" },
-  { label: "My Listings", icon: ShoppingBag, to: "/my-listings" },
+  { label: "My Listings", icon: ShoppingBag, to: "/my-listing" },
   { label: "Wishlist", icon: Heart, to: "/wishlist" },
   { label: "Settings", icon: Settings, to: "/settings" },
   { label: "Help Center", icon: HelpCircle, to: "/help" },
@@ -32,7 +31,6 @@ const Account = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch user profile from API
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -58,82 +56,97 @@ const Account = () => {
 
   if (loading) {
     return (
-      <LoadingPage/>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex items-center gap-4 p-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-full hover:bg-gray-100 transition"
-          >
-            <ArrowLeft className="w-6 h-6 text-gray-700" />
-          </button>
-          <h1 className="text-xl font-semibold text-gray-800">Account</h1>
-        </div>
-      </header>
+    <>
+      <Navbar ShowMobileTop={false} />
+      <div className="min-h-screen bg-gray-50 pb-6">
 
-      {/* Profile Banner */}
-      <section className="text-white pb-8 pt-2 px-4">
-        <div className="max-w-7xl mx-auto flex border border-blue-500 rounded-2xl p-2 items-center gap-6 bg-white">
-          <div className="w-20 h-20 bg-gray-200 border border-blue-300 rounded-full overflow-hidden flex-shrink-0">
-            <img
-              src={user?.avatar || "https://via.placeholder.com/150"}
-              alt={user?.name || "User Avatar"}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-700">{user?.name || "No Name"}</h2>
-            <p className="text-sm opacity-90 text-gray-700">{user?.email || "No Email"}</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Menu Options */}
-      <section className="max-w-7xl mx-auto px-4">
-        <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-          {menuItems.map((item, idx) =>
-            item.isLogout ? (
-              <button
-                key={idx}
-                onClick={handleLogout}
-                className={`flex items-center justify-between gap-3 p-4 bg-white border border-blue-300 rounded-lg shadow hover:shadow-lg transition 
-                          hover:bg-gradient-to-r from-blue-50 to-blue-100 w-full text-left`}
-              >
-                <div className="flex items-center gap-3">
-                  <item.icon className={`w-6 h-6 ${item.color}`} />
-                  <span className="font-medium text-gray-700">{item.label}</span>
-                </div>
-                <ChevronRight className="w-5 h-5 text-gray-400" />
-              </button>
-            ) : (
-              <Link
-                key={idx}
-                to={item.to}
-                className={`flex items-center justify-between gap-3 p-4 bg-white border border-blue-300 rounded-lg shadow hover:shadow-lg transition 
-                          hover:bg-gradient-to-r from-blue-50 to-blue-100`}
-              >
-                <div className="flex items-center gap-3">
-                  <item.icon className={`${item.color}`} />
-                  <span className="font-medium text-gray-700">{item.label}</span>
-                </div>
-                <ChevronRight className="w-5 h-5 text-gray-400" />
-              </Link>
-            )
-          )}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="max-w-7xl mx-auto px-4 py-6 text-center text-gray-400 text-sm">
-        © 2025 NextGenOLX. All rights reserved.
-      </footer>
+        {/* Profile Banner */}
+ <section className="px-4 pt-8 ">
+  <div className="max-w-7xl mx-auto flex items-center gap-6 bg-white rounded-3xl p-4 shadow-lg">
+    {/* Avatar with Verified Badge */}
+    <div className="relative w-25 h-25 flex-shrink-0">
+      <img
+        src={user?.avatar || "https://via.placeholder.com/150"}
+        alt={user?.name || "User "}
+        className="w-full h-full rounded-full object-cover border-4 border-blue-300"
+      />
+      
+      {/* ✅ Verified Badge */}
+      <span className="absolute bottom-0 right-0 flex items-center text-white text-xs font-semibold bg-blue-500 px-2 py-0.5 rounded-full border-2 border-white">
+        <svg
+          className="w-3 h-3 mr-1"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fillRule="evenodd"
+            d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
+            clipRule="evenodd"
+          />
+        </svg>
+        Verified
+      </span>
     </div>
+
+    {/* Name */}
+    <div>
+      <h2 className="text-2xl font-bold text-gray-700">{user?.name || "No Name"}</h2>
+      {/* <p className="text-gray-500">{user?.email || "No Email"}</p> */}
+    </div>
+  </div>
+</section>
+
+
+        {/* Menu Options */}
+        <section className="max-w-7xl mb-20 mx-auto px-4 mt-6">
+          <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+            {menuItems.map((item, idx) => (
+              item.isLogout ? (
+                <button
+                  key={idx}
+                  onClick={handleLogout}
+                  className="flex items-center justify-between p-4 bg-white rounded-2xl shadow hover:shadow-xl transition hover:bg-red-50"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-red-100 rounded-full flex items-center justify-center">
+                      <item.icon className={`w-6 h-6 ${item.color}`} />
+                    </div>
+                    <span className="font-medium text-gray-700">{item.label}</span>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </button>
+              ) : (
+                <Link
+                  key={idx}
+                  to={item.to}
+                  className="flex items-center justify-between p-4 bg-white rounded-2xl shadow hover:shadow-xl transition hover:bg-blue-50"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-blue-100 rounded-full flex items-center justify-center">
+                      <item.icon className={`${item.color || "text-blue-600"} w-6 h-6`} />
+                    </div>
+                    <span className="font-medium text-gray-700">{item.label}</span>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </Link>
+              )
+            ))}
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="max-w-7xl hidden md:flex mx-auto px-4 py-6 text-center text-gray-400 text-sm mt-6">
+          © 2025 NextGenOLX. All rights reserved.
+        </footer>
+      </div>
+    </>
   );
 };
 

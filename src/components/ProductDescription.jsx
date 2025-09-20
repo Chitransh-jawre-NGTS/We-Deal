@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaArrowLeft, FaArrowRight, FaSearch } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaHeart, FaSearch } from "react-icons/fa";
 import Navbar from "./Navbar";
 import { chatApi } from "../api/chatApi"; // ✅ import the object
 
@@ -40,27 +40,27 @@ const ProductDescription = () => {
     <>
       {/* Topbar */}
       <Navbar showBottomNav={false} showMobileMenu={false} ShowMobileTop={false} />
-      <div className="flex bg-white md:hidden sticky top-0 z-50 shadow-sm px-3 py-2 items-center gap-2">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 rounded-full hover:bg-gray-100 transition"
-        >
-          <FaArrowLeft className="text-gray-700" />
-        </button>
-        <form
-          onSubmit={handleSearchSubmit}
-          className="flex-1 flex items-center bg-gray-100 rounded-full px-3 py-1.5"
-        >
-          <FaSearch className="text-gray-500 mr-2" />
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search products or locations..."
-            className="w-full bg-transparent text-sm md:text-base focus:outline-none"
-          />
-        </form>
-      </div>
+<div className="flex justify-between items-center md:hidden sticky top-0 z-50 px-4 py-3 
+                bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 
+                backdrop-blur-md shadow-md">
+  {/* Left Back Button */}
+  <button
+    onClick={() => navigate(-1)}
+    className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition duration-300 shadow-sm"
+  >
+    <FaArrowLeft className="text-white text-xl" />
+  </button>
+
+  {/* Right Wishlist Button */}
+  <button
+    onClick={() => navigate("/wishlist")}
+    className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition duration-300 shadow-sm"
+  >
+    <FaHeart className="text-white text-xl" />
+  </button>
+</div>
+
+
 
       {/* Product Details */}
       <div className="bg-gray-50 font-sans pb-32 md:pb-28">
@@ -103,12 +103,12 @@ const ProductDescription = () => {
             <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900">
               {product.fields.Brand} {product.fields.Model}
             </h2>
-            <p className="text-2xl md:text-3xl lg:text-4xl text-purple-600 font-extrabold">
+            <p className="text-2xl md:text-3xl lg:text-4xl text-blue-600 font-extrabold">
               ₹{Number(product.fields.Price).toLocaleString()}
             </p>
 
             <div className="flex flex-wrap gap-3">
-              <span className="px-4 py-1.5 text-sm md:text-base rounded-full bg-purple-100 text-purple-700 font-medium">
+              <span className="px-4 py-1.5 text-sm md:text-base rounded-full bg-blue-100 text-blue-700 font-medium">
                 Year: {product.fields.Year || "Unknown"}
               </span>
               <span className="px-4 py-1.5 text-sm md:text-base rounded-full bg-gray-100 text-gray-600">
@@ -122,13 +122,13 @@ const ProductDescription = () => {
                 Description
               </h3>
               <p className="text-gray-600 text-sm md:text-base lg:text-lg leading-relaxed">
-                {product.description || "No description provided."}
+                {product.fields.description || "No description provided."}
               </p>
             </div>
 
             {/* Buttons */}
             <div className="flex flex-wrap gap-4 mt-4">
-              <button className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition">
+              <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
                 Make a Deal
               </button>
               <button
@@ -242,7 +242,7 @@ const ProductDescription = () => {
 
         {/* Fixed Bottom Bar */}
         <div className="fixed md:hidden bottom-0 left-0 w-full bg-white shadow-lg border-t p-4 flex flex-col md:flex-row justify-center gap-4 z-50">
-          <button className="flex-1 px-6 py-3 bg-purple-600 text-white font-semibold rounded-2xl hover:bg-purple-700 transition text-sm md:text-base">
+          <button className="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-2xl hover:bg-blue-700 transition text-sm md:text-base">
             Make a Deal
           </button>
 
@@ -264,7 +264,7 @@ const ProductDescription = () => {
                 alert(err.message);
               }
             }}
-            className="flex-1 px-6 py-3 bg-white border-2 border-purple-600 text-purple-600 font-semibold rounded-2xl hover:bg-purple-50 transition text-sm md:text-base"
+            className="flex-1 px-6 py-3 bg-white border-2 border-blue-600 text-blue-600 font-semibold rounded-2xl hover:bg-blue-50 transition text-sm md:text-base"
           >
             Chat with Seller
           </button>
@@ -325,7 +325,7 @@ export default ProductDescription;
 // {/* Recommended Products */}
 //           {recommendedProducts.length > 0 && (
 //             <div>
-//               <h3 className="text-2xl font-bold text-purple-800 mb-4">Recommended Products</h3>
+//               <h3 className="text-2xl font-bold text-blue-800 mb-4">Recommended Products</h3>
 //               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
 //                 {recommendedProducts.map((item, idx) => (
 //                   <div
@@ -342,7 +342,7 @@ export default ProductDescription;
 //                     />
 //                     <div className="p-3 md:p-4">
 //                       <h4 className="text-base md:text-lg font-bold mb-1">{item.title}</h4>
-//                       <p className="text-purple-600 font-semibold text-sm md:text-base">₹{item.price.toLocaleString()}</p>
+//                       <p className="text-blue-600 font-semibold text-sm md:text-base">₹{item.price.toLocaleString()}</p>
 //                     </div>
 //                   </div>
 //                 ))}
@@ -353,17 +353,17 @@ export default ProductDescription;
 //  {/* Sidebar */}
 //         <aside className="w-full lg:w-64 flex-shrink-0 space-y-6">
 //           <div className="bg-white hidden md:block rounded-xl shadow p-4">
-//             <h4 className="font-bold text-lg mb-4 text-purple-700">Categories</h4>
+//             <h4 className="font-bold text-lg mb-4 text-blue-700">Categories</h4>
 //             <ul className="space-y-2 text-gray-700 text-sm md:text-base">
 //               <li>
-//                 <Link to="/" className="hover:text-purple-600 transition">Home</Link>
+//                 <Link to="/" className="hover:text-blue-600 transition">Home</Link>
 //               </li>
 //               {/* Add more static categories if needed */}
 //             </ul>
 //           </div>
 
 //           <div className="bg-white rounded-xl hidden md:block shadow p-4 space-y-3">
-//             <h4 className="font-bold text-lg text-purple-700">Sponsored Ads</h4>
+//             <h4 className="font-bold text-lg text-blue-700">Sponsored Ads</h4>
 //             {[...Array(2)].map((_, i) => (
 //               <div
 //                 key={i}
