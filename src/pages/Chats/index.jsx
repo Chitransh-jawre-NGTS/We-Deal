@@ -195,7 +195,7 @@ const Chats = () => {
 
     fetchChats();
   }, []);
-    useEffect(() => {
+  useEffect(() => {
     // Show spinner for 2 seconds
     const timer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(timer);
@@ -221,7 +221,7 @@ const Chats = () => {
     setNewMessage("");
   };
 
-   if (loading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
@@ -232,7 +232,7 @@ const Chats = () => {
   return (
     <>
       <Navbar showTopBar={false} ShowMobileTop={false} showMobileMenu={false} />
-      <div className="h-screen max-h-screen bg-gray-100 flex flex-col md:flex-row">
+      <div className="h-auto max-h-screen bg-gray-100 flex flex-col md:flex-row">
         {/* Left Chat List */}
         <aside className="w-full md:w-1/3 lg:w-1/4 border-r bg-white flex flex-col">
           {/* Header */}
@@ -245,22 +245,22 @@ const Chats = () => {
           </header>
 
           {/* Chat List - scrollable */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 mt-5 overflow-y-auto">
             {chats.length === 0 ? (
-             <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 space-y-4 p-6">
-      <FaShoppingBag className="text-6xl text-blue-400" />
-      <h2 className="text-2xl font-semibold">No chats yet</h2>
-      <p className="text-gray-400 text-sm">
-        You currently don’t have any chats. Browse listings and start
-        conversations with sellers!
-      </p>
-      <Link
-        to="/"
-        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
-      >
-        Browse Listings
-      </Link>
-    </div>
+              <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 space-y-4 p-6">
+                <FaShoppingBag className="text-6xl text-blue-400" />
+                <h2 className="text-2xl font-semibold">No chats yet</h2>
+                <p className="text-gray-400 text-sm">
+                  You currently don’t have any chats. Browse listings and start
+                  conversations with sellers!
+                </p>
+                <Link
+                  to="/"
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+                >
+                  Browse Listings
+                </Link>
+              </div>
             ) : (
               chats.map((chat) => (
                 <div
@@ -365,8 +365,8 @@ const Chats = () => {
                   <div
                     key={msg.id}
                     className={`p-2 rounded-lg max-w-xs ${msg.sender === "me"
-                        ? "bg-blue-500 text-white self-end ml-auto"
-                        : "bg-gray-200 text-gray-800"
+                      ? "bg-blue-500 text-white self-end ml-auto"
+                      : "bg-gray-200 text-gray-800"
                       }`}
                   >
                     {msg.text}

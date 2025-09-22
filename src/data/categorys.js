@@ -1,36 +1,37 @@
 // src/data/categories.js
 
 export const Categories = [
-  {
-    id: "cars",
-    name: "Cars",
-    icon: "https://cdn-icons-png.flaticon.com/512/743/743922.png",
-    products: [
-      { id: "swift-2020", name: "Maruti Swift 2020", image: "https://…/swift.png" },
-      { id: "creta-2018", name: "Hyundai Creta 2018", image: "https://…/creta.png" },
-      { id: "city-2019", name: "Honda City 2019", image: "https://…/city.png" },
-    ],
-  },
-  {
-    id: "bikes",
-    name: "Bikes",
-    icon: "https://cdn-icons-png.flaticon.com/512/2972/2972185.png",
-    products: [
-      { id: "classic350", name: "Royal Enfield Classic 350", image: "https://…/classic350.png" },
-      { id: "activa-6g", name: "Honda Activa 6G", image: "https://…/activa.png" },
-      { id: "r15-v3", name: "Yamaha R15 V3", image: "https://…/r15.png" },
-    ],
-  },
-  {
-    id: "mobiles-electronics",
-    name: "Mobiles & Electronics",
-    icon: "https://cdn-icons-png.flaticon.com/512/747/747376.png",
-    products: [
-      { id: "iphone-14", name: "iPhone 14", image: "https://…/iphone14.png" },
-      { id: "samsung-s23", name: "Samsung Galaxy S23", image: "https://…/s23.png" },
-      { id: "sony-led-tv", name: "Sony LED TV", image: "https://…/tv.png" },
-    ],
-  },
+{
+  id: "cars",
+  name: "Cars",
+  icon: "https://cdn-icons-png.flaticon.com/512/743/743922.png",
+  products: [
+    { id: "swift-2020", name: "Maruti", image: "https://…/swift.png" },
+    { id: "creta-2018", name: "Hyundai", image: "https://…/creta.png" },
+    { id: "city-2019", name: "Honda", image: "https://…/city.png" },
+  ],
+},
+{
+  id: "bikes",
+  name: "Bikes",
+  icon: "https://cdn-icons-png.flaticon.com/512/2972/2972185.png",
+  products: [
+    { id: "classic350", name: "Royal Enfield", image: "https://…/classic350.png" },
+    { id: "activa-6g", name: "Honda", image: "https://…/activa.png" },
+    { id: "r15-v3", name: "Yamaha", image: "https://…/r15.png" },
+  ],
+},
+{
+  id: "mobiles-electronics",
+  name: "Mobiles & Electronics",
+  icon: "https://cdn-icons-png.flaticon.com/512/747/747376.png",
+  products: [
+    { id: "iphone-14", name: "Apple", image: "https://…/iphone14.png" },
+    { id: "samsung-s23", name: "Samsung", image: "https://…/s23.png" },
+    { id: "sony-led-tv", name: "Sony", image: "https://…/tv.png" },
+  ],
+},
+
   {
     id: "furniture-home-decor",
     name: "Furniture & Home Decor",

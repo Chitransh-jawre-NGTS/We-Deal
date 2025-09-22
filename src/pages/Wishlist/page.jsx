@@ -51,9 +51,9 @@ const Wishlist = () => {
   return (
     <>
       <Navbar ShowMobileTop={false} />
-      <div className="bg-gray-100 min-h-screen">
+      <div className=" min-h-screen">
         {/* Top Bar */}
-        <div className="fixed top-0 left-0 w-full bg-white shadow-md z-50 flex items-center gap-4 p-4 md:p-6">
+        <div className="fixed top-0 md:hidden left-0 w-full bg-white shadow-md z-50 flex items-center gap-4 p-4 md:p-6">
           <button
             onClick={() => navigate(-1)}
             className="p-2 rounded-full hover:bg-gray-100 transition"
@@ -61,124 +61,179 @@ const Wishlist = () => {
             <FaArrowLeft className="text-gray-700" />
           </button>
           <h1 className="text-xl md:text-2xl font-semibold text-gray-800">
-            My Wishlist ({wishlist.length})
+            My Wishlist
           </h1>
         </div>
+        <main className="flex flex-col py-20 lg:py-10 lg:flex-row gap-6">
+          {/* Sidebar Filters - visible only on lg+ */}
+          <aside className="hidden lg:block w-64 bg-white border border-gray-200 rounded-xl shadow-sm p-4 h-fit sticky top-24">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Filters</h2>
 
-        {/* Content */}
-        <div className="max-w-6xl mb-20 mx-auto px-4 md:px-6 pt-24">
-          {loading ? (
-            <p className="text-center text-gray-500 mt-20 text-lg animate-pulse">
-              Loading...
-            </p>
-          ) : wishlist.length === 0 ? (
-            <div className="flex flex-col items-center mt-20 text-center px-4">
-              <img
-                src="/empty-wishlist.png"
-                alt="Empty Wishlist"
-                className="w-56 mb-6 opacity-90"
-              />
-              <h2 className="text-xl md:text-2xl font-semibold text-gray-800 mb-2">
-                Don’t leave your Wishlist empty!
-              </h2>
-              <p className="text-gray-600 text-sm md:text-base max-w-md">
-                Save the items you love 💖 and easily find them later. Browse
-                products now and start building your wishlist.
-              </p>
-              <button
-                onClick={() => navigate("/")}
-                className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
-              >
-                Browse Products
-              </button>
-            </div>
-          ) : (
-            <main className="flex-1 flex flex-col gap-6">
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
-                {wishlist.map((item) => (
-                  <div
-                    key={item._id}
-                    className="relative bg-white border  p-2 border-blue-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
-                  >
-                    {/* Heart */}
-                    <FaHeart
-                      onClick={() => toggleWishlist(item._id)}
-                      className={`absolute top-5 right-3 text-lg cursor-pointer transition ${wishlist.some(w => w._id === item._id) ? "text-red-500" : "text-white"
-                        }`}
-                    />
-
-                    {/* Share */}
-                    <FaShareAlt
-                      onClick={() => shareProduct(item._id)}
-                      className="absolute top-12 right-3 text-lg cursor-pointer text-white hover:text-green-500 transition"
-                    />
-
-                    {/* Image */}
-                    <img
-                      src={item.images?.[0] || "/placeholder.png"}
-                      alt={`${item.fields?.Brand} ${item.fields?.Model}`}
-                      className="w-full h-40 md:h-48 object-cover"
-                      loading="lazy"
-                      onClick={() => navigate(`/product/${item._id}`, { state: { product: item, allProducts: wishlist } })}
-                    />
-
-                    {/* Details */}
-                    <div className="md:p-4">
-                      <p className="text-gray-800 font-semibold text-lg md:text-base">
-                        {item.fields?.Price ? `₹${Number(item.fields.Price).toLocaleString()}` : item.fields?.Role || "N/A"}
-                      </p>
-                      <h4 className="text-base md:text-lg font-bold mb-1">
-                        {item.fields?.Brand} {item.fields?.Model}
-                      </h4>
-                      <p className="text-gray-500 text-sm mb-1">{item.fields?.Year} {item.fields?.Km}</p>
-                      {item.distance !== undefined && item.distance !== Infinity && (
-                        <p className="text-green-600 text-xs font-medium">📍 {item.distance.toFixed(1)} km away</p>
-                      )}
-                      <p className="text-gray-400 text-xs">Published: {new Date(item.createdAt).toLocaleDateString()}</p>
-
-                      {/* Remove */}
-                      <button
-                        onClick={() => confirmDelete(item._id)}
-                        className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition text-sm"
-                      >
-                        <FaTrashAlt className="text-sm" /> Remove
-                      </button>
-                    </div>
-                  </div>
-                ))}
+            {/* Example Filter: Brand */}
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">Brand</h3>
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" className="form-checkbox" /> Maruti
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" className="form-checkbox" /> Hyundai
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" className="form-checkbox" /> Tata
+                </label>
               </div>
-            </main>
+            </div>
 
-          )}
-        </div>
+            {/* Example Filter: Price */}
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">Price Range</h3>
+              <input
+                type="range"
+                min="50000"
+                max="2000000"
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>₹50k</span>
+                <span>₹20L</span>
+              </div>
+            </div>
 
-        {/* Delete Confirmation Modal */}
-        {showModal && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl p-6 w-80 text-center shadow-lg">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                Confirm Removal
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Are you sure you want to remove this product from your wishlist?
+            {/* Example Filter: Year */}
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">Year</h3>
+              <select className="w-full border rounded-lg p-2 text-sm">
+                <option>All</option>
+                <option>2023 & Newer</option>
+                <option>2020 - 2022</option>
+                <option>2015 - 2019</option>
+                <option>Before 2015</option>
+              </select>
+            </div>
+
+            {/* Apply Filters */}
+            <button className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+              Apply Filters
+            </button>
+          </aside>
+
+        {/* Wishlist Products */}
+<div className="flex-1">
+  {loading ? (
+    <p className="text-center mt-10 text-gray-500">Loading your wishlist...</p>
+  ) : wishlist.length === 0 ? (
+    <div className="flex flex-col items-center justify-center mt-20 text-center text-gray-500 space-y-4 p-6">
+      <FaHeart className="text-6xl text-blue-400" />
+      <h2 className="text-2xl font-semibold">Your wishlist is empty</h2>
+      <p className="text-gray-400 text-sm">
+        Browse products and add your favorites to your wishlist.
+      </p>
+      <Link
+        to="/sell"
+        className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+      >
+        Browse Products
+      </Link>
+    </div>
+  ) : (
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
+      {wishlist.map((item) => (
+        <div
+          key={item._id}
+          className="relative bg-white border p-2 border-blue-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
+        >
+          {/* Heart */}
+          <FaHeart
+            onClick={() => toggleWishlist(item._id)}
+            className={`absolute top-5 right-3 text-lg cursor-pointer transition ${
+              wishlist.some((w) => w._id === item._id)
+                ? "text-red-500"
+                : "text-white"
+            }`}
+          />
+
+          {/* Share */}
+          <FaShareAlt
+            onClick={() => shareProduct(item._id)}
+            className="absolute top-12 right-3 text-lg cursor-pointer text-white hover:text-green-500 transition"
+          />
+
+          {/* Image */}
+          <img
+            src={item.images?.[0] || "/placeholder.png"}
+            alt={`${item.fields?.Brand} ${item.fields?.Model}`}
+            className="w-full h-40 md:h-48 object-cover"
+            loading="lazy"
+            onClick={() =>
+              navigate(`/product/${item._id}`, {
+                state: { product: item, allProducts: wishlist },
+              })
+            }
+          />
+
+          {/* Details */}
+          <div className="md:p-4">
+            <p className="text-gray-800 font-semibold text-lg md:text-base">
+              {item.fields?.Price
+                ? `₹${Number(item.fields.Price).toLocaleString()}`
+                : item.fields?.Role || "N/A"}
+            </p>
+            <h4 className="text-base md:text-lg font-bold mb-1">
+              {item.fields?.Brand} {item.fields?.Model}
+            </h4>
+            <p className="text-gray-500 text-sm mb-1">
+              {item.fields?.Year} {item.fields?.Km}
+            </p>
+            {item.distance !== undefined && item.distance !== Infinity && (
+              <p className="text-green-600 text-xs font-medium">
+                📍 {item.distance.toFixed(1)} km away
               </p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={removeItem}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-                >
-                  Remove
-                </button>
+            )}
+            <p className="text-gray-400 text-xs">
+              Published: {new Date(item.createdAt).toLocaleDateString()}
+            </p>
+
+            {/* Remove */}
+            <button
+              onClick={() => confirmDelete(item._id)}
+              className="mt-2 w-full flex items-center justify-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition text-sm"
+            >
+              <FaTrashAlt className="text-sm" /> Remove
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
+        </main>
+        {/* Confirmation Modal */}
+        {showModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+            <div className="bg-white p-6 rounded-xl shadow-lg w-80 text-center">
+              <h2 className="text-lg font-semibold mb-4">Confirm Delete</h2>
+              <p className="mb-6">Are you sure you want to remove this item from your wishlist?</p>
+              <div className="flex justify-between gap-4">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                  className="flex-1 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
                 >
                   Cancel
+                </button>
+                <button
+                  onClick={removeItem}
+                  className="flex-1 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                >
+                  Delete
                 </button>
               </div>
             </div>
           </div>
         )}
+
+
       </div>
     </>
   );

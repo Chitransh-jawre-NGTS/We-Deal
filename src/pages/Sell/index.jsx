@@ -3,6 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { categoryData } from "../../data/categoryFields";
+import Navbar from "../../components/Navbar";
 
 const categoryIcons = {
   cars: "https://cdn-icons-png.flaticon.com/512/743/743007.png",
@@ -19,6 +20,8 @@ const AllCategorys = () => {
   const categories = Object.keys(categoryData);
 
   return (
+   <>
+   <Navbar ShowMobileTop={false}/>
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       {/* Sidebar for large devices */}
 
@@ -53,7 +56,8 @@ const AllCategorys = () => {
           ))}
         </div>
       </main>
-    </div>
+    </div></>
+    
   );
 };
 

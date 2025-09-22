@@ -174,3 +174,95 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState } from "react";
+// import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+// import { auth } from "../../utils/firebase"; // your Firebase config file
+
+// const PhoneLogin = () => {
+//   const [phoneNumber, setPhoneNumber] = useState("");
+//   const [otp, setOtp] = useState("");
+//   const [confirmationResult, setConfirmationResult] = useState(null);
+
+//   // Setup reCAPTCHA
+//   const setupRecaptcha = () => {
+//     if (!window.recaptchaVerifier) {
+//       window.recaptchaVerifier = new RecaptchaVerifier(
+//         auth,
+//         "recaptcha-container",
+//         {
+//           size: "invisible",
+//           callback: (response) => {
+//             console.log("reCAPTCHA solved:", response);
+//           },
+//         }
+//       );
+//     }
+//   };
+
+//   // Request OTP
+//   const requestOTP = async () => {
+//     try {
+//       if (!phoneNumber.startsWith("+")) {
+//         alert("Please enter phone number in +91XXXXXXXXXX format");
+//         return;
+//       }
+
+//       setupRecaptcha();
+//       const appVerifier = window.recaptchaVerifier;
+
+//       const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+//       setConfirmationResult(result);
+//       console.log("OTP sent successfully");
+//     } catch (error) {
+//       console.error("Error sending OTP:", error);
+//     }
+//   };
+
+//   // Verify OTP
+//   const verifyOTP = async () => {
+//     try {
+//       if (confirmationResult) {
+//         await confirmationResult.confirm(otp);
+//         alert("Phone number verified!");
+//       }
+//     } catch (error) {
+//       console.error("Error verifying OTP:", error);
+//     }
+//   };
+
+//   return (
+//     <div>
+//       <h2>Phone Login</h2>
+//       <input
+//         type="tel"
+//         placeholder="+91XXXXXXXXXX"
+//         value={phoneNumber}
+//         onChange={(e) => setPhoneNumber(e.target.value)}
+//       />
+//       <button onClick={requestOTP}>Send OTP</button>
+
+//       <div id="recaptcha-container"></div>
+
+//       <input
+//         type="text"
+//         placeholder="Enter OTP"
+//         value={otp}
+//         onChange={(e) => setOtp(e.target.value)}
+//       />
+//       <button onClick={verifyOTP}>Verify OTP</button>
+//     </div>
+//   );
+// };
+
+// export default PhoneLogin;

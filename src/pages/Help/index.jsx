@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Send, Bot, User, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../../components/Navbar";
 
 const faqResponses = {
   "how to post ad": "To post an ad, go to 'Sell' on the navbar, fill in your product details, and click Submit.",
@@ -50,7 +51,9 @@ const ChatbotPage = () => {
   };
 
   return (
-    <div className="max-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center">
+  <>
+  <Navbar ShowBottomNav={false} ShowMobileTop={false}/>
+    <div className="max-h-screen h-auto bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center">
       <div className="w-full max-w-2xl bg-white/70 backdrop-blur-lg flex flex-col h-screen border border-gray-200">
         {/* Header */}
         <div className="p-4 border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center justify-between">
@@ -149,6 +152,7 @@ const ChatbotPage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

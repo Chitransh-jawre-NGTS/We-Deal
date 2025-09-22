@@ -2,13 +2,10 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaArrowLeft, FaArrowRight, FaHeart, FaSearch } from "react-icons/fa";
+import { FaArrowLeft, FaArrowRight, FaHeart } from "react-icons/fa";
 import Navbar from "./Navbar";
-import { chatApi } from "../api/chatApi"; // ✅ import the object
-
-// ...
-
-
+import { useDispatch, useSelector } from "react-redux";
+import { findOrCreateChat } from "../redux/slices/chatSlice";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -17,8 +14,14 @@ function useQuery() {
 const ProductDescription = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const query = useQuery().get("query")?.toLowerCase() || "";
-  const [searchInput, setSearchInput] = useState(query);
+  const dispatch = useDispatch();
+  const [searchInput, setSearchInput] = useState(
+    useQuery().get("query")?.toLowerCase() || ""
+  );
+
+  const { loading: chatLoading, error: chatError } = useSelector(
+    (state) => state.chat
+  );
 
   const product = location.state?.product;
   const allProducts = location.state?.allProducts || [];
@@ -35,37 +38,37 @@ const ProductDescription = () => {
       </div>
     );
   }
+const handleChat = () => {
+  // Just navigate to the chat room with productId
+  navigate(`/chatroom/${product._id}`);
+};
 
   return (
     <>
-      {/* Topbar */}
+      {/* Navbar */}
       <Navbar showBottomNav={false} showMobileMenu={false} ShowMobileTop={false} />
-<div className="flex justify-between items-center md:hidden sticky top-0 z-50 px-4 py-3 
-                bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 
-                backdrop-blur-md shadow-md">
-  {/* Left Back Button */}
-  <button
-    onClick={() => navigate(-1)}
-    className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition duration-300 shadow-sm"
-  >
-    <FaArrowLeft className="text-white text-xl" />
-  </button>
 
-  {/* Right Wishlist Button */}
-  <button
-    onClick={() => navigate("/wishlist")}
-    className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition duration-300 shadow-sm"
-  >
-    <FaHeart className="text-white text-xl" />
-  </button>
-</div>
+      {/* Topbar for mobile */}
+      <div className="flex justify-between items-center md:hidden sticky top-0 z-50 px-4 py-3 
+                bg-gradient-to-b from-blue-400 to-white backdrop-blur-md shadow-md">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition duration-300 shadow-sm"
+        >
+          <FaArrowLeft className="text-white text-xl" />
+        </button>
 
-
+        <button
+          onClick={() => navigate("/wishlist")}
+          className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition duration-300 shadow-sm"
+        >
+          <FaHeart className="text-white text-xl" />
+        </button>
+      </div>
 
       {/* Product Details */}
       <div className="bg-gray-50 font-sans pb-32 md:pb-28">
         <section className="py-6 md:py-12 px-4 md:px-16 max-w-7xl mx-auto flex flex-col lg:flex-row gap-10">
-          {/* Left: Images */}
           {/* Left: Images */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -89,7 +92,6 @@ const ProductDescription = () => {
               />
             )}
 
-            {/* ✅ Total Images Counter (only visible on lg+) */}
             {product.images && product.images.length > 0 && (
               <div className="hidden lg:flex absolute bottom-4 right-4 bg-black/60 text-white text-sm font-medium px-3 py-1 rounded-full shadow-md">
                 {product.images.length} Images
@@ -97,11 +99,13 @@ const ProductDescription = () => {
             )}
           </motion.div>
 
-
           {/* Right: Product Info */}
           <div className="flex-1 flex flex-col gap-5">
             <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900">
-              {product.fields.Brand} {product.fields.Model}
+              {product.category}
+            </h2>
+            <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900">
+              {product.fields.Brand} {product.fields.Model} {product.fields.Type}
             </h2>
             <p className="text-2xl md:text-3xl lg:text-4xl text-blue-600 font-extrabold">
               ₹{Number(product.fields.Price).toLocaleString()}
@@ -131,43 +135,22 @@ const ProductDescription = () => {
               <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
                 Make a Deal
               </button>
-              <button
-                onClick={async () => {
-                  try {
-                    const productId = product._id;
-                    let token = localStorage.getItem("token");
-                    if (!token) {
-                      const match = document.cookie.match(/token=([^;]+)/);
-                      token = match ? match[1] : null;
-                    }
 
-                    const data = await findOrCreateByProduct(productId, token); // ✅ Fixed function call
-                    const chatId = data._id;
-                    navigate(`/chatroom/${chatId}`);
-                  } catch (err) {
-                    console.error("Error opening chat:", err);
-                    alert(err.message);
-                  }
-                }}
-                className="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg hover:bg-gray-300 transition"
+              <button
+                onClick={handleChat}
+                disabled={chatLoading}
+                className={`px-6 py-3 font-semibold rounded-lg transition ${
+                  chatLoading
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                }`}
               >
-                Chat
+                {chatLoading ? "Opening Chat..." : "Chat with Seller"}
               </button>
-              {/* Safety Instructions */}
-              <section className=" w-full ">
-                <div className=" border-l-4 w-full border-blue-400 p-4 rounded-lg shadow-sm">
-                  <h4 className="text-blue-800 font-semibold text-base md:text-lg mb-2">
-                    Stay Safe When Buying & Selling
-                  </h4>
-                  <ul className="list-disc pl-5 text-gray-700 text-sm md:text-base space-y-1">
-                    <li>Meet the seller in a safe, public place.</li>
-                    <li>Never share sensitive personal information.</li>
-                    <li>Inspect the product carefully before making payment.</li>
-                    <li>Prefer cash on delivery or secure payment methods.</li>
-                    <li>Trust your instincts — if something feels off, walk away.</li>
-                  </ul>
-                </div>
-              </section>
+
+              {chatError && (
+                <p className="text-red-600 text-sm mt-2">{chatError}</p>
+              )}
             </div>
           </div>
         </section>
@@ -179,13 +162,11 @@ const ProductDescription = () => {
             className="flex items-center justify-between bg-white p-4 rounded-xl shadow-md cursor-pointer hover:shadow-lg transition"
           >
             <div className="flex items-center gap-4">
-              {/* Seller Avatar */}
               <img
                 src={product.seller?.avatar || "/placeholder-avatar.png"}
                 alt={product.seller?.name || "Seller"}
                 className="w-12 h-12 md:w-16 md:h-16 rounded-full object-cover border"
               />
-              {/* Seller Name */}
               <div>
                 <p className="text-gray-800 font-semibold text-sm md:text-base">
                   {product.seller?.name || "Unknown Seller"}
@@ -193,7 +174,6 @@ const ProductDescription = () => {
                 <p className="text-gray-500 text-xs md:text-sm">View Seller Details</p>
               </div>
             </div>
-            {/* Right Arrow Icon */}
             <FaArrowRight className="text-gray-400 text-lg md:text-xl" />
           </div>
         </section>
@@ -207,9 +187,7 @@ const ProductDescription = () => {
               </p>
             </div>
             <button
-              onClick={() => {
-                alert(`Ad ID ${product._id} reported!`);
-              }}
+              onClick={() => alert(`Ad ID ${product._id} reported!`)}
               className="px-4 py-2 bg-red-600 text-white text-sm md:text-base rounded-xl hover:bg-red-700 transition"
             >
               Report Ad
@@ -238,35 +216,22 @@ const ProductDescription = () => {
           <p className="mt-2 text-sm md:text-base text-gray-600">Indore, Madhya Pradesh</p>
         </section>
 
-
-
-        {/* Fixed Bottom Bar */}
-        <div className="fixed md:hidden bottom-0 left-0 w-full bg-white shadow-lg border-t p-4 flex flex-col md:flex-row justify-center gap-4 z-50">
+        {/* Fixed Bottom Bar for mobile */}
+        <div className="fixed md:hidden bottom-0 left-0 w-full bg-white shadow-lg border-t p-4 flex flex-row justify-center gap-4 z-50">
           <button className="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-2xl hover:bg-blue-700 transition text-sm md:text-base">
             Make a Deal
           </button>
 
           <button
-            onClick={async () => {
-              try {
-                const productId = product._id;
-                let token = localStorage.getItem("token");
-                if (!token) {
-                  const match = document.cookie.match(/token=([^;]+)/);
-                  token = match ? match[1] : null;
-                }
-
-                const data = await chatApi.findOrCreateByProduct(productId, token);// ✅ Fixed function call
-                const chatId = data._id;
-                navigate(`/chatroom/${chatId}`);
-              } catch (err) {
-                console.error("Error opening chat:", err);
-                alert(err.message);
-              }
-            }}
-            className="flex-1 px-6 py-3 bg-white border-2 border-blue-600 text-blue-600 font-semibold rounded-2xl hover:bg-blue-50 transition text-sm md:text-base"
+            onClick={handleChat}
+            disabled={chatLoading}
+            className={`flex-1 px-6 py-3 font-semibold rounded-2xl transition text-sm md:text-base ${
+              chatLoading
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+            }`}
           >
-            Chat with Seller
+            {chatLoading ? "Opening Chat..." : "Chat with Seller"}
           </button>
         </div>
       </div>
@@ -275,13 +240,6 @@ const ProductDescription = () => {
 };
 
 export default ProductDescription;
-
-
-
-
-
-
-
 
 
 

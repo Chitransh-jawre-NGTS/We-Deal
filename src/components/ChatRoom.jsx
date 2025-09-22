@@ -1,76 +1,89 @@
+// src/pages/ChatRoom.jsx
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaPaperPlane, FaUserCircle } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
 import { socket } from "../utils/socket";
-import { chatApi } from "../api/chatApi";
+import {
+  fetchMessages,
+  sendMessage,
+  addIncomingMessage,
+} from "../redux/slices/chatSlice";
 
 const ChatRoom = () => {
-  const { id: chatId } = useParams();
-  const userId = localStorage.getItem("_Id");
-  const [messages, setMessages] = useState([]);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { id: chatId } = useParams(); // ✅ destructured correctly
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const userId = user._id;
+
+  const messages = useSelector(
+    (state) => state.chat.messages[chatId] || [] // ✅ use chatId
+  );
   const [newMsg, setNewMsg] = useState("");
   const messagesEndRef = useRef(null);
 
-  // Scroll to bottom whenever messages change
+  // Scroll to bottom when messages update
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
   useEffect(scrollToBottom, [messages]);
 
-  // Fetch previous messages
-  const fetchMessages = async () => {
-    try {
-      const res = await chatApi.getMessages(chatId);
-      setMessages(res.data || []);
-    } catch (err) {
-      console.error("Failed to fetch messages:", err);
-    }
-  };
-
+  // Fetch messages and setup socket
   useEffect(() => {
     if (!chatId) return;
 
-    fetchMessages();
+    dispatch(fetchMessages(chatId));
 
-    // Connect to socket
-    socket.connect();
-    socket.emit("joinChat", chatId);
+    if (!socket.connected) {
+      socket.connect();
+    }
 
-    // Listen for incoming messages
+    // Join the chat room
+    socket.emit("joinChat", chatId, (ack) => {
+      if (!ack?.success) console.error("Failed to join chat", ack?.message);
+    });
+
     const handleReceiveMessage = (msg) => {
-      setMessages((prev) => [...prev, msg]);
+      dispatch(addIncomingMessage({ chatId, message: msg }));
     };
     socket.on("receiveMessage", handleReceiveMessage);
 
-    // Cleanup on unmount
     return () => {
       socket.off("receiveMessage", handleReceiveMessage);
-      socket.disconnect();
+      socket.emit("leaveChat", chatId); // leave room instead of disconnecting
     };
-  }, [chatId]);
+  }, [chatId, dispatch]);
 
-  const sendMessage = async () => {
+  // Send message
+  const sendMessageHandler = async () => {
     const text = newMsg.trim();
     if (!text) return;
 
-    const message = { chatId, text, sender: userId };
+    if (!userId) {
+      alert("User not found. Please login again.");
+      return;
+    }
+
+    const payload = { chatId, text, sender: userId };
 
     // Optimistic UI update
-    setMessages((prev) => [...prev, message]);
+    dispatch(addIncomingMessage({ chatId, message: payload }));
+
+    // Emit via socket
+    socket.emit("sendMessage", payload, (ack) => {
+      if (!ack?.success) console.error("Message not sent", ack?.message);
+    });
+
+    // Send to API
+    await dispatch(sendMessage(payload));
+
     setNewMsg("");
-
-    socket.emit("sendMessage", message);
-
-    try {
-      await chatApi.sendMessage(chatId, { text });
-    } catch (err) {
-      console.error("Failed to send message:", err);
-    }
   };
 
   const handleEnterPress = (e) => {
-    if (e.key === "Enter") sendMessage();
+    if (e.key === "Enter") sendMessageHandler();
   };
 
   return (
@@ -114,7 +127,7 @@ const ChatRoom = () => {
           className="flex-1 border rounded-full px-4 py-2 mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
-          onClick={sendMessage}
+          onClick={sendMessageHandler}
           disabled={!newMsg.trim()}
           className={`p-3 rounded-full transition ${
             newMsg.trim()
