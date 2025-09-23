@@ -246,6 +246,35 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // import React, { useState, useEffect, useRef, useCallback } from "react";
 // import { FaHeart, FaShareAlt } from "react-icons/fa";
 // import { Link, useNavigate } from "react-router-dom";
@@ -542,44 +571,68 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { FaHeart, FaShareAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../redux/slices/productsSlices";
 import { fetchWishlist, toggleWishlist } from "../redux/slices/wishlistSlice";
 import toast, { Toaster } from "react-hot-toast";
 
+const categoriesList = [
+  "Mobiles", "Cars", "Furniture", "Jobs",
+  "Fashion", "Electronics", "Home Appliances", "Sports"
+];
+
 const ListingsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { items: products, status: productStatus } = useSelector((state) => state.products);
   const { wishlist } = useSelector((state) => state.wishlist);
-
   const [userCoords, setUserCoords] = useState(null);
   const { selected: currentLocation } = useSelector((state) => state.location);
+  const [sortOption, setSortOption] = useState("");
+  const [page, setPage] = useState(1);
 
-  // get coords
+  // Fetch user coordinates
   useEffect(() => {
     const storedLocation = localStorage.getItem("selectedLocation");
     if (storedLocation) {
       const { city } = JSON.parse(storedLocation);
-      fetch(
-        `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&format=json&limit=1`
-      )
+      fetch(`https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&format=json&limit=1`)
         .then((res) => res.json())
         .then((data) => {
           if (data.length > 0)
-            setUserCoords({
-              latitude: parseFloat(data[0].lat),
-              longitude: parseFloat(data[0].lon),
-            });
+            setUserCoords({ latitude: parseFloat(data[0].lat), longitude: parseFloat(data[0].lon) });
         });
     } else {
       navigator.geolocation.getCurrentPosition(
-        (pos) =>
-          setUserCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+        (pos) => setUserCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
         (err) => console.error("Location error:", err)
       );
     }
@@ -603,87 +656,160 @@ const ListingsPage = () => {
       navigator.share({ title: "Check this product", url }).catch(console.error);
     } else {
       navigator.clipboard.writeText(url);
-      alert("Product link copied to clipboard!");
+      toast.success("Product link copied!");
     }
   };
 
+  // Product filters
   const nearbyProducts = products.filter((p) => p.distance <= 5);
   const under10kmProducts = products.filter((p) => p.distance > 5 && p.distance <= 10);
   const under50kmProducts = products.filter((p) => p.distance > 10 && p.distance <= 50);
+
+  // Skeleton Loader
+  const ProductSkeleton = () => (
+    <div className="animate-pulse bg-white border border-gray-200 shadow-md rounded-md overflow-hidden">
+      <div className="h-40 md:h-48 bg-gray-200 w-full" />
+      <div className="p-4 space-y-2">
+        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+      </div>
+    </div>
+  );
 
   const renderProducts = (items) =>
     items.map((item) => (
       <div
         key={item._id}
-        className="relative bg-white border p-2 border-blue-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105"
+        className="relative bg-white border p-2 border-blue-200 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105"
       >
-        <FaHeart
+        {/* Wishlist Heart */}
+        <div
           onClick={() => handleToggleWishlist(item._id)}
-          className={`absolute top-5 right-3 text-lg cursor-pointer transition ${
-            wishlist.includes(item._id) ? "text-red-500" : "text-white"
-          }`}
-        />
-        <FaShareAlt
+          className={`absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 bg-white shadow-md cursor-pointer transition 
+      ${wishlist.includes(item._id) ? "text-red-500" : "text-gray-400 hover:text-red-500 hover:bg-gray-100"}
+    `}
+        >
+          <FaHeart className="text-lg" />
+        </div>
+
+        {/* Share Button */}
+        <div
           onClick={() => shareProduct(item._id)}
-          className="absolute top-12 right-3 text-lg cursor-pointer text-white hover:text-green-500"
-        />
+          className="absolute top-16 right-3 w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 bg-white shadow-md cursor-pointer text-gray-400 hover:text-green-500 hover:bg-gray-100 transition"
+        >
+          <FaShareAlt className="text-lg" />
+        </div>
+
+        {/* Product Image */}
         <img
           src={item.images[0]}
           alt={`${item.fields.Brand} ${item.fields.Model}`}
-          className="w-full h-40 md:h-48 object-cover"
+          className="w-full h-40 md:h-48 object-cover rounded-md"
           loading="lazy"
           onClick={() =>
             navigate(`/product/${item._id}`, { state: { product: item, allProducts: products } })
           }
         />
+
         <div className="md:p-4">
           <p className="text-gray-800 font-semibold text-lg md:text-base">
-            {item.fields.Price
-              ? `₹${Number(item.fields.Price).toLocaleString()}`
-              : item.fields.Role || "N/A"}
+            {item.fields.Price ? `₹${Number(item.fields.Price).toLocaleString()}` : item.fields.Role || "N/A"}
           </p>
-          <h4 className="text-base md:text-lg font-bold mb-1">
-            {item.fields.Brand} {item.fields.Model}
-          </h4>
-          <p className="text-gray-500 text-sm mb-1">
-            {item.fields.Year} {item.fields.Km}
-          </p>
-          <p className="text-gray-400 text-xs">
-            Published: {new Date(item.createdAt).toLocaleDateString()}
-          </p>
+          <h4 className="text-base md:text-lg font-bold mb-1">{item.fields.Brand} {item.fields.Model}</h4>
+          <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
+          <p className="text-gray-400 text-xs">Published: {new Date(item.createdAt).toLocaleDateString()}</p>
         </div>
       </div>
+
     ));
 
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      <section className="py-8 md:py-16 px-4 md:px-16 max-w-9xl mx-auto flex flex-col gap-8">
-        {productStatus === "loading" && <p>Loading...</p>}
-        {nearbyProducts.length > 0 && (
-          <>
-            <h2 className="text-2xl md:text-3xl font-extrabold mb-4 text-gray-800">Nearby Products</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
-              {renderProducts(nearbyProducts)}
+
+      <section className="py-8 px-4 md:px-16 max-w-9xl mx-auto flex flex-col lg:flex-row gap-8">
+        {/* Sidebar */}
+        <aside className="w-full hidden lg:block lg:w-64 flex-shrink-0 space-y-6">
+          <div className="bg-white rounded-2xl shadow-xl p-6">
+            <h4 className="font-extrabold text-xl mb-5 text-blue-700 tracking-wide">Categories</h4>
+            <ul className="space-y-3">
+              {categoriesList.map((cat, idx) => (
+                <li key={idx}>
+                  <Link
+                    to={`/search?query=${encodeURIComponent(cat.toLowerCase())}`}
+                    className="flex items-center justify-between px-4 py-2 rounded-xl hover:bg-gradient-to-r hover:from-blue-500 hover:to-pink-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg group"
+                  >
+                    <span className="font-medium group-hover:font-semibold">{cat}</span>
+                    <svg className="w-4 h-4 text-blue-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-white rounded-xl shadow p-4">
+            <h4 className="font-bold text-lg text-blue-700 mb-3">Sort Products</h4>
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select</option>
+              <option value="priceLowHigh">Price: Low to High</option>
+              <option value="priceHighLow">Price: High to Low</option>
+              <option value="dateNewOld">Date: New to Old</option>
+              <option value="dateOldNew">Date: Old to New</option>
+            </select>
+          </div>
+        </aside>
+
+        {/* Products */}
+        <section className="flex-1 flex flex-col gap-2">
+          {productStatus === "loading" && (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {Array(8).fill(0).map((_, i) => <ProductSkeleton key={i} />)}
             </div>
-          </>
-        )}
-        {under10kmProducts.length > 0 && (
-          <>
-            <h2 className="text-2xl font-bold mb-4">Products under 10 km</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
-              {renderProducts(under10kmProducts)}
-            </div>
-          </>
-        )}
-        {under50kmProducts.length > 0 && (
-          <>
-            <h2 className="text-2xl font-bold mb-4">Products under 50 km</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
-              {renderProducts(under50kmProducts)}
-            </div>
-          </>
-        )}
+          )}
+
+          {nearbyProducts.length > 0 && (
+            <>
+              <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
+                Nearby Products
+              </h2>
+
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                {renderProducts(nearbyProducts)}
+              </div>
+            </>
+          )}
+
+          {under10kmProducts.length > 0 && (
+            <>
+              <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
+                Products under 10 km
+              </h2>
+
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                {renderProducts(under10kmProducts)}
+              </div>
+            </>
+          )}
+
+          {under50kmProducts.length > 0 && (
+            <>
+              <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
+                Products under 50 km
+              </h2>
+
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                {renderProducts(under50kmProducts)}
+              </div>
+            </>
+          )}
+        </section>
       </section>
     </>
   );

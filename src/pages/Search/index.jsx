@@ -296,6 +296,11 @@ export default SearchPage;
 
 
 
+
+
+
+
+
 // import React, { useState, useEffect } from "react";
 // import { useLocation, useNavigate } from "react-router-dom";
 // import { FaHeart, FaShareAlt, FaArrowLeft, FaSearch, FaTimes } from "react-icons/fa";

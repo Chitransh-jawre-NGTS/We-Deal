@@ -1,6 +1,6 @@
 // src/pages/ChatRoom.jsx
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { FaArrowLeft, FaPaperPlane, FaUserCircle } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { socket } from "../utils/socket";
@@ -11,72 +11,59 @@ import {
 } from "../redux/slices/chatSlice";
 
 const ChatRoom = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const { id: chatId } = useParams(); // ✅ destructured correctly
+  const { id: chatId } = useParams();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userId = user._id;
 
   const messages = useSelector(
-    (state) => state.chat.messages[chatId] || [] // ✅ use chatId
+    (state) => state.chat.messages[chatId] || []
   );
+
   const [newMsg, setNewMsg] = useState("");
   const messagesEndRef = useRef(null);
 
-  // Scroll to bottom when messages update
-  const scrollToBottom = () => {
+  // Auto scroll
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-  useEffect(scrollToBottom, [messages]);
+  }, [messages]);
 
-  // Fetch messages and setup socket
+  // Fetch + socket setup
   useEffect(() => {
     if (!chatId) return;
-
     dispatch(fetchMessages(chatId));
 
-    if (!socket.connected) {
-      socket.connect();
-    }
+    if (!socket.connected) socket.connect();
 
-    // Join the chat room
-    socket.emit("joinChat", chatId, (ack) => {
-      if (!ack?.success) console.error("Failed to join chat", ack?.message);
-    });
+    socket.emit("joinChat", chatId);
 
     const handleReceiveMessage = (msg) => {
-      dispatch(addIncomingMessage({ chatId, message: msg }));
+      // ✅ prevent duplicate: skip if it's our own msg
+      if (msg.sender !== userId) {
+        dispatch(addIncomingMessage({ chatId, message: msg }));
+      }
     };
+
     socket.on("receiveMessage", handleReceiveMessage);
 
     return () => {
       socket.off("receiveMessage", handleReceiveMessage);
-      socket.emit("leaveChat", chatId); // leave room instead of disconnecting
+      socket.emit("leaveChat", chatId);
     };
-  }, [chatId, dispatch]);
+  }, [chatId, dispatch, userId]);
 
   // Send message
   const sendMessageHandler = async () => {
     const text = newMsg.trim();
     if (!text) return;
 
-    if (!userId) {
-      alert("User not found. Please login again.");
-      return;
-    }
-
     const payload = { chatId, text, sender: userId };
 
-    // Optimistic UI update
+    // Optimistic update
     dispatch(addIncomingMessage({ chatId, message: payload }));
 
-    // Emit via socket
-    socket.emit("sendMessage", payload, (ack) => {
-      if (!ack?.success) console.error("Message not sent", ack?.message);
-    });
+    socket.emit("sendMessage", payload);
 
-    // Send to API
     await dispatch(sendMessage(payload));
 
     setNewMsg("");
@@ -106,8 +93,8 @@ const ChatRoom = () => {
             key={msg._id || msg.id || idx}
             className={`max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl shadow-sm break-words ${
               msg.sender === userId
-                ? "ml-auto bg-blue-600 text-white rounded-br-none"
-                : "mr-auto bg-gray-200 text-gray-800 rounded-bl-none"
+                ? "ml-auto bg-blue-600 text-white rounded-br-none text-right"
+                : "mr-auto bg-gray-200 text-gray-800 rounded-bl-none text-left"
             }`}
           >
             {msg.text}

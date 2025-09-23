@@ -68,30 +68,35 @@ return (
     <div className="flex flex-col h-screen bg-gray-50">
       
       {/* ✅ Profile Banner (Sticky) */}
-      <section className="px-4 pt-8 sticky top-0 z-10 bg-gray-50">
-        <div className="max-w-7xl mx-auto flex items-center gap-6 bg-white rounded-3xl p-4 shadow-lg">
-          {/* Avatar with Verified Badge */}
-          <div className="relative w-25 h-25 flex-shrink-0">
-            <img
-              src={user?.avatar || "https://via.placeholder.com/150"}
-              alt={user?.name || "User"}
-              className="w-full h-full rounded-full object-cover border-4 border-blue-300"
-            />
-            <span className="absolute bottom-0 right-0 flex items-center text-white text-xs font-semibold bg-blue-500 px-2 py-0.5 rounded-full border-2 border-white">
-              <svg
-                className="w-3 h-3 mr-1"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              Verified
-            </span>
-          </div>
+      <section className="px-4  pt-8 sticky top-0 z-10 bg-gray-50">
+        <div className="max-w-7xl mx-auto flex items-center border border-gray-400 gap-6 bg-white rounded-3xl p-4 shadow-lg">
+         {/* Avatar with Verified Badge */}
+<div className="relative w-25 h-25 flex-shrink-0">
+  <img
+    src={user?.avatar || "https://via.placeholder.com/150"}
+    alt={user?.name || "User"}
+    className="w-full h-full rounded-full object-cover border-4 border-blue-300"
+  />
+
+  {/* ✅ Show badge only if user is verified */}
+  {user?.verified && (
+    <span className="absolute bottom-0 right-0 flex items-center text-white text-xs font-semibold bg-blue-500 px-2 py-0.5 rounded-full border-2 border-white">
+      <svg
+        className="w-3 h-3 mr-1"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fillRule="evenodd"
+          d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
+          clipRule="evenodd"
+        />
+      </svg>
+      Verified
+    </span>
+  )}
+</div>
+
 
           {/* Name */}
           <div>

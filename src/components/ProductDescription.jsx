@@ -38,10 +38,18 @@ const ProductDescription = () => {
       </div>
     );
   }
-const handleChat = () => {
-  // Just navigate to the chat room with productId
-  navigate(`/chatroom/${product._id}`);
+const handleChat = async () => {
+  if (!product) return;
+  
+  try {
+    const response = await dispatch(findOrCreateChat(product._id)).unwrap();
+    console.log("Chat opened:", response);
+    navigate(`/chatroom/${response._id}`);
+  } catch (err) {
+    console.error("Failed to open chat:", err);
+  }
 };
+
 
   return (
     <>
