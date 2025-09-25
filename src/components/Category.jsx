@@ -1,17 +1,28 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+// Import images
+import carImg from "../assets/images/categoryimage/swift-exterior-right-front-three-quarter-31.webp";
+import bikeImg from "../assets/images/categoryimage/yamaha-fz-x-ride-free-bike-500x500.webp";
+import mobileImg from "../assets/images/categoryimage/mobiles.webp";
+import furnitureImg from "../assets/images/categoryimage/furniture.webp";
+import fashionImg from "../assets/images/categoryimage/fashion.jpg";
+import electronicsImg from "../assets/images/categoryimage/electronics.jpg";
+import appliancesImg from "../assets/images/categoryimage/kitchen-appliances-banner.png";
+import sportsImg from "../assets/images/categoryimage/sports.jpg";
+import realEstateImg from "../assets/images/categoryimage/0x0.webp";
+
+// Categories data
 const categories = [
-  { name: "Cars", imgSrc: "src/assets/images/categoryimage/swift-exterior-right-front-three-quarter-31.webp" },
-  { name: "Bikes", imgSrc: "src/assets/images/categoryimage/yamaha-fz-x-ride-free-bike-500x500.webp" }, // new
-  { name: "Mobiles", imgSrc: "src/assets/images/categoryimage/mobiles.webp" },
-  { name: "Furniture", imgSrc: "src/assets/images/categoryimage/furniture.webp" },
-  // { name: "Jobs", imgSrc: "src/assets/images/categoryimage/job.jpg" },
-  { name: "Fashion", imgSrc: "src/assets/images/categoryimage/fashion.jpg" },
-  { name: "Electronics", imgSrc: "src/assets/images/categoryimage/electronics.jpg" },
-  { name: "Home Appliances", imgSrc: "src/assets/images/categoryimage/kitchen-appliances-banner.png" },
-  { name: "Sports", imgSrc: "src/assets/images/categoryimage/sports.jpg" },
-  { name: "Real Estate", imgSrc: "src/assets/images/categoryimage/0x0.webp" }, // new
+  { name: "Cars", imgSrc: carImg },
+  { name: "Bikes", imgSrc: bikeImg },
+  { name: "Mobiles", imgSrc: mobileImg },
+  { name: "Furniture", imgSrc: furnitureImg },
+  { name: "Fashion", imgSrc: fashionImg },
+  { name: "Electronics", imgSrc: electronicsImg },
+  { name: "Home Appliances", imgSrc: appliancesImg },
+  { name: "Sports", imgSrc: sportsImg },
+  { name: "Real Estate", imgSrc: realEstateImg },
 ];
 
 const Categories = () => {
@@ -20,8 +31,6 @@ const Categories = () => {
   const handleClick = (category) => {
     navigate(`/categorydetails?category=${encodeURIComponent(category)}`);
   };
-
-
 
   return (
     <div className="bg-gray-50 font-sans">
@@ -42,11 +51,7 @@ const Categories = () => {
                 onClick={() => handleClick(cat.name)}
                 className="bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 w-32 flex flex-col items-center justify-center p-4 flex-shrink-0 snap-center"
               >
-                <img
-                  src={cat.imgSrc}
-                  alt={cat.name}
-                  className="w-16 h-16 mb-2 object-contain"
-                />
+                <img src={cat.imgSrc} alt={cat.name} className="w-16 h-16 mb-2 object-contain" />
                 <h3 className="text-xs font-bold text-blue-700">{cat.name}</h3>
               </div>
             ))}
@@ -61,11 +66,7 @@ const Categories = () => {
               onClick={() => handleClick(cat.name)}
               className="bg-white rounded-2xl shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 w-88 flex flex-col items-center justify-center p-4"
             >
-              <img
-                src={cat.imgSrc}
-                alt={cat.name}
-                className="w-40 h-40 mb-2 object-contain"
-              />
+              <img src={cat.imgSrc} alt={cat.name} className="w-40 h-40 mb-2 object-contain" />
               <h3 className=" text-xl font-bold text-gray-700">{cat.name}</h3>
             </div>
           ))}
@@ -76,15 +77,6 @@ const Categories = () => {
 };
 
 export default Categories;
-
-
-
-
-
-
-
-
-
 
 
 

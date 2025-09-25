@@ -4,11 +4,14 @@ import { FaArrowLeft, FaArrowRight, FaStar, FaCheckCircle } from "react-icons/fa
 import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
 
-const carouselImages = [
-  "src/assets/images/hero-carousal/car.jpg",
-  "src/assets/images/hero-carousal/electronics.jpg",
-  "src/assets/images/hero-carousal/sell.jpg",
-];
+// Import images
+import carImg from "../../assets/images/hero-carousal/car.jpg";
+import electronicsImg from "../../assets/images/hero-carousal/electronics.jpg";
+import sellImg from "../../assets/images/hero-carousal/sell.jpg";
+
+// Carousel images array
+const carouselImages = [carImg, electronicsImg, sellImg];
+
 
 // Example shop data
 const shop = {
@@ -23,21 +26,22 @@ const productsData = {
     { id: 1, name: "iPhone 12", price: 45000, image: "https://picsum.photos/300/300?random=11" },
     { id: 2, name: "Samsung Galaxy S21", price: 35000, image: "https://picsum.photos/300/300?random=12" },
     { id: 3, name: "OnePlus 9", price: 30000, image: "https://picsum.photos/300/300?random=13" },
+    { id: 4, name: "Xiaomi Mi 11X", price: 25000, image: "https://picsum.photos/300/300?random=14" },
+    { id: 5, name: "Realme GT Neo", price: 28000, image: "https://picsum.photos/300/300?random=15" },
+    { id: 6, name: "Google Pixel 6", price: 55000, image: "https://picsum.photos/300/300?random=16" },
+    { id: 7, name: "Vivo V23", price: 24000, image: "https://picsum.photos/300/300?random=17" },
+    { id: 8, name: "Oppo Reno 6", price: 27000, image: "https://picsum.photos/300/300?random=18" },
+    { id: 9, name: "iPhone 13 Pro", price: 80000, image: "https://picsum.photos/300/300?random=19" },
+    { id: 10, name: "Samsung Galaxy Note 20", price: 60000, image: "https://picsum.photos/300/300?random=20" },
   ],
-  bikes: [
-    { id: 4, name: "Honda CB Shine", price: 50000, image: "https://picsum.photos/300/300?random=21" },
-    { id: 5, name: "Royal Enfield Classic 350", price: 120000, image: "https://picsum.photos/300/300?random=22" },
-    { id: 6, name: "Bajaj Pulsar 150", price: 75000, image: "https://picsum.photos/300/300?random=23" },
-  ],
-  covers: [
-    { id: 7, name: "iPhone Cover", price: 499, image: "https://picsum.photos/300/300?random=31" },
-    { id: 8, name: "Samsung Cover", price: 399, image: "https://picsum.photos/300/300?random=32" },
-    { id: 9, name: "OnePlus Cover", price: 299, image: "https://picsum.photos/300/300?random=33" },
-  ],
+
   featured: [
-    { id: 10, name: "Featured Phone", price: 40000, image: "https://picsum.photos/300/300?random=41" },
-    { id: 11, name: "Featured Bike", price: 95000, image: "https://picsum.photos/300/300?random=42" },
-    { id: 12, name: "Featured Cover", price: 299, image: "https://picsum.photos/300/300?random=43" },
+    { id: 101, name: "iPhone 14 Pro Max", price: 125000, image: "https://picsum.photos/300/300?random=41" },
+    { id: 102, name: "Samsung Galaxy Z Fold 4", price: 135000, image: "https://picsum.photos/300/300?random=42" },
+    { id: 103, name: "OnePlus 11 5G", price: 58000, image: "https://picsum.photos/300/300?random=43" },
+    { id: 104, name: "Google Pixel 7 Pro", price: 75000, image: "https://picsum.photos/300/300?random=44" },
+    { id: 105, name: "Asus ROG Phone 6", price: 70000, image: "https://picsum.photos/300/300?random=45" },
+    { id: 106, name: "iPhone SE (2022)", price: 45000, image: "https://picsum.photos/300/300?random=46" },
   ],
 };
 
@@ -52,70 +56,66 @@ const Store = () => {
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
-const renderProducts = (products) => (
-  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 lg:gap-6 mt-4">
-    {products.map((product) => (
-      <div
-        key={product.id}
-        className="bg-white  shadow-md hover:shadow-xl transition overflow-hidden flex flex-col relative group"
-      >
-        {/* Product Image */}
-        <Link
-          to={`/product/${product.id}`}
-          className="flex justify-center items-center h-48 bg-gray-50 overflow-hidden relative"
+
+  const renderProducts = (products) => (
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 lg:gap-6 mt-4">
+      {products.map((product) => (
+        <div
+          key={product.id}
+          className="bg-white shadow-md hover:shadow-xl transition overflow-hidden flex flex-col relative group"
         >
-          <img
-            src={product.image}
-            alt={product.name}
-            className="h-full object-contain transition-transform duration-300 group-hover:scale-105"
-          />
-        </Link>
-
-        {/* Product Details */}
-        <div className="p-4 flex flex-col flex-1">
-          <h2 className="text-lg font-semibold text-gray-800 line-clamp-2">{product.name}</h2>
-          
-          {/* Shop Info */}
-          <div className="flex items-center mt-2 gap-2">
-            <img
-              src={shop.logo} // can customize per product if available
-              alt={shop.name}
-              className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
-            />
-            <div className="flex flex-col flex-1">
-              <div className="flex items-center gap-1">
-                <span className="text-gray-800 font-medium text-sm">{shop.name}</span>
-                <FaCheckCircle className="text-blue-500 w-4 h-4" title="Trusted Seller" />
-              </div>
-              
-            </div>
-          </div>
-      <span className="text-gray-500 text-xs line-clamp-1">123 Main Street, City</span>
-          {/* Posted Date */}
-          <p className="text-gray-400 text-xs mt-1">Posted on: 25 Sep 2025</p>
-
-          <p className="text-blue-600 font-bold text-lg mt-2">₹{product.price.toLocaleString()}</p>
-
+          {/* Product Image */}
           <Link
-            to={`/product/${product.id}`}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white  hover:bg-blue-700 text-sm text-center transition"
+            to={`/store/product/${product.id}`}
+            className="flex justify-center items-center h-48 bg-gray-50 overflow-hidden relative"
           >
-            View
+            <img
+              src={product.image}
+              alt={product.name}
+              className="h-full object-contain transition-transform duration-300 group-hover:scale-105"
+            />
           </Link>
+
+          {/* Product Details */}
+          <div className="p-4 flex flex-col flex-1">
+            <h2 className="text-lg font-semibold text-gray-800 line-clamp-2">{product.name}</h2>
+            
+            {/* Shop Info */}
+            <div className="flex items-center mt-2 gap-2">
+              <img
+                src={shop.logo}
+                alt={shop.name}
+                className="w-8 h-8 rounded-full object-cover border-2 border-gray-200"
+              />
+              <div className="flex flex-col flex-1">
+                <div className="flex items-center gap-1">
+                  <span className="text-gray-800 font-medium text-sm">{shop.name}</span>
+                  <FaCheckCircle className="text-blue-500 w-4 h-4" title="Trusted Seller" />
+                </div>
+              </div>
+            </div>
+            <span className="text-gray-500 text-xs line-clamp-1">123 Main Street, City</span>
+            <p className="text-gray-400 text-xs mt-1">Posted on: 25 Sep 2025</p>
+            <p className="text-blue-600 font-bold text-lg mt-2">₹{product.price.toLocaleString()}</p>
+
+            <Link
+              to={`/product/${product.id}`}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 text-sm text-center transition"
+            >
+              View
+            </Link>
+          </div>
         </div>
-      </div>
-    ))}
-  </div>
-);
-
-
+      ))}
+    </div>
+  );
 
   return (
     <>
       <Navbar />
       <div className="bg-gray-50 min-h-screen">
         {/* Carousel */}
-        <div className="relative w-full mt-25 lg:mt-0 h-54 md:h-120  overflow-hidden">
+        <div className="relative w-full mt-25 lg:mt-0 h-54 md:h-120 overflow-hidden">
           <img
             src={carouselImages[currentSlide]}
             alt={`Slide ${currentSlide + 1}`}
@@ -152,26 +152,16 @@ const renderProducts = (products) => (
             </div>
           </section>
 
-          {/* Featured Products */}
+          {/* Featured Mobiles */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800">Featured Products</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Featured Mobiles</h2>
             {renderProducts(productsData.featured)}
           </section>
 
-          {/* Product Sections */}
+          {/* Used Mobiles */}
           <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800">Used Mobiles</h2>
+            <h2 className="text-2xl font-bold text-gray-800">RefebrishedMobiles</h2>
             {renderProducts(productsData.mobiles)}
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800">Used Bikes</h2>
-            {renderProducts(productsData.bikes)}
-          </section>
-
-          <section className="mb-10">
-            <h2 className="text-2xl font-bold text-gray-800">Mobile Covers</h2>
-            {renderProducts(productsData.covers)}
           </section>
 
           {/* Customer Testimonials */}
