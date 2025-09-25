@@ -63,7 +63,7 @@ const CategoryPage = () => {
               <img
                 src={cat.icon}
                 alt={cat.name}
-                className="w-10 h-10 object-contain"
+                className="w-30 h-30 object-contain"
               />
               <span className="mt-1 text-xs text-gray-600 ">
                 {cat.name}

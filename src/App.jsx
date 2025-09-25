@@ -27,6 +27,8 @@ import SellerPage from "./pages/sellerpage.jsx/index.jsx";
 import Settings from "./pages/settings/index.jsx";
 import ListingDetails from "./pages/listingDetails/index.jsx";
 import { Toaster } from "react-hot-toast";
+import BecomeSeller from "./pages/BecomeSeller/index.jsx";
+import SellerDashboard from "./pages/Seller-Dashboard/index.jsx";
 
 function App() {
 
@@ -51,6 +53,8 @@ function App() {
         <Route path="/seller/:sellerId" element={<SellerPage />} />
         <Route path="/settings" element={<Settings />} />
          <Route path="/my-listings/:productId" element={<ListingDetails/>} />
+         <Route path="/become-seller" element={<BecomeSeller/>} />
+         <Route path="/dashboard" element={<SellerDashboard/>} />
 
 
         {/* ✅ Protected routes */}

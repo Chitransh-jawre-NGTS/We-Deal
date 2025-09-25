@@ -358,6 +358,12 @@
 
 
 
+
+
+
+
+
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaSearch, FaTimes } from "react-icons/fa";
@@ -427,65 +433,70 @@ const MobileTopNavbar = ({ title }) => {
         </div>
       </div>
 
-      {/* Overlay Modal */}
-      {overlayOpen && (
-        <div className="fixed inset-0 h-screen bg-black bg-opacity-60 z-50 flex items-center justify-center backdrop-blur-sm">
-          <div className="bg-white/95 backdrop-blur-md h-screen w-full max-w-md p-4 relative shadow-xl border border-gray-200 overflow-y-auto">
-            {/* Close Button */}
-            <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-gray-800 transition-transform hover:scale-110"
-              onClick={() => setOverlayOpen(false)}
-            >
-              <FaTimes className="text-xl" />
-            </button>
+     {/* Overlay Modal */}
+{overlayOpen && (
+  <div className="fixed inset-0 h-screen bg-black bg-opacity-60 z-50 flex items-center justify-center backdrop-blur-sm">
+    <div className="bg-white/95 backdrop-blur-md h-screen w-full max-w-md p-6 relative shadow-xl border border-gray-200 overflow-y-auto">
+      
+      {/* Close Button */}
+      <button
+        className="absolute top-4 right-4 text-gray-500 hover:text-gray-900 transition-transform hover:scale-110"
+        onClick={() => setOverlayOpen(false)}
+      >
+        <FaTimes className="text-xl" />
+      </button>
 
-            <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
-              Select Location
-            </h2>
+      {/* Heading */}
+      <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center border-b border-gray-300 pb-3">
+        Select Location
+      </h2>
 
-            {/* Detect Current Location */}
-            <button
-              onClick={() => dispatch(detectCurrentLocation()).then(() => setOverlayOpen(false))}
-              className="w-full mb-5 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 rounded-xl shadow-lg hover:scale-105 transform transition-all disabled:opacity-60"
-              disabled={status === "loading"}
-            >
-              {status === "loading" ? "Detecting..." : "📍 Detect Current Location"}
-            </button>
+      {/* Detect Current Location */}
+      <button
+        onClick={() => dispatch(detectCurrentLocation()).then(() => setOverlayOpen(false))}
+        className="w-full mb-5 border-b-2 border-blue-500 text-blue-600 font-semibold py-3 text-left hover:bg-blue-50 transition-all disabled:opacity-60"
+        disabled={status === "loading"}
+      >
+        {status === "loading" ? "Detecting..." : " Detect Current Location"}
+      </button>
 
-            {/* Search Location */}
-            <div className="flex items-center gap-3 mb-5">
-              <input
-                type="text"
-                placeholder="Search for another location"
-                className="flex-1 border border-gray-300 rounded-full px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 shadow-sm transition"
-                value={locationQuery}
-                onChange={(e) => setLocationQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleLocationSearch()}
-              />
-              <button
-                onClick={handleLocationSearch}
-                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-3 rounded-full font-semibold shadow-lg hover:scale-105 transform transition-all disabled:opacity-60"
-                disabled={status === "loading"}
-              >
-                Search
-              </button>
-            </div>
+      {/* Search Location */}
+      <div className="flex items-center gap-2 mb-5 border-b border-gray-300 pb-3">
+        <input
+          type="text"
+          placeholder="Search for another location"
+          className="flex-1 border-none focus:outline-none focus:ring-0 text-gray-700"
+          value={locationQuery}
+          onChange={(e) => setLocationQuery(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleLocationSearch()}
+        />
+        <button
+          onClick={handleLocationSearch}
+          className="text-blue-600 font-semibold hover:underline transition-all disabled:opacity-60"
+          disabled={status === "loading"}
+        >
+          Search
+        </button>
+      </div>
 
-            {/* Predefined Locations */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {indiaLocations.map((loc, index) => (
-                <button
-                  key={index}
-                  onClick={() => handlePredefinedLocation(loc)}
-                  className="bg-gray-100 hover:bg-blue-100 text-gray-800 px-4 py-2 rounded-full font-medium shadow-sm transition"
-                >
-                  {loc.city}, {loc.state}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Predefined Locations */}
+      {/* Predefined Locations */}
+<div className="flex flex-col gap-2">
+  {indiaLocations.map((loc, index) => (
+    <button
+      key={index}
+      onClick={() => handlePredefinedLocation(loc)}
+      className="w-full text-left border-b border-gray-300 py-3 text-gray-700 hover:text-blue-600 hover:border-blue-500 transition-all font-medium"
+    >
+      {loc.city}, {loc.state}
+    </button>
+  ))}
+</div>
+
+    </div>
+  </div>
+)}
+
     </>
   );
 };

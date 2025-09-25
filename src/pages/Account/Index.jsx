@@ -20,6 +20,7 @@ const menuItems = [
   { label: "My Profile", icon: User, to: "/profile" },
   { label: "My Listings", icon: ShoppingBag, to: "/my-listing" },
   { label: "Wishlist", icon: Heart, to: "/wishlist" },
+  { label: "Become Seller", icon: Heart, to: "/become-seller" },
   { label: "Settings", icon: Settings, to: "/settings" },
   { label: "Help Center", icon: HelpCircle, to: "/help" },
   { label: "Logout", icon: LogOut, to: "/logout", color: "text-red-600", isLogout: true },
@@ -28,14 +29,15 @@ const menuItems = [
 const Account = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null); // contains user + profile
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await userApi.getProfile();
-        setUser(res.data);
+        // res.data should contain { user: {...}, profile: {...} }
+        setUserData(res.data);
       } catch (err) {
         console.error("Failed to fetch profile", err);
         toast.error("Failed to load user profile");
@@ -62,98 +64,93 @@ const Account = () => {
     );
   }
 
-return (
-  <>
-    <Navbar ShowMobileTop={false} />
-    <div className="flex flex-col h-screen bg-gray-50">
-      
-      {/* ✅ Profile Banner (Sticky) */}
-      <section className="px-4  pt-8 sticky top-0 z-10 bg-gray-50">
-        <div className="max-w-7xl mx-auto flex items-center border border-gray-400 gap-6 bg-white rounded-3xl p-4 shadow-lg">
-         {/* Avatar with Verified Badge */}
-<div className="relative w-25 h-25 flex-shrink-0">
-  <img
-    src={user?.avatar || "https://via.placeholder.com/150"}
-    alt={user?.name || "User"}
-    className="w-full h-full rounded-full object-cover border-4 border-blue-300"
-  />
+  const profile = userData?.profile || {};
+  const user = userData?.user || {};
 
-  {/* ✅ Show badge only if user is verified */}
-  {user?.verified && (
-    <span className="absolute bottom-0 right-0 flex items-center text-white text-xs font-semibold bg-blue-500 px-2 py-0.5 rounded-full border-2 border-white">
-      <svg
-        className="w-3 h-3 mr-1"
-        fill="currentColor"
-        viewBox="0 0 20 20"
-      >
-        <path
-          fillRule="evenodd"
-          d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
-          clipRule="evenodd"
-        />
-      </svg>
-      Verified
-    </span>
-  )}
-</div>
-
-
-          {/* Name */}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-700">
-              {user?.name || "No Name"}
-            </h2>
-          </div>
-        </div>
-      </section>
-
-      {/* ✅ Menu Options (Scrollable area) */}
-      <section className="flex-1 overflow-y-auto w-full mx-auto px-4 mt-6 pb-20">
-        <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-          {menuItems.map((item, idx) =>
-            item.isLogout ? (
-              <button
-                key={idx}
-                onClick={handleLogout}
-                className="flex items-center justify-between p-4 bg-white rounded-2xl shadow hover:shadow-xl transition hover:bg-red-50"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-red-100 rounded-full flex items-center justify-center">
-                    <item.icon className={`w-6 h-6 ${item.color}`} />
-                  </div>
-                  <span className="font-medium text-gray-700">{item.label}</span>
-                </div>
-                <ChevronRight className="w-5 h-5 text-gray-400" />
-              </button>
-            ) : (
-              <Link
-                key={idx}
-                to={item.to}
-                className="flex items-center justify-between p-4 bg-white rounded-2xl shadow hover:shadow-xl transition hover:bg-blue-50"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-100 rounded-full flex items-center justify-center">
-                    <item.icon
-                      className={`${item.color || "text-blue-600"} w-6 h-6`}
+  return (
+    <>
+      <Navbar ShowMobileTop={false} />
+      <div className="flex flex-col h-screen bg-gray-50">
+        {/* Profile Banner */}
+        <section className="px-4 pt-8 sticky top-0 z-10 bg-gray-50">
+          <div className="max-w-7xl mx-auto flex items-center border border-gray-400 gap-6 bg-white rounded-3xl p-4 shadow-lg">
+            {/* Avatar */}
+            <div className="relative w-24 h-24 flex-shrink-0">
+              <img
+                src={profile?.avatar || "https://via.placeholder.com/150"}
+                alt={profile?.name || "User"}
+                className="w-full h-full rounded-full object-cover border-4 border-blue-300"
+              />
+              {profile?.verified && (
+                <span className="absolute bottom-0 right-0 flex items-center text-white text-xs font-semibold bg-blue-500 px-2 py-0.5 rounded-full border-2 border-white">
+                  <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 00-1.414 0L9 11.586 6.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l7-7a1 1 0 000-1.414z"
+                      clipRule="evenodd"
                     />
+                  </svg>
+                  Verified
+                </span>
+              )}
+            </div>
+
+            {/* Name */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-700">
+                {profile?.name || "No Name"}
+              </h2>
+              <p className="text-gray-500 text-sm">{user?.email}</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Menu Options */}
+        <section className="flex-1 overflow-y-auto w-full mx-auto px-4 mt-6 pb-20">
+          <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+            {menuItems.map((item, idx) =>
+              item.isLogout ? (
+                <button
+                  key={idx}
+                  onClick={handleLogout}
+                  className="flex items-center justify-between p-4 bg-white rounded-2xl shadow hover:shadow-xl transition hover:bg-red-50"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-red-100 rounded-full flex items-center justify-center">
+                      <item.icon className={`w-6 h-6 ${item.color}`} />
+                    </div>
+                    <span className="font-medium text-gray-700">{item.label}</span>
                   </div>
-                  <span className="font-medium text-gray-700">{item.label}</span>
-                </div>
-                <ChevronRight className="w-5 h-5 text-gray-400" />
-              </Link>
-            )
-          )}
-        </div>
-      </section>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </button>
+              ) : (
+                <Link
+                  key={idx}
+                  to={item.to}
+                  className="flex items-center justify-between p-4 bg-white rounded-2xl shadow hover:shadow-xl transition hover:bg-blue-50"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-blue-100 rounded-full flex items-center justify-center">
+                      <item.icon
+                        className={`${item.color || "text-blue-600"} w-6 h-6`}
+                      />
+                    </div>
+                    <span className="font-medium text-gray-700">{item.label}</span>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                </Link>
+              )
+            )}
+          </div>
+        </section>
 
-      {/* Footer */}
-      <footer className="max-w-7xl hidden md:flex mx-auto px-4 py-6 text-center text-gray-400 text-sm">
-        © 2025 NextGenOLX. All rights reserved.
-      </footer>
-    </div>
-  </>
-);
-
+        {/* Footer */}
+        <footer className="max-w-7xl hidden md:flex mx-auto px-4 py-6 text-center text-gray-400 text-sm">
+          © 2025 NextGenOLX. All rights reserved.
+        </footer>
+      </div>
+    </>
+  );
 };
 
 export default Account;

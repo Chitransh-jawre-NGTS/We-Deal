@@ -35,9 +35,9 @@ const MobileBottomNav = () => {
           <FaPlus className="text-2xl" />
         </Link>
 
-        <Link to="/wishlist" className={`flex flex-col items-center text-sm ${isActive("/wishlist")}`}>
+        <Link to="/store" className={`flex flex-col items-center text-sm ${isActive("/wishlist")}`}>
           <FaHeart className="text-xl" />
-          <span>Wishlist</span>
+          <span>Store</span>
         </Link>
 
         <Link to="/account" className={`flex flex-col items-center text-sm ${isActive("/account")}`}>
