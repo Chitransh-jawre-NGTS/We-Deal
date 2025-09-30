@@ -28,9 +28,9 @@ const Landing = () => {
       <Navbar />
       <div className="font-sans bg-gray-50 min-h-screen">
         {/* Notification Bar */}
-        <div className="bg-purple-700 text-white text-center py-2 text-sm md:text-base">
+        {/* <div className="bg-purple-700 text-white text-center py-2 text-sm md:text-base">
            New Users Get Extra Visibility! Post your ad today for free!
-        </div>
+        </div> */}
 
         <HeroCarousel />
         <Categories />

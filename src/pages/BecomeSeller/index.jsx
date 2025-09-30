@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-import axios from "axios";
+import { registerSeller, loginSeller } from "../../api/storeApi/adminApi"; // ✅ import API functions
 
 const BecomeSeller = () => {
   const navigate = useNavigate();
@@ -50,25 +50,10 @@ const BecomeSeller = () => {
 
     try {
       setLoading(true);
-      const data = new FormData();
-      for (let key in formData) {
-        data.append(key, formData[key]);
-      }
-
-      // Call backend store register API
-      const res = await axios.post(
-        "http://localhost:5000/api/store/register",
-        data,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // user must be logged in
-          },
-        }
-      );
-
-      alert(res.data.message || "Registered successfully!");
-      navigate("/dashboard"); // Redirect to dashboard after registration
+      const token = localStorage.getItem("token"); // user must be logged in
+      const data = await registerSeller(formData, token);
+      alert(data.message || "Registered successfully!");
+      navigate("/store/dashboard");
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Something went wrong");
@@ -78,33 +63,26 @@ const BecomeSeller = () => {
   };
 
   // Seller Login
- const handleLogin = async (e) => {
-  e.preventDefault();
-  if (!formData.email || !formData.password) {
-    alert("Please enter email and password");
-    return;
-  }
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    if (!formData.email || !formData.password) {
+      alert("Please enter email and password");
+      return;
+    }
 
-  try {
-    setLoading(true);
-    const res = await axios.post("http://localhost:5000/api/store/login", {
-      email: formData.email,
-      password: formData.password,
-    });
-
-    // Save store token in localStorage
-    localStorage.setItem("storeToken", res.data.storeToken || res.data.token); 
-    // Use res.data.storeToken if your backend sends "storeToken", else fallback to "token"
-
-    alert("Login successful");
-    navigate("/dashboard");
-  } catch (err) {
-    console.error(err);
-    alert(err.response?.data?.message || "Login failed");
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      setLoading(true);
+      const data = await loginSeller(formData.email, formData.password);
+      localStorage.setItem("storeToken", data.storeToken || data.token);
+      alert("Login successful");
+      navigate("/store/dashboard");
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   return (
@@ -119,7 +97,7 @@ const BecomeSeller = () => {
 
       {/* Main Form */}
       <div className="flex flex-1 items-center justify-center px-4 py-6">
-        <div className="w-full max-w-2xl bg-white p-8 rounded-xl shadow-lg">
+        <div className="w-full max-w-6xl bg-white p-8 rounded-xl shadow-lg">
           {isLogin ? (
             <>
               <h2 className="text-2xl font-bold text-gray-800 text-center mb-2">Seller Login</h2>

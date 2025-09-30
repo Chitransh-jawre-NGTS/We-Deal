@@ -197,16 +197,16 @@ export const categoryData = {
     ]
   },
 
-  jobs: {
-    fields: [
-      { name: "Role", type: "text" },
-      { name: "Company", type: "text" },
-      { name: "Experience Required", type: "text" },
-      { name: "Salary", type: "text" },
-      { name: "Location", type: "text" },
-      { name: "Year", type: "text" },
-    ]
-  },
+  // jobs: {
+  //   fields: [
+  //     { name: "Role", type: "text" },
+  //     { name: "Company", type: "text" },
+  //     { name: "Experience Required", type: "text" },
+  //     { name: "Salary", type: "text" },
+  //     { name: "Location", type: "text" },
+  //     { name: "Year", type: "text" },
+  //   ]
+  // },
 
   fashion: {
     fields: [

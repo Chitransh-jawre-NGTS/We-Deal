@@ -2,30 +2,15 @@ import React, { useMemo } from "react";
 import Slider from "react-slick";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-// ✅ Import images so they’re bundled once
-import sellImg from "../assets/images/hero-carousal/sell.jpg";
-import carImg from "../assets/images/hero-carousal/car.jpg";
-import electronicsImg from "../assets/images/hero-carousal/electronics.jpg";
+// Import images
+import sellImg from "../assets/images/hero-carousal/Gemini_Generated_Image_5hhozo5hhozo5hho.png";
+import carImg from "../assets/images/hero-carousal/Gemini_Generated_Image_jez5i8jez5i8jez5.png";
+import electronicsImg from "../assets/images/hero-carousal/Gemini_Generated_Image_hrjl7chrjl7chrjl.png";
 
 const banners = [
-  {
-    id: 1,
-    image: sellImg,
-    title: "Sell Anything Instantly",
-    subtitle: "Post your ad for free and reach thousands of buyers.",
-  },
-  {
-    id: 2,
-    image: carImg,
-    title: "Find Your Dream Car",
-    subtitle: "Browse thousands of verified car listings near you.",
-  },
-  {
-    id: 3,
-    image: electronicsImg,
-    title: "Best Deals on Electronics",
-    subtitle: "Grab the latest gadgets at unbeatable prices.",
-  },
+  { id: 3, image: carImg },
+  { id: 2, image: sellImg },
+  { id: 1, image: electronicsImg },
 ];
 
 // Custom arrow components
@@ -48,7 +33,6 @@ const PrevArrow = ({ onClick }) => (
 );
 
 const HeroCarousel = () => {
-  // ✅ Memoize settings so they don’t change every render
   const settings = useMemo(
     () => ({
       dots: true,
@@ -73,24 +57,16 @@ const HeroCarousel = () => {
   );
 
   return (
-    <section className="relative w-full mt-10 md:mt-0 overflow-hidden">
+    <section className="relative w-full mt-25 md:mt-0 overflow-hidden">
       <Slider {...settings}>
         {banners.map((banner) => (
-          <div key={banner.id} className="relative w-full h-[40vh] md:h-[75vh]">
+          <div key={banner.id} className="w-full h-[28vh] md:h-[75vh]">
             <img
               src={banner.image}
-              alt={banner.title}
+              alt={`Banner ${banner.id}`}
               className="w-full h-full object-cover"
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center md:items-start text-center md:text-left px-6 md:px-16">
-              <h2 className="text-2xl md:text-5xl font-bold text-white drop-shadow-lg">
-                {banner.title}
-              </h2>
-              <p className="text-sm md:text-lg text-gray-200 mt-3 md:mt-4 max-w-xl">
-                {banner.subtitle}
-              </p>
-            </div>
           </div>
         ))}
       </Slider>

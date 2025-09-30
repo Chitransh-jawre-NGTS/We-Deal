@@ -590,59 +590,50 @@
 
 
 
-
-
-
-
-
-
 import React, { useEffect, useState } from "react";
 import { FaHeart, FaShareAlt } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../redux/slices/productsSlices";
 import { fetchWishlist, toggleWishlist } from "../redux/slices/wishlistSlice";
+import { detectCurrentLocation } from "../redux/slices/locationSlice";
 import toast, { Toaster } from "react-hot-toast";
 
 const categoriesList = [
-  "Mobiles", "Cars", "Furniture", "Jobs",
-  "Fashion", "Electronics", "Home Appliances", "Sports"
+  "Mobiles", "Cars", "Furniture", 
+  "Fashion", "Electronics", "Home Appliances",
 ];
 
 const ListingsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Redux states
   const { items: products, status: productStatus } = useSelector((state) => state.products);
   const { wishlist } = useSelector((state) => state.wishlist);
-  const [userCoords, setUserCoords] = useState(null);
-  const { selected: currentLocation } = useSelector((state) => state.location);
+  const { selected: currentLocation, status: locationStatus } = useSelector((state) => state.location);
+
   const [sortOption, setSortOption] = useState("");
-  const [page, setPage] = useState(1);
 
-  // Fetch user coordinates
+  // 🔹 Detect current location on mount (Redux handles localStorage too)
   useEffect(() => {
-    const storedLocation = localStorage.getItem("selectedLocation");
-    if (storedLocation) {
-      const { city } = JSON.parse(storedLocation);
-      fetch(`https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(city)}&format=json&limit=1`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.length > 0)
-            setUserCoords({ latitude: parseFloat(data[0].lat), longitude: parseFloat(data[0].lon) });
-        });
-    } else {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => setUserCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-        (err) => console.error("Location error:", err)
-      );
+    if (!currentLocation?.city) {
+      dispatch(detectCurrentLocation());
     }
-  }, [currentLocation]);
+  }, [dispatch, currentLocation]);
 
+  // 🔹 Fetch products + wishlist once location is available
   useEffect(() => {
-    if (userCoords) dispatch(fetchProducts(userCoords));
-    dispatch(fetchWishlist());
-  }, [dispatch, userCoords]);
+    if (currentLocation?.latitude && currentLocation?.longitude) {
+      dispatch(fetchProducts({ 
+        latitude: currentLocation.latitude, 
+        longitude: currentLocation.longitude 
+      }));
+      dispatch(fetchWishlist());
+    }
+  }, [dispatch, currentLocation]);
 
+  // Handle wishlist toggle
   const handleToggleWishlist = (id) => {
     dispatch(toggleWishlist(id))
       .unwrap()
@@ -650,6 +641,7 @@ const ListingsPage = () => {
       .catch(() => toast.error("Failed to update wishlist"));
   };
 
+  // Handle product share
   const shareProduct = (productId) => {
     const url = `${window.location.origin}/product/${productId}`;
     if (navigator.share) {
@@ -660,10 +652,21 @@ const ListingsPage = () => {
     }
   };
 
-  // Product filters
-  const nearbyProducts = products.filter((p) => p.distance <= 5);
-  const under10kmProducts = products.filter((p) => p.distance > 5 && p.distance <= 10);
-  const under50kmProducts = products.filter((p) => p.distance > 10 && p.distance <= 50);
+  // 🔹 Sorting
+  const sortedProducts = [...products].sort((a, b) => {
+    switch (sortOption) {
+      case "priceLowHigh": return a.fields.Price - b.fields.Price;
+      case "priceHighLow": return b.fields.Price - a.fields.Price;
+      case "dateNewOld": return new Date(b.createdAt) - new Date(a.createdAt);
+      case "dateOldNew": return new Date(a.createdAt) - new Date(b.createdAt);
+      default: return 0;
+    }
+  });
+
+  // 🔹 Distance-based groups
+  const nearbyProducts = sortedProducts.filter((p) => p.distance <= 5);
+  const under10kmProducts = sortedProducts.filter((p) => p.distance > 5 && p.distance <= 10);
+  const under50kmProducts = sortedProducts.filter((p) => p.distance > 10 && p.distance <= 50);
 
   // Skeleton Loader
   const ProductSkeleton = () => (
@@ -687,19 +690,19 @@ const ListingsPage = () => {
         <div
           onClick={() => handleToggleWishlist(item._id)}
           className={`absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 bg-white shadow-md cursor-pointer transition 
-      ${wishlist.includes(item._id) ? "text-red-500" : "text-gray-400 hover:text-red-500 hover:bg-gray-100"}
-    `}
+          ${wishlist.includes(item._id) ? "text-red-500" : "text-gray-400 hover:text-red-500 hover:bg-gray-100"}
+        `}
         >
           <FaHeart className="text-lg" />
         </div>
 
         {/* Share Button */}
-        <div
+        {/* <div
           onClick={() => shareProduct(item._id)}
           className="absolute top-16 right-3 w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 bg-white shadow-md cursor-pointer text-gray-400 hover:text-green-500 hover:bg-gray-100 transition"
         >
           <FaShareAlt className="text-lg" />
-        </div>
+        </div> */}
 
         {/* Product Image */}
         <img
@@ -719,9 +722,9 @@ const ListingsPage = () => {
           <h4 className="text-base md:text-lg font-bold mb-1">{item.fields.Brand} {item.fields.Model}</h4>
           <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
           <p className="text-gray-400 text-xs">Published: {new Date(item.createdAt).toLocaleDateString()}</p>
+          <p className="text-gray-500 text-sm mb-1">{item.fields.location} </p>
         </div>
       </div>
-
     ));
 
   return (
@@ -768,45 +771,44 @@ const ListingsPage = () => {
 
         {/* Products */}
         <section className="flex-1 flex flex-col gap-2">
-          {productStatus === "loading" && (
+          {productStatus === "loading" || locationStatus === "loading" ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {Array(8).fill(0).map((_, i) => <ProductSkeleton key={i} />)}
             </div>
-          )}
-
-          {nearbyProducts.length > 0 && (
+          ) : (
             <>
-              <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
-                Nearby Products
-              </h2>
+              {nearbyProducts.length > 0 && (
+                <>
+                  <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
+                    Nearby Products
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-6">
+                    {renderProducts(nearbyProducts)}
+                  </div>
+                </>
+              )}
 
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {renderProducts(nearbyProducts)}
-              </div>
-            </>
-          )}
+              {under10kmProducts.length > 0 && (
+                <>
+                  <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
+                    Products under 10 km
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-6">
+                    {renderProducts(under10kmProducts)}
+                  </div>
+                </>
+              )}
 
-          {under10kmProducts.length > 0 && (
-            <>
-              <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
-                Products under 10 km
-              </h2>
-
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {renderProducts(under10kmProducts)}
-              </div>
-            </>
-          )}
-
-          {under50kmProducts.length > 0 && (
-            <>
-              <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
-                Products under 50 km
-              </h2>
-
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {renderProducts(under50kmProducts)}
-              </div>
+              {under50kmProducts.length > 0 && (
+                <>
+                  <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
+                    Products under 50 km
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-6">
+                    {renderProducts(under50kmProducts)}
+                  </div>
+                </>
+              )}
             </>
           )}
         </section>

@@ -30,6 +30,7 @@ import { Toaster } from "react-hot-toast";
 import BecomeSeller from "./pages/BecomeSeller/index.jsx";
 import SellerDashboard from "./pages/Seller-Dashboard/index.jsx";
 import StoreProductD from "./pages/storeProductDescription/StoreProductD.jsx";
+import BillingPage from "./components/BillingPage.jsx";
 
 function App() {
 
@@ -55,8 +56,9 @@ function App() {
         <Route path="/settings" element={<Settings />} />
          <Route path="/my-listings/:productId" element={<ListingDetails/>} />
          <Route path="/become-seller" element={<BecomeSeller/>} />
-         <Route path="/dashboard" element={<SellerDashboard/>} />
+         <Route path="/store/dashboard" element={<SellerDashboard/>} />
           <Route path="/store/product/:id" element={<StoreProductD />} />
+           <Route path="/billing" element={<BillingPage/>} />
 
 
         {/* ✅ Protected routes */}

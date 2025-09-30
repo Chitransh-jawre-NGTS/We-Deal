@@ -21,7 +21,7 @@ const categories = [
   { name: "Fashion", imgSrc: fashionImg },
   { name: "Electronics", imgSrc: electronicsImg },
   { name: "Home Appliances", imgSrc: appliancesImg },
-  { name: "Sports", imgSrc: sportsImg },
+  // { name: "Sports", imgSrc: sportsImg },
   { name: "Real Estate", imgSrc: realEstateImg },
 ];
 

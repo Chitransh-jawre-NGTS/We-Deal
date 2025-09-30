@@ -8,6 +8,7 @@ import { userApi } from "../api/auth";
 import { setLocation, detectCurrentLocation, searchLocation } from "../redux/slices/locationSlice"; 
 import logo from "../assets/images/myweblogo/ChatGPT Image Sep 20, 2025, 11_04_57 PM.png"; 
 import { HelpCircle, LogOut, Package, User } from "lucide-react";
+import MegaMenu from "./MegaMenu";
 
 const categories = [
   "All Categories",
@@ -31,7 +32,8 @@ const DesktopNavbar = () => {
   const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
-  const { selected } = useSelector((state) => state.location);
+  const { selected, searchResults } = useSelector((state) => state.location);
+
 
   const locationValue =
     selected?.city && selected?.state
@@ -52,7 +54,7 @@ const DesktopNavbar = () => {
     const fetchUserProfile = async () => {
       try {
         const res = await userApi.getProfile();
-        dispatch(setUser(res.data));
+        dispatch(setUser(res.data.profile));
       } catch (err) {
         console.error("Failed to fetch profile", err);
       }
@@ -101,31 +103,54 @@ const DesktopNavbar = () => {
               <FaChevronDown className="ml-2 text-gray-500" />
             </div>
             {locOpen && (
-              <div className="absolute top-full mt-2 w-72 bg-white border border-gray-200 rounded-xl shadow-lg p-4 z-50">
-                <p className="text-sm text-gray-600 mb-2">Current Location:</p>
-                <div className="px-2 py-1 bg-gray-100 rounded-md text-gray-700 text-sm mb-3">
-                  {locationValue}
-                </div>
-                <button
-                  onClick={() => dispatch(detectCurrentLocation())}
-                  className="w-full mb-3 px-3 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition"
-                >
-                  📍 Use Current Location
-                </button>
-                <input
-                  type="text"
-                  placeholder="Search another location..."
-                  value={manualInput}
-                  onChange={(e) => setManualInput(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  onClick={() => dispatch(searchLocation(manualInput))}
-                  className="w-full px-3 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 transition"
-                >
-                  🔎 Set Location
-                </button>
-              </div>
+          <div className="absolute top-full mt-2 w-72 bg-white border border-gray-300 shadow p-4 z-50">
+  {/* Current Location */}
+  <p className="text-sm text-gray-700 mb-2 font-medium">Current Location:</p>
+  <div className="px-2 py-1 bg-gray-50 border border-gray-200 text-gray-800 text-sm mb-3">
+    {locationValue || "Not detected"}
+  </div>
+
+  {/* Use Current Location Button */}
+  <button
+    onClick={() => dispatch(detectCurrentLocation())}
+    className="w-full mb-3 px-3 py-2 bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition"
+  >
+    Use Current Location
+  </button>
+
+  {/* Manual Input */}
+  <input
+    type="text"
+    placeholder="Search another location..."
+    value={manualInput}
+    onChange={(e) => setManualInput(e.target.value)}
+    className="w-full border border-gray-300 px-3 py-2 text-sm mb-2 focus:outline-none focus:ring-1 focus:ring-blue-600"
+  />
+
+  {/* Search Button */}
+  <button
+    onClick={() => dispatch(searchLocation(manualInput))}
+    className="w-full px-3 py-2 bg-green-600 text-white text-sm font-medium hover:bg-green-700 transition mb-3"
+  >
+    Set Location
+  </button>
+
+  {/* Search Results */}
+  {searchResults?.length > 0 && (
+    <ul className="max-h-48 overflow-y-auto border border-gray-200 bg-white text-gray-800 text-sm">
+      {searchResults.map((loc, idx) => (
+        <li
+          key={idx}
+          onClick={() => dispatch(setLocation(loc))} // set selected location
+          className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+        >
+          {loc.name}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
             )}
           </div>
 
@@ -196,6 +221,13 @@ const DesktopNavbar = () => {
                   <Package size={18} />
                   <span>My Listings</span>
                 </Link>
+                 <Link
+                  to="/become-seller"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition border-b"
+                >
+                  <Package size={18} />
+                  <span>Become seller</span>
+                </Link>
 
                 <Link
                   to="/help"
@@ -233,17 +265,27 @@ const DesktopNavbar = () => {
       </div>
 
       {/* Categories */}
-      <div className="hidden md:flex mx-auto overflow-x-auto gap-6 px-6 py-2 bg-gray-50 border-t border-gray-200">
-        {categories.map((cat, idx) => (
-          <span
-            key={idx}
-            onClick={() => handleCategoryClick(cat)}
-            className="whitespace-nowrap cursor-pointer text-gray-700 hover:text-blue-600 font-medium text-sm transition"
-          >
-            {cat}
-          </span>
-        ))}
-      </div>
+     <div className="hidden md:flex mx-auto overflow-x-auto gap-6 px-6 py-2 bg-gray-50 border-t border-gray-200 items-center">
+  {categories.map((cat, idx) => (
+    <span
+      key={idx}
+      onClick={() => handleCategoryClick(cat)}
+      className="whitespace-nowrap cursor-pointer text-gray-700 hover:text-blue-600 font-medium text-sm transition"
+    >
+      {cat}
+    </span>
+  ))}
+
+  {/* Store button at the end */}
+  <Link
+    to="/store"
+    className="ml-auto px-6 py-1.5 rounded-lg bg-gradient-to-r from-yellow-500 to-blue-600 border border-blue-600 text-white text-md font-semibold shadow-md hover:bg-blue-700 transition"
+  >
+    MY STORE
+  </Link>
+</div>
+{/* <MegaMenu/> */}
+
     </header>
   );
 };

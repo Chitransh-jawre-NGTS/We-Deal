@@ -1,159 +1,165 @@
-import React, { useState } from "react";
-import { FaUserCircle, FaLock, FaBell, FaGlobe, FaMoon } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaUpload, FaBell, FaMoon, FaGlobe } from "react-icons/fa";
+import axios from "axios";
 
 const DashSetting = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    shopName: "",
+    gstNumber: "",
+    address: "",
+    pincode: "",
+    city: "",
+    state: "",
+  });
+  const [avatar, setAvatar] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [language, setLanguage] = useState("English");
   const [currency, setCurrency] = useState("INR");
+  const [loading, setLoading] = useState(true);
+
+  // Fetch store profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get("http://localhost:5000/api/store/profile", {
+          headers: {
+            "x-store-token": localStorage.getItem("storeToken"),
+          },
+        });
+
+        const profile = res.data;
+        setFormData({
+          name: profile.name || "",
+          email: profile.email || "",
+          phone: profile.phone || "",
+          shopName: profile.shopName || "",
+          gstNumber: profile.gstNumber || "",
+          address: profile.address || "",
+          pincode: profile.pincode || "",
+          city: profile.city || "",
+          state: profile.state || "",
+        });
+        setAvatar(profile.shopLogo || "https://i.pravatar.cc/100");
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleFileChange = (e) => setAvatar(URL.createObjectURL(e.target.files[0]));
+
+  if (loading) return <p className="text-center mt-10 text-gray-500">Loading profile...</p>;
 
   return (
-    <div className="bg-gray-100 min-h-screen p-">
-      <div className="w-full mx-auto bg-white rounded-2xl shadow p-6">
-        {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-800 mb-6"> Settings</h1>
+    <div className="bg-gray-100 min-h-screen">
+      <div className="mx-auto bg-white rounded-2xl shadow p-6 ">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">Store Settings</h1>
 
         {/* Profile Section */}
         <div className="flex items-center gap-6 border-b border-gray-200 pb-6 mb-6">
-          <img
-            src="https://i.pravatar.cc/100"
-            alt="Profile"
-            className="h-16 w-16 rounded-full border-2 border-gray-300 object-cover"
-          />
+          <div className="relative">
+            <img src={avatar} alt="Store Logo" className="h-20 w-20 rounded-full border-2 border-gray-300 object-cover" />
+            <label className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 cursor-pointer hover:bg-blue-700 transition">
+              <FaUpload />
+              <input type="file" className="hidden" onChange={handleFileChange} />
+            </label>
+          </div>
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-gray-800">Seller Name</h2>
-            <p className="text-sm text-gray-500">seller@example.com</p>
+            <h2 className="text-lg font-semibold text-gray-800">{formData.name}</h2>
+            <p className="text-sm text-gray-500">{formData.email}</p>
           </div>
         </div>
 
-        {/* Account Settings */}
+        {/* Form Section */}
         <div className="space-y-6">
-          {/* Change Password */}
-          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-            <div className="flex items-center gap-3">
-              <FaLock className="text-gray-500 text-lg" />
-              <div>
-                <p className="font-medium text-gray-700">Change Password</p>
-                <p className="text-sm text-gray-500">
-                  Update your account password regularly.
-                </p>
-              </div>
+          {[
+            { label: "Full Name", name: "name", type: "text" },
+            { label: "Email", name: "email", type: "email" },
+            { label: "Phone Number", name: "phone", type: "text" },
+            { label: "Shop Name", name: "shopName", type: "text" },
+            { label: "GST Number", name: "gstNumber", type: "text" },
+            { label: "Address", name: "address", type: "text" },
+            { label: "Pincode", name: "pincode", type: "text" },
+            { label: "City", name: "city", type: "text" },
+            { label: "State", name: "state", type: "text" },
+          ].map((field) => (
+            <div key={field.name}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{field.label}</label>
+              <input
+                type={field.type}
+                name={field.name}
+                value={formData[field.name]}
+                onChange={handleChange}
+                className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200 focus:outline-none"
+              />
             </div>
-            <button className="px-3 py-1.5 bg-gray-100 rounded-lg hover:bg-gray-200 text-sm">
-              Update
-            </button>
-          </div>
+          ))}
 
           {/* Notifications */}
-          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <FaBell className="text-gray-500 text-lg" />
-              <div>
-                <p className="font-medium text-gray-700">Notifications</p>
-                <p className="text-sm text-gray-500">
-                  Get alerts about your listings and offers.
-                </p>
-              </div>
+              <p className="font-medium text-gray-700">Notifications</p>
             </div>
             <label className="inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={notifications}
-                onChange={() => setNotifications(!notifications)}
-                className="sr-only"
-              />
-              <div
-                className={`w-11 h-6 flex items-center bg-gray-300 rounded-full p-1 duration-300 ${
-                  notifications ? "bg-blue-500" : "bg-gray-300"
-                }`}
-              >
-                <div
-                  className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ${
-                    notifications ? "translate-x-5" : ""
-                  }`}
-                ></div>
+              <input type="checkbox" checked={notifications} onChange={() => setNotifications(!notifications)} className="sr-only" />
+              <div className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ${notifications ? "bg-blue-500" : "bg-gray-300"}`}>
+                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ${notifications ? "translate-x-5" : ""}`}></div>
               </div>
             </label>
           </div>
 
           {/* Dark Mode */}
-          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <FaMoon className="text-gray-500 text-lg" />
-              <div>
-                <p className="font-medium text-gray-700">Dark Mode</p>
-                <p className="text-sm text-gray-500">Switch dashboard theme.</p>
-              </div>
+              <p className="font-medium text-gray-700">Dark Mode</p>
             </div>
             <label className="inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={darkMode}
-                onChange={() => setDarkMode(!darkMode)}
-                className="sr-only"
-              />
-              <div
-                className={`w-11 h-6 flex items-center bg-gray-300 rounded-full p-1 duration-300 ${
-                  darkMode ? "bg-blue-500" : "bg-gray-300"
-                }`}
-              >
-                <div
-                  className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ${
-                    darkMode ? "translate-x-5" : ""
-                  }`}
-                ></div>
+              <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} className="sr-only" />
+              <div className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ${darkMode ? "bg-blue-500" : "bg-gray-300"}`}>
+                <div className={`bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ${darkMode ? "translate-x-5" : ""}`}></div>
               </div>
             </label>
           </div>
 
-          {/* Language */}
-          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-            <div className="flex items-center gap-3">
-              <FaGlobe className="text-gray-500 text-lg" />
-              <div>
-                <p className="font-medium text-gray-700">Language</p>
-                <p className="text-sm text-gray-500">
-                  Choose your preferred language.
-                </p>
-              </div>
+          {/* Language & Currency */}
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Language</label>
+              <select value={language} onChange={(e) => setLanguage(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                <option>English</option>
+                <option>Hindi</option>
+                <option>Marathi</option>
+              </select>
             </div>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
-            >
-              <option>English</option>
-              <option>Hindi</option>
-              <option>Marathi</option>
-            </select>
-          </div>
-
-          {/* Currency */}
-          <div className="flex items-center justify-between pb-4">
-            <div className="flex items-center gap-3">
-              <FaGlobe className="text-gray-500 text-lg" />
-              <div>
-                <p className="font-medium text-gray-700">Currency</p>
-                <p className="text-sm text-gray-500">
-                  Select default currency for your sales.
-                </p>
-              </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+              <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2">
+                <option>INR</option>
+                <option>USD</option>
+                <option>EUR</option>
+              </select>
             </div>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
-            >
-              <option>INR</option>
-              <option>USD</option>
-              <option>EUR</option>
-            </select>
           </div>
         </div>
 
         {/* Save Button */}
         <div className="mt-8 flex justify-end">
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
+          <button
+            onClick={() => alert("Static: Changes not saved (demo only).")}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
+          >
             Save Changes
           </button>
         </div>

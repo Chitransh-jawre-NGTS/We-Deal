@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaComments, FaPlus, FaStore, FaUser, FaHeart } from "react-icons/fa";
+import { FaHome, FaComments, FaPlus, FaStore, FaUser } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
 const MobileBottomNav = () => {
@@ -35,8 +35,8 @@ const MobileBottomNav = () => {
           <FaPlus className="text-2xl" />
         </Link>
 
-        <Link to="/store" className={`flex flex-col items-center text-sm ${isActive("/wishlist")}`}>
-          <FaHeart className="text-xl" />
+        <Link to="/store" className={`flex flex-col items-center text-sm ${isActive("/store")}`}>
+          <FaStore className="text-xl" />
           <span>Store</span>
         </Link>
 

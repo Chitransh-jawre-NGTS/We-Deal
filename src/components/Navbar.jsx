@@ -338,47 +338,109 @@
 
 
 
-import React, { useState, useEffect } from "react";
-import DesktopNavbar from "./DextopNavbar";
+// import React, { useState, useEffect } from "react";
+// import DesktopNavbar from "./DextopNavbar";
+// import MobileTopNavbar from "./MobileTopNavbar";
+// import MobileBottomNav from "./MobileBottomNav";
+// import { useNavigate } from "react-router-dom";
+// import {  locationApi  } from "../api/location"; // ✅ import utility
+
+// const Navbar = ({ title, ShowBottomNav = true, ShowDextopTop = true, ShowMobileTop = true }) => {
+//   const navigate = useNavigate();
+//   const [currentLocation, setCurrentLocation] = useState(
+//     localStorage.getItem("userLocation") || ""
+//   );
+//   const [selectedLocation, setSelectedLocation] = useState("");
+
+// useEffect(() => {
+//   if (!currentLocation) {
+//     (async () => {
+//       const loc = await locationApi.getUserLocation();
+//       setCurrentLocation(loc);
+//     })();
+//   }
+// }, []);
+
+//   return (
+//     <>
+//       {ShowDextopTop && (
+//         <DesktopNavbar
+//           title={title}
+//           city={(selectedLocation || currentLocation).split(",")[0]}
+//           state={(selectedLocation || currentLocation).split(",")[1]}
+//           onLocationClick={() => navigate("/select-location")}
+//         />
+//       )}
+//       {ShowMobileTop && (
+//         <MobileTopNavbar
+//           title={title}
+//           city={(selectedLocation || currentLocation).split(",")[0]}
+//           state={(selectedLocation || currentLocation).split(",")[1]}
+//           onLocationClick={() => navigate("/select-location")}
+//         />
+//       )}
+//       {ShowBottomNav && <MobileBottomNav />}
+//     </>
+//   );
+// };
+
+// export default Navbar;
+
+
+
+
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import MobileTopNavbar from "./MobileTopNavbar";
-import MobileBottomNav from "./MobileBottomNav";
-import { useNavigate } from "react-router-dom";
-import { getUserLocation } from "../api/location"; // ✅ import utility
+import DesktopNavbar from "./DextopNavbar";
+import MobileBottomNav from "./MobileBottomNav"
+import { detectCurrentLocation, searchLocation, setLocation } from "../redux/slices/locationSlice";
 
 const Navbar = ({ title, ShowBottomNav = true, ShowDextopTop = true, ShowMobileTop = true }) => {
-  const navigate = useNavigate();
-  const [currentLocation, setCurrentLocation] = useState(
-    localStorage.getItem("userLocation") || ""
-  );
-  const [selectedLocation, setSelectedLocation] = useState("");
+  const dispatch = useDispatch();
+  const { selected: currentLocation, status } = useSelector((state) => state.location);
 
+  // Detect location on mount if not set
   useEffect(() => {
-    if (!currentLocation) {
-      (async () => {
-        const loc = await getUserLocation();
-        setCurrentLocation(loc);
-      })();
+    if (!currentLocation.city) {
+      dispatch(detectCurrentLocation());
     }
   }, []);
+
+  // Callbacks to pass to MobileTopNavbar
+  const handleDetectLocation = () => {
+    dispatch(detectCurrentLocation());
+  };
+
+  const handleSearchLocation = (query) => {
+    dispatch(searchLocation(query));
+  };
+
+  const handleSelectLocation = (loc) => {
+    dispatch(setLocation(loc));
+  };
 
   return (
     <>
       {ShowDextopTop && (
         <DesktopNavbar
           title={title}
-          city={(selectedLocation || currentLocation).split(",")[0]}
-          state={(selectedLocation || currentLocation).split(",")[1]}
-          onLocationClick={() => navigate("/select-location")}
+          city={currentLocation.city}
+          state={currentLocation.state}
+          onLocationClick={handleDetectLocation}
         />
       )}
+
       {ShowMobileTop && (
         <MobileTopNavbar
           title={title}
-          city={(selectedLocation || currentLocation).split(",")[0]}
-          state={(selectedLocation || currentLocation).split(",")[1]}
-          onLocationClick={() => navigate("/select-location")}
+          currentLocation={currentLocation}
+          onDetectLocation={handleDetectLocation}
+          onSearchLocation={handleSearchLocation}
+          onSelectLocation={handleSelectLocation}
         />
       )}
+
       {ShowBottomNav && <MobileBottomNav />}
     </>
   );

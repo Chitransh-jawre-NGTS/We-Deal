@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaHeart, FaShareAlt, FaArrowLeft, FaSearch, FaTimes } from "react-icons/fa";
-import { productApi } from "../../api/product";
-import { wishlistApi } from "../../api/wishlist";
 import { calculateDistance } from "../../utils/distance";
 import FilterBar from "../../components/FilterBar";
 import Navbar from "../../components/Navbar";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchProducts } from "../../redux/slices/productsSlices";
+import { fetchWishlist, toggleWishlist } from "../../redux/slices/wishlistSlice";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -16,17 +16,19 @@ const MAX_DISTANCE = 50; // km
 
 const SearchPage = () => {
   const query = useQuery().get("query")?.toLowerCase() || "";
-  const [results, setResults] = useState([]);
   const [sortOption, setSortOption] = useState("");
   const [searchInput, setSearchInput] = useState(query);
-  const [wishlist, setWishlist] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [results, setResults] = useState([]);
   const [userCoords, setUserCoords] = useState(null);
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const { selected: currentLocation } = useSelector((state) => state.location);
+  const { items: products, loading } = useSelector((state) => state.products);
+  const { wishlist } = useSelector((state) => state.wishlist);
 
-  // Get user coordinates from selected location or fallback to geolocation
+  // Get user coordinates
   useEffect(() => {
     const fetchCoords = async () => {
       if (currentLocation?.city) {
@@ -47,7 +49,6 @@ const SearchPage = () => {
           console.error("Error fetching coordinates:", err);
         }
       } else {
-        // Fallback to geolocation if no city selected
         navigator.geolocation.getCurrentPosition(
           (pos) =>
             setUserCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
@@ -62,74 +63,52 @@ const SearchPage = () => {
     fetchCoords();
   }, [currentLocation]);
 
-  // Fetch products whenever query or userCoords change
+  // Fetch products & wishlist
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const response = await productApi.getAll();
-        let products = Array.isArray(response.data.products) ? response.data.products : [];
+    dispatch(fetchProducts());
+    dispatch(fetchWishlist());
+  }, [dispatch]);
 
-        // Calculate distance if userCoords exist
-        if (userCoords) {
-          products = products.map((p) => {
-            if (p.location?.lat && p.location?.lon) {
-              const distance = calculateDistance(
-                userCoords.latitude,
-                userCoords.longitude,
-                p.location.lat,
-                p.location.lon
-              );
-              return { ...p, distance };
-            }
-            return { ...p, distance: null };
-          });
-        }
-
-        // Filter products by MAX_DISTANCE
-        products = products.filter((p) => p.distance == null || p.distance <= MAX_DISTANCE);
-
-        // Apply search query
-        if (query) {
-          const lowerQuery = query.toLowerCase();
-          products = products.filter((p) => {
-            const category = p.category?.toLowerCase() || "";
-            const brand = p.fields?.Brand?.toLowerCase() || "";
-            const model = p.fields?.Model?.toLowerCase() || "";
-            const location = p.fields?.Location?.toLowerCase() || "";
-            return (
-              category.includes(lowerQuery) ||
-              brand.includes(lowerQuery) ||
-              model.includes(lowerQuery) ||
-              location.includes(lowerQuery)
-            );
-          });
-        }
-
-        setResults(products);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-        setResults([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (userCoords) fetchProducts();
-  }, [query, userCoords]);
-
-  // Fetch wishlist
+  // Filter + Search
   useEffect(() => {
-    const fetchWishlist = async () => {
-      try {
-        const res = await wishlistApi.get();
-        setWishlist(res.data.products.map((p) => p._id));
-      } catch (err) {
-        console.error("Error fetching wishlist", err);
-      }
-    };
-    fetchWishlist();
-  }, []);
+    if (!products) return;
+
+    let filtered = [...products];
+
+    if (userCoords) {
+      filtered = filtered.map((p) => {
+        if (p.location?.lat && p.location?.lon) {
+          const distance = calculateDistance(
+            userCoords.latitude,
+            userCoords.longitude,
+            p.location.lat,
+            p.location.lon
+          );
+          return { ...p, distance };
+        }
+        return { ...p, distance: null };
+      });
+      filtered = filtered.filter((p) => p.distance == null || p.distance <= MAX_DISTANCE);
+    }
+
+    if (query) {
+      const lowerQuery = query.toLowerCase();
+      filtered = filtered.filter((p) => {
+        const category = p.category?.toLowerCase() || "";
+        const brand = p.fields?.Brand?.toLowerCase() || "";
+        const model = p.fields?.Model?.toLowerCase() || "";
+        const location = p.fields?.Location?.toLowerCase() || "";
+        return (
+          category.includes(lowerQuery) ||
+          brand.includes(lowerQuery) ||
+          model.includes(lowerQuery) ||
+          location.includes(lowerQuery)
+        );
+      });
+    }
+
+    setResults(filtered);
+  }, [products, userCoords, query]);
 
   // Sorting
   const handleSort = (option) => {
@@ -146,23 +125,7 @@ const SearchPage = () => {
     } else if (option === "distance") {
       sortedItems.sort((a, b) => (a.distance || 0) - (b.distance || 0));
     }
-
     setResults(sortedItems);
-  };
-
-  // Wishlist toggle
-  const toggleWishlist = async (productId) => {
-    try {
-      if (wishlist.includes(productId)) {
-        const res = await wishlistApi.remove(productId);
-        setWishlist(res.data.products.map((p) => p._id));
-      } else {
-        const res = await wishlistApi.add(productId);
-        setWishlist(res.data.products.map((p) => p._id));
-      }
-    } catch (err) {
-      console.error("Error updating wishlist", err);
-    }
   };
 
   // Search submit
@@ -190,10 +153,7 @@ const SearchPage = () => {
         >
           <FaArrowLeft className="text-gray-700 text-lg" />
         </button>
-        <form
-          onSubmit={handleSearchSubmit}
-          className="flex-1 relative flex items-center ml-3"
-        >
+        <form onSubmit={handleSearchSubmit} className="flex-1 relative flex items-center ml-3">
           <FaSearch className="absolute left-3 text-gray-400 pointer-events-none" />
           <input
             type="text"
@@ -226,15 +186,17 @@ const SearchPage = () => {
             <p className="text-gray-500">No products found</p>
           ) : (
             <div className="grid grid-cols-1 mb-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
-              {results.map((item, idx) => (
+              {results.map((item) => (
                 <div
-                  key={idx}
-                  className="relative bg-white border border-gray-300 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform flex flex-col"
+                  key={item._id}
+                  className="relative bg-white border border-gray-300 shadow-md overflow-hidden cursor-pointer 
+             transition hover:shadow-xl hover:scale-105 transform flex flex-row md:flex-col"
                   onClick={() =>
                     navigate(`/product/${item._id}`, { state: { product: item, allProducts: results } })
                   }
                 >
-                  <div className="relative w-full h-40 md:h-48">
+                  {/* Image */}
+                  <div className="relative w-28 h-28 md:w-full md:h-48 flex-shrink-0">
                     <img
                       src={item.images?.[0] || "/placeholder.png"}
                       alt={`${item.fields?.Brand || ""} ${item.fields?.Model || ""}`}
@@ -242,17 +204,22 @@ const SearchPage = () => {
                       loading="lazy"
                     />
                   </div>
-                  <div className="p-3 flex flex-col gap-1">
-                    <h4 className="text-base md:text-lg font-bold">
+
+                  {/* Content */}
+                  <div className="p-3 flex flex-col gap-1 flex-1">
+                    <h4 className="text-sm md:text-lg font-bold">
                       {item.fields?.Brand || "Unknown"} {item.fields?.Model || ""}
                     </h4>
-                    <p className="text-gray-800 font-semibold text-sm md:text-base">
+                    <p className="text-gray-800 font-semibold text-xs md:text-base">
                       {item.fields?.Price
                         ? `₹${Number(item.fields.Price).toLocaleString()}`
                         : "N/A"}
                     </p>
-                    <p className="text-gray-500 text-sm">
-                      {item.fields?.Location || "Unknown location"}
+                    <p className="text-gray-800 font-semibold text-xs md:text-base">
+                      {item.fields?.title}
+                    </p>
+                    <p className="text-gray-500 text-xs md:text-sm">
+                      {item.fields?.location || "Unknown location"}
                       {item.distance != null && (
                         <span> — {item.distance.toFixed(1)} km away</span>
                       )}
@@ -264,16 +231,22 @@ const SearchPage = () => {
                     <FaHeart
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleWishlist(item._id);
+                        dispatch(toggleWishlist(item._id));
                       }}
-                      className={`text-lg cursor-pointer ${wishlist.includes(item._id) ? "text-red-500" : "text-gray-300"}`}
+                      className={`text-lg cursor-pointer ${wishlist.includes(item._id) ? "text-red-500" : "text-gray-300"
+                        }`}
                     />
                     <FaShareAlt
                       onClick={(e) => {
                         e.stopPropagation();
                         const url = `${window.location.origin}/product/${item._id}`;
                         if (navigator.share) {
-                          navigator.share({ title: `${item.fields?.Brand} ${item.fields?.Model}`, url }).catch(console.error);
+                          navigator
+                            .share({
+                              title: `${item.fields?.Brand} ${item.fields?.Model}`,
+                              url,
+                            })
+                            .catch(console.error);
                         } else {
                           navigator.clipboard.writeText(url);
                           alert("Product link copied!");
@@ -283,6 +256,7 @@ const SearchPage = () => {
                     />
                   </div>
                 </div>
+
               ))}
             </div>
           )}
@@ -293,6 +267,31 @@ const SearchPage = () => {
 };
 
 export default SearchPage;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

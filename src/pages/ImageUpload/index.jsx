@@ -19,8 +19,8 @@ const ImageUpload = () => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    if (images.length + files.length > 8) {
-      toast.error("You can upload a maximum of 8 images."); // ✅ hot toast
+    if (images.length + files.length > 3) {
+      toast.error("You can upload a maximum of 3 images."); // ✅ hot toast
       return;
     }
     setImages((prev) => [...prev, ...files]);
@@ -55,10 +55,17 @@ const ImageUpload = () => {
 
       toast.success("Ad submitted successfully!"); // ✅ hot toast
       navigate("/");
-    } catch (err) {
-      console.error("Error creating product:", err);
-      toast.error("Failed to submit ad. Please try again."); // ✅ hot toast
-    } finally {
+    }catch (err) {
+  if (err.response?.status === 403 && err.response.data.redirectTo) {
+    // redirect to billing page
+    window.location.href = err.response.data.redirectTo;
+    return;
+  }
+
+  console.error("Error creating product:", err);
+  toast.error("Failed to submit ad. Please try again.");
+}
+ finally {
       setLoading(false);
     }
   };
@@ -74,7 +81,7 @@ const ImageUpload = () => {
 
       <div className="p-4 space-y-4">
         <div className="bg-white p-4 rounded-lg shadow">
-          <label className="block text-sm font-medium mb-2">Select 1–8 images</label>
+          <label className="block text-sm font-medium mb-2">Select 1–3 images</label>
           <input
             type="file"
             accept="image/*"

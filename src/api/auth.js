@@ -36,19 +36,16 @@
 
 
 
-
-
-
-
-
 import httpClient from "../utils/httpClient";
+// import axios only if you want to use it separately
+// import axios from "axios"; 
+
 import endpoints from "../utils/endpoint";
 
 export const authApi = {
   loginWithEmail: (firebaseToken) =>
     httpClient.post(endpoints.auth.login, { firebaseToken }), // 👈 use "login"
 };
-
 
 export const userApi = {
   getProfile: () => httpClient.get(endpoints.user.profile),
@@ -57,4 +54,7 @@ export const userApi = {
     httpClient.put(endpoints.user.update(userId), data, {
       headers: { "Content-Type": "multipart/form-data" },
     }),
+
+  // ✅ Fixed: use httpClient instead of axios
+  getAdStats: () => httpClient.get("/ad-stats", { withCredentials: true }),
 };
