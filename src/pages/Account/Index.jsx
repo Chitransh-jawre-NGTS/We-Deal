@@ -15,12 +15,14 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Navbar from "../../components/Navbar";
+import Transactions from "../../components/Transection";
 
 const menuItems = [
   { label: "My Profile", sublabel: "View and edit your profile", icon: User, to: "/profile" },
   { label: "My Listings", sublabel: "Your active listings", icon: ShoppingBag, to: "/my-listing" },
   { label: "Wishlist", sublabel: "Your favorite items", icon: Heart, to: "/wishlist" },
   { label: "billing", sublabel: "billing section", icon: Heart, to: "/billing" },
+  { label: "Transection", sublabel: "All transection", icon: Heart, to: "/transactions" },
   { label: "Become Seller", sublabel: "Start selling products", icon: Heart, to: "/become-seller" },
   { label: "Settings", sublabel: "Manage account settings", icon: Settings, to: "/settings" },
   { label: "Help Center", sublabel: "Get support and help", icon: HelpCircle, to: "/help" },

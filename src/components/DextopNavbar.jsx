@@ -228,6 +228,13 @@ const DesktopNavbar = () => {
                   <Package size={18} />
                   <span>Become seller</span>
                 </Link>
+                  <Link
+                  to="/account"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition border-b"
+                >
+                  <Package size={18} />
+                  <span>Accounts</span>
+                </Link>
 
                 <Link
                   to="/help"

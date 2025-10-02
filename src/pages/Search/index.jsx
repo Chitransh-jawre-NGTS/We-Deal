@@ -178,8 +178,8 @@ const SearchPage = () => {
 
       <section className="pb-8 md:py-16 px-4 md:px-16 max-w-9xl mx-auto flex flex-col lg:flex-row gap-8">
         <main className="flex-1 flex flex-col gap-4">
-          <h1 className="text-xl font-semibold mt-4 lg:mb-4">
-            Here’s what we found for "{query}"
+          <h1 className="text-xl  mt-4 lg:mb-4">
+            Recommended Ads near you "{query}"
           </h1>
 
           {results.length === 0 ? (

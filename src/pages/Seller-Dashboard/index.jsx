@@ -1,3 +1,4 @@
+// src/pages/SellerDashboard.jsx
 import React, { useState, useEffect } from "react";
 import {
   FaTachometerAlt,
@@ -9,15 +10,22 @@ import {
   FaClipboardList,
   FaSignOutAlt,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
 import companyLogo from "../../assets/images/myweblogo/ChatGPT Image Sep 20, 2025, 11_04_57 PM.png";
-import SellMobileForm from "../../components/SellMobileForm";
+
+import SellMobileForm from "../../components/SellItemForm";
 import DashboardPage from "../../components/Dashboard";
 import DashSetting from "../../components/DashSetting";
 import MyStoreListings from "../MyStoreListings";
-import { useNavigate } from "react-router-dom";
-import { getStoreProfile } from "../../api/storeApi/adminApi"; // ✅ import API function
+import StorePlan from "../../components/StorePlan";
+import StoreTransactions from "../StoreTransactions";
+import { getStoreProfile } from "../../api/storeApi/adminApi";
+import SellItemForm from "../../components/SellItemForm";
+import StoreHelp from "../../components/StoreHelp";
+import BannerPage from "../../components/BannerPage";
 
-// Placeholder for My Listings
+// Placeholder for My Listings (if empty)
 const MyListings = () => (
   <div className="text-gray-700 text-center text-lg mt-10">
     <p>Your listings will appear here.</p>
@@ -27,7 +35,9 @@ const MyListings = () => (
 const SellerDashboard = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState("Dashboard");
+  const [activeMenu, setActiveMenu] = useState(
+    localStorage.getItem("activeMenu") || "Dashboard"
+  );
   const [showNotifications, setShowNotifications] = useState(false);
   const [storeProfile, setStoreProfile] = useState({ name: "", shopLogo: "" });
   const [loading, setLoading] = useState(true);
@@ -36,6 +46,10 @@ const SellerDashboard = () => {
     { name: "Dashboard", icon: <FaTachometerAlt /> },
     { name: "Sell Mobile", icon: <FaMobileAlt /> },
     { name: "My Listings", icon: <FaClipboardList /> },
+    { name: "Store Plan", icon: <FaCog /> },
+    { name: "Store Transection", icon: <FaCog /> },
+    { name: "My Banner", icon: <FaCog /> },
+     { name: "Store Help", icon: <FaCog /> },
     { name: "Settings", icon: <FaCog /> },
   ];
 
@@ -70,17 +84,22 @@ const SellerDashboard = () => {
     fetchProfile();
   }, [navigate]);
 
+  // Handle menu click and persist active tab
+  const handleMenuClick = (menuName) => {
+    setActiveMenu(menuName);
+    localStorage.setItem("activeMenu", menuName);
+    setSidebarOpen(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("storeToken");
+    setTimeout(() => {
+      navigate("/store");
+    }, 0);
+  };
+
   if (loading)
     return <p className="text-center mt-10 text-gray-500">Loading dashboard...</p>;
-const handleLogout = () => {
-  localStorage.removeItem("storeToken"); // remove token
-
-  // Ensure navigation happens after localStorage is cleared
-  setTimeout(() => {
-    navigate("/store"); // redirect to login
-  }, 0);
-};
-
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden font-sans">
@@ -118,12 +137,9 @@ const handleLogout = () => {
               className={`flex items-center gap-4 cursor-pointer px-4 py-3 rounded-xl transition-all mb-2 hover:bg-blue-50 hover:text-blue-700 ${
                 activeMenu === item.name
                   ? "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 font-semibold shadow-md"
-                  : "text-gray-700"
+                  : "text-gray-700 border  border-gray-300 hover:border-blue-200"
               }`}
-              onClick={() => {
-                setActiveMenu(item.name);
-                setSidebarOpen(false);
-              }}
+              onClick={() => handleMenuClick(item.name)}
             >
               <span className="text-lg flex-shrink-0">{item.icon}</span>
               <span className="whitespace-nowrap">{item.name}</span>
@@ -187,49 +203,44 @@ const handleLogout = () => {
                 </span>
               </button>
 
-{showNotifications && (
-  <div className="absolute right-0 mt-3 w-80 bg-white shadow-lg rounded-2xl border border-gray-200 overflow-hidden z-50">
-    {/* Header */}
-    <div className="px-4 py-3 font-semibold text-gray-700 border-b bg-gray-50 flex justify-between items-center">
-      <span>Notifications</span>
-      <button
-        onClick={() => setShowNotifications(false)}
-        className="text-gray-400 hover:text-gray-600 transition"
-        aria-label="Close notifications"
-      >
-        ×
-      </button>
-    </div>
-
-    {/* Notifications List */}
-    <ul className="max-h-64 overflow-y-auto divide-y divide-gray-100">
-      {notifications.length > 0 ? (
-        notifications.map((note) => (
-          <li
-            key={note.id}
-            className="px-4 py-3 hover:bg-blue-50 transition cursor-pointer flex justify-between items-start"
-          >
-            <div className="flex-1 text-gray-700 text-sm">{note.text}</div>
-            <span className="text-xs text-gray-400 ml-2">Just now</span> {/* Replace with actual timestamp */}
-          </li>
-        ))
-      ) : (
-        <li className="px-4 py-3 text-gray-500 text-sm text-center">No new notifications</li>
-      )}
-    </ul>
-
-    {/* Footer / View all link */}
-    {notifications.length > 0 && (
-      <div className="px-4 py-2 border-t border-gray-100 text-center bg-gray-50">
-        <button className="text-blue-600 text-sm hover:underline">View All</button>
-      </div>
-    )}
-  </div>
-)}
-
+              {showNotifications && (
+                <div className="absolute right-0 mt-3 w-80 bg-white shadow-lg rounded-2xl border border-gray-200 overflow-hidden z-50">
+                  <div className="px-4 py-3 font-semibold text-gray-700 border-b bg-gray-50 flex justify-between items-center">
+                    <span>Notifications</span>
+                    <button
+                      onClick={() => setShowNotifications(false)}
+                      className="text-gray-400 hover:text-gray-600 transition"
+                      aria-label="Close notifications"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <ul className="max-h-64 overflow-y-auto divide-y divide-gray-100">
+                    {notifications.length > 0 ? (
+                      notifications.map((note) => (
+                        <li
+                          key={note.id}
+                          className="px-4 py-3 hover:bg-blue-50 transition cursor-pointer flex justify-between items-start"
+                        >
+                          <div className="flex-1 text-gray-700 text-sm">{note.text}</div>
+                          <span className="text-xs text-gray-400 ml-2">Just now</span>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="px-4 py-3 text-gray-500 text-sm text-center">
+                        No new notifications
+                      </li>
+                    )}
+                  </ul>
+                  {notifications.length > 0 && (
+                    <div className="px-4 py-2 border-t border-gray-100 text-center bg-gray-50">
+                      <button className="text-blue-600 text-sm hover:underline">View All</button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
-            {/* Seller Name & Avatar */}
             <span className="text-gray-600 hidden md:block font-medium">{storeProfile.name}</span>
             <img
               src={storeProfile.shopLogo}
@@ -242,9 +253,13 @@ const handleLogout = () => {
         {/* Page Content */}
         <main className="flex-1 p-6 overflow-auto">
           {activeMenu === "Dashboard" && <DashboardPage />}
-          {activeMenu === "Sell Mobile" && <SellMobileForm />}
+          {activeMenu === "Sell Mobile" && <SellItemForm />}
           {activeMenu === "My Listings" && <MyStoreListings />}
           {activeMenu === "Settings" && <DashSetting />}
+          {activeMenu === "Store Plan" && <StorePlan />}
+          {activeMenu === "My Banner" && <BannerPage />}
+          {activeMenu === "Store Transection" && <StoreTransactions />}
+          {activeMenu === "Store Help" && <StoreHelp />}
         </main>
       </div>
     </div>

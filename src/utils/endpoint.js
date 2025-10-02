@@ -69,34 +69,34 @@
 
 // export default endpoints;
 
-
+const API_PREFIX = "/api";  // 👈 common prefix
 
 const endpoints = {
   auth: {
-    login: `/auth/login-email`,
-    sendOtp: `/auth/send-otp`,
-    verifyOtp: `/auth/verify-otp`,
+    login: `${API_PREFIX}/auth/login-email`,
+    sendOtp: `${API_PREFIX}/auth/send-otp`,
+    verifyOtp: `${API_PREFIX}/auth/verify-otp`,
   },
   user: {
-    profile: `/auth/user/profile`,
-    update: (userId) => `/auth/update/${userId}`,
+    profile: `${API_PREFIX}/auth/user/profile`,
+    update: (userId) => `${API_PREFIX}/auth/update/${userId}`,
   },
   product: {
-    list: `/get-products`,
-    create: `/create`,
-    byId: (productId) => `/product/${productId}`,
-    update: (productId) => `/product/${productId}/update`,
-    delete: (productId) => `/product/${productId}/delete`,
-    userProducts: (userId) => `/product/${userId}`,
+    list: `${API_PREFIX}/get-products`,
+    create: `${API_PREFIX}/create`,
+    byId: (productId) => `${API_PREFIX}/product/${productId}`,
+    update: (productId) => `${API_PREFIX}/product/${productId}/update`,
+    delete: (productId) => `${API_PREFIX}/product/${productId}/delete`,
+    userProducts: (userId) => `${API_PREFIX}/product/${userId}`,
   },
   chat: {
-    findOrCreateByProduct: (productId) => `/findOrCreateChatByProduct/${productId}`,
-    byId: (chatId) => `/${chatId}`,
-    list: `/chats`,
+    findOrCreateByProduct: (productId) => `${API_PREFIX}/findOrCreateChatByProduct/${productId}`,
+    byId: (chatId) => `${API_PREFIX}/${chatId}`,
+    list: `${API_PREFIX}/chats`,
   },
   location: {
-    REVERSE_GEOCODE: `/location/rev_geocode`,
-    SEARCH: `/location/search`,
+    REVERSE_GEOCODE: `${API_PREFIX}/location/rev_geocode`,
+    SEARCH: `${API_PREFIX}/location/search`,
   },
 };
 
