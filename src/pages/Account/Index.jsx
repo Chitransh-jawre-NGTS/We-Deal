@@ -15,7 +15,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Navbar from "../../components/Navbar";
-import Transactions from "../../components/Transection";
 
 const menuItems = [
   { label: "My Profile", sublabel: "View and edit your profile", icon: User, to: "/profile" },
@@ -125,7 +124,7 @@ const Account = () => {
             {adStats ? (
               <>
                 <p className="text-gray-600 font-medium mb-2">
-                  Ads Posted This Month: {adStats.adsPosted} / {adStats.adsLimit}
+                  Ads Posted This Month: {adStats.adsPosted} / {adStats.freeAdsLeft}
                 </p>
                 <div className="w-full bg-gray-200 rounded-full h-4">
                   <div

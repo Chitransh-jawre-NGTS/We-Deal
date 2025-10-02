@@ -1,9 +1,11 @@
 // src/pages/Transactions.jsx
 import React from "react";
-import Navbar from "../components/Navbar"; // ✅ make sure Navbar exists
-import { FaReceipt } from "react-icons/fa";
+import { FaReceipt, FaArrowLeft } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function Transactions() {
+  const navigate = useNavigate();
+
   const transactions = [
     {
       _id: "1",
@@ -33,17 +35,21 @@ export default function Transactions() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* ✅ Navbar */}
-      <Navbar />
+      {/* ✅ Simple Navbar */}
+      <header className="bg-white shadow-md py-3 px-4 flex items-center gap-3 sticky top-0 z-50">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-gray-700  transition-colors"
+        >
+          <FaArrowLeft size={20} />
+        </button>
+        <h1 className="text-xl font-semibold text-gray-800">Transactions</h1>
+      </header>
 
       {/* ✅ Main content */}
       <main className="flex-grow p-4 md:p-8 max-w-6xl mx-auto w-full">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-purple-700 mb-6 flex items-center gap-2">
-          <FaReceipt className="text-purple-600" /> Transactions
-        </h1>
-
-        {/* ✅ Transactions Table */}
-        <div className="overflow-x-auto bg-white shadow-lg rounded-2xl">
+        {/* Transactions Table */}
+        <div className="overflow-x-auto bg-white shadow-lg ">
           <table className="min-w-full text-sm text-left">
             <thead className="bg-purple-100 text-purple-900">
               <tr>
@@ -89,8 +95,8 @@ export default function Transactions() {
           </table>
         </div>
 
-        {/* ✅ Instruction Section */}
-        <section className="mt-10 bg-white shadow-md rounded-2xl p-6">
+        {/* Instruction Section */}
+        <section className="mt-10 bg-white shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4 text-purple-700">
             How Transactions Work
           </h2>
@@ -103,35 +109,18 @@ export default function Transactions() {
               <span className="text-green-600 font-medium">success</span> are completed.
             </li>
             <li>
-              ✔️{" "}
-              <span className="text-yellow-600 font-medium">Pending</span> transactions may take a few minutes to confirm.
+              ✔️ <span className="text-yellow-600 font-medium">Pending</span> transactions may take a few minutes to confirm.
             </li>
             <li>
-              ✔️{" "}
-              <span className="text-red-600 font-medium">Failed</span> transactions mean the payment did not go through.
+              ✔️ <span className="text-red-600 font-medium">Failed</span> transactions mean the payment did not go through.
             </li>
           </ul>
         </section>
       </main>
 
-      {/* ✅ Footer */}
-      <footer className="bg-gray-800 text-gray-300 py-6 mt-10">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm">
-            © {new Date().getFullYear()} WeDeal. All rights reserved.
-          </p>
-          <div className="flex space-x-4 mt-4 md:mt-0">
-            <a href="/privacy" className="hover:text-white text-sm">
-              Privacy Policy
-            </a>
-            <a href="/terms" className="hover:text-white text-sm">
-              Terms of Service
-            </a>
-            <a href="/support" className="hover:text-white text-sm">
-              Support
-            </a>
-          </div>
-        </div>
+      {/* ✅ Simple Footer */}
+      <footer className="bg-gray-800 text-gray-300 py-4 mt-10 text-center">
+        © {new Date().getFullYear()} WeDeal. All rights reserved.
       </footer>
     </div>
   );

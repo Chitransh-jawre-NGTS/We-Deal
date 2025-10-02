@@ -1,38 +1,24 @@
 // src/api/storeApi.js
-import axios from "axios";
+import HttpClient from "../../utils/httpClient";
 
-const BASE_URL = "http://localhost:5000/api/store";
-
-export const getStoreAds = async (storeToken) => {
-  const res = await axios.get(`${BASE_URL}/my-ads`, {
-    headers: { "x-store-token": storeToken },
-  });
+export const getStoreAds = async () => {
+  const res = await HttpClient.get("/store/my-ads");
   return res.data.ads || [];
 };
 
-export const createAd = async (adData, storeToken) => {
-  const res = await axios.post(`${BASE_URL}/create`, adData, {
-    headers: {
-      "x-store-token": storeToken,
-      "Content-Type": "multipart/form-data",
-    },
+export const createAd = async (adData) => {
+  const res = await HttpClient.post("/store/create", adData, {
+    headers: { "Content-Type": "multipart/form-data" }, // only for FormData
   });
   return res.data;
 };
 
-// Optional: Remove or update ads
-export const removeAd = async (id, storeToken) => {
-  const res = await axios.delete(`${BASE_URL}/delete-ad/${id}`, {
-    headers: { "x-store-token": storeToken },
-  });
+export const removeAd = async (id) => {
+  const res = await HttpClient.delete(`/store/delete-ad/${id}`);
   return res.data;
 };
 
-export const updateAdStatus = async (id, status, storeToken) => {
-  const res = await axios.patch(
-    `${BASE_URL}/update-ad/${id}`,
-    { status },
-    { headers: { "x-store-token": storeToken } }
-  );
+export const updateAdStatus = async (id, status) => {
+  const res = await HttpClient.patch(`/store/update-ad/${id}`, { status });
   return res.data;
 };

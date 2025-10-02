@@ -587,9 +587,6 @@
 
 
 
-
-
-
 import React, { useEffect, useState } from "react";
 import { FaHeart, FaShareAlt } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
@@ -604,25 +601,36 @@ const categoriesList = [
   "Fashion", "Electronics", "Home Appliances",
 ];
 
+// 🔹 Component for empty product state
+const NoProducts = ({ message }) => (
+  <div className="w-full text-center py-12 bg-gray-50 rounded-xl shadow-md">
+    <h3 className="text-2xl md:text-3xl font-bold text-gray-700 mb-4">{message}</h3>
+    <p className="text-gray-500">Be the first to post in your area!</p>
+    <Link
+      to="/post-ad" // Change this to your actual posting page route
+      className="mt-4 inline-block bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition"
+    >
+      Post Your Ad
+    </Link>
+  </div>
+);
+
 const ListingsPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Redux states
   const { items: products, status: productStatus } = useSelector((state) => state.products);
   const { wishlist } = useSelector((state) => state.wishlist);
   const { selected: currentLocation, status: locationStatus } = useSelector((state) => state.location);
 
   const [sortOption, setSortOption] = useState("");
 
-  // 🔹 Detect current location on mount (Redux handles localStorage too)
   useEffect(() => {
     if (!currentLocation?.city) {
       dispatch(detectCurrentLocation());
     }
   }, [dispatch, currentLocation]);
 
-  // 🔹 Fetch products + wishlist once location is available
   useEffect(() => {
     if (currentLocation?.latitude && currentLocation?.longitude) {
       dispatch(fetchProducts({ 
@@ -633,7 +641,6 @@ const ListingsPage = () => {
     }
   }, [dispatch, currentLocation]);
 
-  // Handle wishlist toggle
   const handleToggleWishlist = (id) => {
     dispatch(toggleWishlist(id))
       .unwrap()
@@ -641,7 +648,6 @@ const ListingsPage = () => {
       .catch(() => toast.error("Failed to update wishlist"));
   };
 
-  // Handle product share
   const shareProduct = (productId) => {
     const url = `${window.location.origin}/product/${productId}`;
     if (navigator.share) {
@@ -652,7 +658,6 @@ const ListingsPage = () => {
     }
   };
 
-  // 🔹 Sorting
   const sortedProducts = [...products].sort((a, b) => {
     switch (sortOption) {
       case "priceLowHigh": return a.fields.Price - b.fields.Price;
@@ -663,12 +668,10 @@ const ListingsPage = () => {
     }
   });
 
-  // 🔹 Distance-based groups
   const nearbyProducts = sortedProducts.filter((p) => p.distance <= 5);
   const under10kmProducts = sortedProducts.filter((p) => p.distance > 5 && p.distance <= 10);
   const under50kmProducts = sortedProducts.filter((p) => p.distance > 10 && p.distance <= 50);
 
-  // Skeleton Loader
   const ProductSkeleton = () => (
     <div className="animate-pulse bg-white border border-gray-200 shadow-md rounded-md overflow-hidden">
       <div className="h-40 md:h-48 bg-gray-200 w-full" />
@@ -681,51 +684,51 @@ const ListingsPage = () => {
   );
 
   const renderProducts = (items) =>
-    items.map((item) => (
-      <div
-        key={item._id}
-        className="relative bg-white border p-2 border-blue-200 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105"
-      >
-        {/* Wishlist Heart */}
+    items.map((item) => {
+      const isFeatured = item.featured;
+
+      return (
         <div
-          onClick={() => handleToggleWishlist(item._id)}
-          className={`absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 bg-white shadow-md cursor-pointer transition 
-          ${wishlist.includes(item._id) ? "text-red-500" : "text-gray-400 hover:text-red-500 hover:bg-gray-100"}
-        `}
+          key={item._id}
+          className={`relative bg-white border p-2 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105
+            ${isFeatured ? "border-2 border-yellow-400" : "border border-blue-200"}`}
         >
-          <FaHeart className="text-lg" />
+          {isFeatured && (
+            <span className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-10">
+              FEATURED
+            </span>
+          )}
+
+          <div
+            onClick={() => handleToggleWishlist(item._id)}
+            className={`absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 bg-white shadow-md cursor-pointer transition 
+              ${wishlist.includes(item._id) ? "text-red-500" : "text-gray-400 hover:text-red-500 hover:bg-gray-100"}`}
+          >
+            <FaHeart className="text-lg" />
+          </div>
+
+          <img
+            src={item.images[0] || "https://via.placeholder.com/300"}
+            alt={`${item.fields.Brand} ${item.fields.Model}`}
+            className="w-full h-40 md:h-48 object-cover rounded-md transition-transform duration-300 hover:scale-110"
+            loading="lazy"
+            onClick={() =>
+              navigate(`/product/${item._id}`, { state: { product: item, allProducts: products } })
+            }
+          />
+
+          <div className="md:p-4">
+            <p className={`text-lg font-semibold mb-1 ${isFeatured ? "text-yellow-600" : "text-gray-800"}`}>
+              {item.fields.Price ? `₹${Number(item.fields.Price).toLocaleString()}` : item.fields.Role || "N/A"}
+            </p>
+            <h4 className="text-base md:text-lg font-bold mb-1">{item.fields.Brand} {item.fields.Model}</h4>
+            <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
+            <p className="text-gray-400 text-xs mb-1">Published: {new Date(item.createdAt).toLocaleDateString()}</p>
+            <p className="text-gray-500 text-sm">{item.fields.location}</p>
+          </div>
         </div>
-
-        {/* Share Button */}
-        {/* <div
-          onClick={() => shareProduct(item._id)}
-          className="absolute top-16 right-3 w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 bg-white shadow-md cursor-pointer text-gray-400 hover:text-green-500 hover:bg-gray-100 transition"
-        >
-          <FaShareAlt className="text-lg" />
-        </div> */}
-
-        {/* Product Image */}
-        <img
-          src={item.images[0]}
-          alt={`${item.fields.Brand} ${item.fields.Model}`}
-          className="w-full h-40 md:h-48 object-cover rounded-md"
-          loading="lazy"
-          onClick={() =>
-            navigate(`/product/${item._id}`, { state: { product: item, allProducts: products } })
-          }
-        />
-
-        <div className="md:p-4">
-          <p className="text-gray-800 font-semibold text-lg md:text-base">
-            {item.fields.Price ? `₹${Number(item.fields.Price).toLocaleString()}` : item.fields.Role || "N/A"}
-          </p>
-          <h4 className="text-base md:text-lg font-bold mb-1">{item.fields.Brand} {item.fields.Model}</h4>
-          <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
-          <p className="text-gray-400 text-xs">Published: {new Date(item.createdAt).toLocaleDateString()}</p>
-          <p className="text-gray-500 text-sm mb-1">{item.fields.location} </p>
-        </div>
-      </div>
-    ));
+      );
+    });
 
   return (
     <>
@@ -777,7 +780,8 @@ const ListingsPage = () => {
             </div>
           ) : (
             <>
-              {nearbyProducts.length > 0 && (
+              {/* Nearby */}
+              {nearbyProducts.length > 0 ? (
                 <>
                   <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
                     Nearby Products
@@ -786,9 +790,12 @@ const ListingsPage = () => {
                     {renderProducts(nearbyProducts)}
                   </div>
                 </>
+              ) : (
+                <NoProducts message="No products nearby" />
               )}
 
-              {under10kmProducts.length > 0 && (
+              {/* Under 10 km */}
+              {under10kmProducts.length > 0 ? (
                 <>
                   <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
                     Products under 10 km
@@ -797,9 +804,12 @@ const ListingsPage = () => {
                     {renderProducts(under10kmProducts)}
                   </div>
                 </>
+              ) : (
+                <NoProducts message="No products within 10 km" />
               )}
 
-              {under50kmProducts.length > 0 && (
+              {/* Under 50 km */}
+              {under50kmProducts.length > 0 ? (
                 <>
                   <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
                     Products under 50 km
@@ -808,6 +818,8 @@ const ListingsPage = () => {
                     {renderProducts(under50kmProducts)}
                   </div>
                 </>
+              ) : (
+                <NoProducts message="No products within 50 km" />
               )}
             </>
           )}

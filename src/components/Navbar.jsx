@@ -388,26 +388,29 @@
 
 
 
-
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import MobileTopNavbar from "./MobileTopNavbar";
 import DesktopNavbar from "./DextopNavbar";
-import MobileBottomNav from "./MobileBottomNav"
+import MobileBottomNav from "./MobileBottomNav";
 import { detectCurrentLocation, searchLocation, setLocation } from "../redux/slices/locationSlice";
 
 const Navbar = ({ title, ShowBottomNav = true, ShowDextopTop = true, ShowMobileTop = true }) => {
   const dispatch = useDispatch();
-  const { selected: currentLocation, status } = useSelector((state) => state.location);
+
+  // ✅ Get Redux state
+  const { selected: currentLocation, suggestions, status } = useSelector(
+    (state) => state.location
+  );
 
   // Detect location on mount if not set
   useEffect(() => {
     if (!currentLocation.city) {
       dispatch(detectCurrentLocation());
     }
-  }, []);
+  }, [dispatch, currentLocation.city]);
 
-  // Callbacks to pass to MobileTopNavbar
+  // Callbacks to pass to Navbars
   const handleDetectLocation = () => {
     dispatch(detectCurrentLocation());
   };
@@ -425,9 +428,12 @@ const Navbar = ({ title, ShowBottomNav = true, ShowDextopTop = true, ShowMobileT
       {ShowDextopTop && (
         <DesktopNavbar
           title={title}
-          city={currentLocation.city}
-          state={currentLocation.state}
-          onLocationClick={handleDetectLocation}
+          currentLocation={currentLocation}
+          suggestions={suggestions}     // ✅ pass search results
+          loading={status === "loading"} // ✅ pass loading state
+          onDetectLocation={handleDetectLocation}
+          onSearchLocation={handleSearchLocation}
+          onSelectLocation={handleSelectLocation}
         />
       )}
 
@@ -435,6 +441,8 @@ const Navbar = ({ title, ShowBottomNav = true, ShowDextopTop = true, ShowMobileT
         <MobileTopNavbar
           title={title}
           currentLocation={currentLocation}
+          suggestions={suggestions}     // ✅ pass search results
+          loading={status === "loading"} // ✅ pass loading state
           onDetectLocation={handleDetectLocation}
           onSearchLocation={handleSearchLocation}
           onSelectLocation={handleSelectLocation}

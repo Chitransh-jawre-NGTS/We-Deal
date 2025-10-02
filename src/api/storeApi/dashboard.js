@@ -1,37 +1,26 @@
 // src/api/storeApi.js
-import axios from "axios";
-
-const BASE_URL = "http://localhost:5000/api/store";
+import HttpClient from "../../utils/httpClient";
 
 // Get Store Profile
-export const getStoreProfile = async (storeToken) => {
-  const res = await axios.get(`${BASE_URL}/profile`, {
-    headers: { "x-store-token": storeToken },
-  });
+export const getStoreProfile = async () => {
+  const res = await HttpClient.get("/store/profile");
   return res.data;
 };
 
 // Get Store Ads
-export const getStoreAds = async (storeToken) => {
-  const res = await axios.get(`${BASE_URL}/my-ads`, {
-    headers: { "x-store-token": storeToken },
-  });
+export const getStoreAds = async () => {
+  const res = await HttpClient.get("/store/my-ads");
   return res.data.ads || [];
 };
 
-// Optional: Add APIs for removing, deactivating, marking as sold
-export const removeAd = async (id, storeToken) => {
-  const res = await axios.delete(`${BASE_URL}/delete-ad/${id}`, {
-    headers: { "x-store-token": storeToken },
-  });
+// Remove an Ad
+export const removeAd = async (id) => {
+  const res = await HttpClient.delete(`/store/delete-ad/${id}`);
   return res.data;
 };
 
-export const updateAdStatus = async (id, status, storeToken) => {
-  const res = await axios.patch(
-    `${BASE_URL}/update-ad/${id}`,
-    { status },
-    { headers: { "x-store-token": storeToken } }
-  );
+// Update Ad Status (e.g., sold, deactivated)
+export const updateAdStatus = async (id, status) => {
+  const res = await HttpClient.patch(`/store/update-ad/${id}`, { status });
   return res.data;
 };

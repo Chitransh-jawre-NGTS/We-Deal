@@ -8,21 +8,16 @@ const plans = [
   {
     name: "Base Plan",
     originalPrice: 20,
-    discount: 25, // 25% discount
+    discount: 25,
     features: ["1 Normal Listing", "Visibility 7 Days", "Basic Support"],
-    type: "one-time",
+    planType: "base", // ✅ Updated
   },
   {
     name: "Premium Plan",
     originalPrice: 50,
-    discount: 40, // 40% discount
-    features: [
-      "Unlimited Listings",
-      "Priority Placement",
-      "Featured Tag",
-      "24/7 Premium Support",
-    ],
-    type: "one-time",
+    discount: 40,
+    features: ["Unlimited Listings", "Priority Placement", "Featured Tag", "24/7 Premium Support"],
+    planType: "premium", // ✅ Updated
     recommended: true,
   },
 ];
@@ -30,14 +25,14 @@ const plans = [
 const BillingPage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  
 
+  // ✅ Handle plan purchase
   const handlePlanPurchase = async (planType) => {
     try {
       setLoading(true);
-      await paymentApi.activatePlan(planType);
+      await paymentApi.activatePlan(planType); // send "base" or "premium"
       toast.success("🎉 Plan activated! You can now post your ad.");
-      navigate("/sell/image-upload");
+      navigate("/sell/image-upload", { state: { planType } }); // pass planType to next page
     } catch (err) {
       console.error(err);
       toast.error("❌ Failed to activate plan. Please try again.");
@@ -46,25 +41,24 @@ const BillingPage = () => {
     }
   };
 
+  // Calculate discounted price
   const getDiscountedPrice = (originalPrice, discount) => {
     return Math.round(originalPrice - (originalPrice * discount) / 100);
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-  <nav className="bg-white z-50 fixed top-0 left-0 w-full shadow-md py-4 px-6 flex items-center">
-      {/* Back Arrow */}
-      <button
-        onClick={() => navigate(-1)}
-        className="p-2 rounded-full hover:bg-gray-100 transition"
-      >
-        <ArrowLeft
-         className="w-6 h-6 text-gray-700" />
-      </button>
+      {/* Navbar */}
+      <nav className="bg-white z-50 fixed top-0 left-0 w-full shadow-md py-4 px-6 flex items-center">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-full hover:bg-gray-100 transition"
+        >
+          <ArrowLeft className="w-6 h-6 text-gray-700" />
+        </button>
+        <h1 className="text-xl font-semibold text-gray-800 ml-4">Billing Page</h1>
+      </nav>
 
-      {/* Title */}
-      <h1 className="text-xl font-semibold text-gray-800 ml-4">Billing Page</h1>
-    </nav>
       {/* Hero Section */}
       <section className="relative mt-18 lg:mt-0 bg-gradient-to-r from-blue-800 via-indigo-700 to-purple-700 text-white py-24 overflow-hidden">
         <div className="container mx-auto px-6 text-center relative z-10">
@@ -90,7 +84,6 @@ const BillingPage = () => {
         <div className="grid md:grid-cols-2 gap-12">
           {plans.map((plan, idx) => {
             const discountedPrice = getDiscountedPrice(plan.originalPrice, plan.discount);
-
             return (
               <div
                 key={idx}
@@ -132,7 +125,7 @@ const BillingPage = () => {
 
                 <button
                   disabled={loading}
-                  onClick={() => handlePlanPurchase(plan.type)}
+                  onClick={() => handlePlanPurchase(plan.planType)} // ✅ pass planType
                   className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition disabled:opacity-50"
                 >
                   {loading ? "Processing..." : "Buy Now"}
@@ -153,9 +146,7 @@ const BillingPage = () => {
             <div className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition">
               <Users className="w-10 h-10 text-blue-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-3">Wider Reach</h3>
-              <p className="text-gray-600">
-                Reach thousands of potential buyers daily.
-              </p>
+              <p className="text-gray-600">Reach thousands of potential buyers daily.</p>
             </div>
             <div className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition">
               <Zap className="w-10 h-10 text-yellow-500 mx-auto mb-4" />
@@ -174,9 +165,7 @@ const BillingPage = () => {
             <div className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-2xl transition">
               <Info className="w-10 h-10 text-purple-600 mx-auto mb-4" />
               <h3 className="text-xl font-semibold mb-3">Expert Support</h3>
-              <p className="text-gray-600">
-                Our support team is available 24/7 to assist you.
-              </p>
+              <p className="text-gray-600">Our support team is available 24/7 to assist you.</p>
             </div>
           </div>
         </div>
