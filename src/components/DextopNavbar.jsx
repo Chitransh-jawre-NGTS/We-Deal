@@ -402,10 +402,10 @@ const DesktopNavbar = () => {
 
   return (
     <header className="bg-white w-full shadow sticky top-0 z-50">
-      <div className="hidden md:flex items-center justify-between px-6 py-4 max-w-[1500px] mx-auto">
+      <div className="hidden lg:flex items-center justify-between px-6 py-4 max-w-[1500px] mx-auto">
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <img src={logo} alt="WeDeal Logo" className="h-10 w-auto object-contain" />
+          <img src={logo} alt="WeDeal Logo" className="h-12 w-auto object-contain" />
         </Link>
 
         {/* Location + Search */}
@@ -534,6 +534,9 @@ const DesktopNavbar = () => {
                 <Link to="/account" className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition border-b">
                   <Package size={18} /> <span>Accounts</span>
                 </Link>
+                  <Link to="/download" className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition border-b">
+                  <Package size={18} /> <span>Download App Now</span>
+                </Link>
                 <Link to="/help" className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition border-b">
                   <HelpCircle size={18} /> <span>Help</span>
                 </Link>
@@ -561,7 +564,7 @@ const DesktopNavbar = () => {
       </div>
 
       {/* Categories */}
-      <div className="hidden md:flex mx-auto overflow-x-auto gap-6 px-6 py-2 bg-gray-50 border-t border-gray-200 items-center">
+      <div className="hidden lg:flex mx-auto overflow-x-auto gap-6 px-6 py-2 bg-gray-50 border-t border-gray-200 items-center">
         {categories.map((cat, idx) => (
           <span
             key={idx}

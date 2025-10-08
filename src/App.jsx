@@ -41,6 +41,7 @@ import ImageUpload from "./pages/ImageUpload/index.jsx";
 import Transactions from "./components/Transection.jsx";
 import StorePlan from "./components/StorePlan.jsx";
 import StorePlanQuantity from "./pages/StorePlanQuantity/index.jsx";
+import DownloadApp from "./pages/DawnloadApp/index.jsx";
 
 function App() {
   return (
@@ -71,6 +72,7 @@ function App() {
         <Route path="/billing" element={<BillingPage />} />
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/store-plan/quantity" element={<StorePlanQuantity />} />
+        <Route path="/download" element={<DownloadApp />} />
 
         {/* ==================== PROTECTED ROUTES ==================== */}
         <Route

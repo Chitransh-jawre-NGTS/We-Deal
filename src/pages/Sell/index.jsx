@@ -6,15 +6,26 @@ import { categoryData } from "../../data/categoryFields";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 
+// ✅ Import all images directly
+import carsImg from "../../assets/images/categoryimage/swift-exterior-right-front-three-quarter-31.webp";
+import motorcyclesImg from "../../assets/images/categoryimage/yamaha-fz-x-ride-free-bike-500x500.webp";
+import mobilesImg from "../../assets/images/categoryimage/mobiles.webp";
+import furnitureImg from "../../assets/images/categoryimage/furniture.webp";
+import scootersImg from "../../assets/images/categoryimage/scooty.jpg";
+import electronicsImg from "../../assets/images/categoryimage/electronics.jpg";
+import homeAppliancesImg from "../../assets/images/categoryimage/kitchen-appliances-banner.png";
+import fashionImg from "../../assets/images/categoryimage/fashion.jpg";
+
+// ✅ Use imported variables instead of string paths
 const categoryIcons = {
-  cars: "src/assets/images/categoryimage/swift-exterior-right-front-three-quarter-31.webp",
-  motorcycles: "src/assets/images/categoryimage/yamaha-fz-x-ride-free-bike-500x500.webp",
-  "mobile-phones": "src/assets/images/categoryimage/mobiles.webp",
-  furniture: "src/assets/images/categoryimage/furniture.webp",
-  scooters: "src/assets/images/categoryimage/scooty.jpg",
-  electronics: "src/assets/images/categoryimage/electronics.jpg",
-  "home-appliances": "src/assets/images/categoryimage/kitchen-appliances-banner.png",
-  fashion: "src/assets/images/categoryimage/fashion.jpg",
+  cars: carsImg,
+  motorcycles: motorcyclesImg,
+  "mobile-phones": mobilesImg,
+  furniture: furnitureImg,
+  scooters: scootersImg,
+  electronics: electronicsImg,
+  "home-appliances": homeAppliancesImg,
+  fashion: fashionImg,
 };
 
 const AllCategorys = () => {
@@ -24,12 +35,8 @@ const AllCategorys = () => {
     <>
       <Navbar ShowMobileTop={false} />
 
-    
-
-      <div className="bg-gray-50 flex flex-col md:flex-row">
-        {/* Sidebar for large devices */}
-
-        <header className="flex items-center md:hidden bg-white px-4 py-3 shadow sticky top-0 z-50 mb-4">
+        {/* Header for mobile */}
+        <header className="flex items-center lg:hidden bg-white px-4 py-3 shadow sticky top-0 z-50 mb-4">
           <Link to="/" className="text-gray-700 text-xl mr-4">
             <FaArrowLeft />
           </Link>
@@ -37,13 +44,9 @@ const AllCategorys = () => {
             Which service you like to provide
           </h1>
         </header>
-  {/* Note Section */}
-      <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-800 p-4 mx-4 md:mx-8 rounded-lg shadow-sm">
-        <p className="text-sm md:text-base font-medium">
-          You have <span className="font-bold">5 free listings</span> per month. 
-          After that, you only pay <span className="font-bold">₹10</span> per extra listing.
-        </p>
-      </div>
+      <div className="bg-gray-50 flex flex-col md:flex-row">
+
+
         {/* Main content */}
         <main className="flex-1 p-4 md:p-8">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">

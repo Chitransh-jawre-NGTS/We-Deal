@@ -5,6 +5,7 @@ import HeroCarousel from "../../components/HeroCarousal";
 import Footer from "../../components/Footer";
 import ListingsPage from "../../components/Main";
 import LoadingPage from "../../components/LoadingPage"; // ✅ import the loading page
+import BannerCarousel from "../../components/AdBanner";
 
 const Landing = () => {
   const [loading, setLoading] = useState(true);
@@ -31,7 +32,6 @@ const Landing = () => {
         {/* <div className="bg-purple-700 text-white text-center py-2 text-sm md:text-base">
            New Users Get Extra Visibility! Post your ad today for free!
         </div> */}
-
         <HeroCarousel />
         <Categories />
         <ListingsPage />
@@ -51,7 +51,7 @@ const Landing = () => {
             </div>
           </div>
         </section> */}
-
+        <BannerCarousel />
         <Footer />
       </div>
     </>

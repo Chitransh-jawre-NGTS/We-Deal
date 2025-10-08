@@ -210,76 +210,48 @@
 
 
 
-
-
-
-
-
+// src/redux/slices/locationSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { locationApi } from "../../api/location";
 
-// Detect user current location
+// ✅ Detect user current location
 export const detectCurrentLocation = createAsyncThunk(
   "location/detectCurrent",
   async (_, { rejectWithValue }) => {
     try {
       const location = await locationApi.getUserLocation(); 
-      const newLocation = {
-        city: location.city || "seoni",
-        state: location.state || "",
-        latitude: location.lat || null,
-        longitude: location.lng || null,
-      };
-      localStorage.setItem("selectedLocation", JSON.stringify(newLocation));
-      return newLocation;
+
+      // directly use the object returned by your API
+      localStorage.setItem("selectedLocation", JSON.stringify(location));
+      return location;
     } catch (err) {
+      console.error("Failed to detect location:", err);
       return rejectWithValue("Failed to detect location");
     }
   }
 );
 
-// Search for a location
+// ✅ Search for a location
 export const searchLocation = createAsyncThunk(
   "location/search",
   async (query, { rejectWithValue }) => {
     try {
-      const results = await locationApi.searchLocation(query);
-
-      if (!results || results.length === 0) {
-        const fallback = { city: query, state: "", latitude: null, longitude: null };
-        localStorage.setItem("selectedLocation", JSON.stringify(fallback));
-        return { selectedLocation: fallback, results: [] };
-      }
-
-      const first = results[0];
-      // Parse display_name to get city/state fallback
-      const parts = first.display_name ? first.display_name.split(",").map((p) => p.trim()) : [];
-      const city = first.city || first.town || first.village || parts[0] || query;
-      const state = first.state || first.district || parts[1] || "";
-
-      const selectedLocation = {
-        city,
-        state,
-        latitude: first.latitude || first.lat || null,
-        longitude: first.longitude || first.lng || null,
-      };
-
-      localStorage.setItem("selectedLocation", JSON.stringify(selectedLocation));
-
-      return { selectedLocation, results };
+      const location = await locationApi.searchLocation(query);
+      localStorage.setItem("selectedLocation", JSON.stringify(location));
+      return { selectedLocation: location, results: [location] };
     } catch (err) {
+      console.error("Location search failed:", err);
       return rejectWithValue("Failed to search location");
     }
   }
 );
 
-
 const initialState = {
-  selected: JSON.parse(localStorage.getItem("selectedLocation")) || { 
-    city: "", 
-    state: "", 
-    latitude: null, 
-    longitude: null 
+  selected: JSON.parse(localStorage.getItem("selectedLocation")) || {
+    city: "",
+    state: "",
+    latitude: null,
+    longitude: null,
   },
   suggestions: [],
   status: "idle",
@@ -296,11 +268,13 @@ const locationSlice = createSlice({
     },
     clearSuggestions: (state) => {
       state.suggestions = [];
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(detectCurrentLocation.pending, (state) => { state.status = "loading"; })
+      .addCase(detectCurrentLocation.pending, (state) => {
+        state.status = "loading";
+      })
       .addCase(detectCurrentLocation.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.selected = action.payload;
@@ -309,7 +283,9 @@ const locationSlice = createSlice({
         state.status = "failed";
         state.error = action.payload;
       })
-      .addCase(searchLocation.pending, (state) => { state.status = "loading"; })
+      .addCase(searchLocation.pending, (state) => {
+        state.status = "loading";
+      })
       .addCase(searchLocation.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.selected = action.payload.selectedLocation;

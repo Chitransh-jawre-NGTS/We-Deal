@@ -62,12 +62,8 @@ const ProductDescription = () => {
   return (
     <>
 
-      <div className="bg-gray-100 font-sans  ">
-
         <Navbar ShowBottomNav={false} ShowMobileTop={false} />
-
-        {/* Back Arrow for Small Devices */}
-        <div className="lg:hidden flex items-center px-4 py-3 bg-white shadow-sm">
+         <div className="lg:hidden fixed top-0 left-0 w-full z-50 flex items-center px-4 py-3 bg-white shadow-sm">
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
@@ -76,19 +72,24 @@ const ProductDescription = () => {
             <span className="text-xl font-medium">Back</span>
           </button>
         </div>
+      <div className="bg-white mt-13 font-sans  ">
+
+
+        {/* Back Arrow for Small Devices */}
+       
         {/* Top Image Banner */}
         <div className="relative max-w-6xl  mx-auto h-[35vh] bg-gray-900 md:h-[60vh] lg:h-[70vh] overflow-hidden ">
           {product.images && product.images.length > 0 ? (
             <img
               src={product.images[currentImage]}
               alt={`Product ${currentImage + 1}`}
-              className="max-w-120 mx-auto h-full object-cover"
+              className="max-w-auto mx-auto h-full object-cover"
             />
           ) : (
             <img
               src="/placeholder.png"
               alt="No image available"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           )}
 

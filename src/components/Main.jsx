@@ -1,594 +1,6 @@
-// import React, { useState, useEffect, useRef } from "react";
-// import { FaHeart, FaShareAlt } from "react-icons/fa";
-// import { useNavigate } from "react-router-dom";
-// import { productApi } from "../api/product";
-// import { wishlistApi } from "../api/wishlist";
-// import { calculateDistance } from "../utils/distance";
-// import toast, { Toaster } from "react-hot-toast";
-
-// const ListingsPage = () => {
-//   const [products, setProducts] = useState([]);
-//   const [displayedProducts, setDisplayedProducts] = useState([]);
-//   const [wishlist, setWishlist] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [userCoords, setUserCoords] = useState(null);
-//   const navigate = useNavigate();
-//   const observerRef = useRef();
-//   const PRODUCTS_PER_PAGE = 50; // load all for categorization
-
-//   const getCoordsFromSelectedLocation = async (city) => {
-//     if (!city) return null;
-//     try {
-//       const res = await fetch(
-//         `https://nominatim.openstreetmap.org/search?city=${encodeURIComponent(
-//           city
-//         )}&format=json&limit=1`
-//       );
-//       const data = await res.json();
-//       if (data.length > 0)
-//         return { latitude: parseFloat(data[0].lat), longitude: parseFloat(data[0].lon) };
-//       return null;
-//     } catch (err) {
-//       console.error("Error fetching city coordinates:", err);
-//       return null;
-//     }
-//   };
-
-//   useEffect(() => {
-//     const loadLocation = async () => {
-//       const storedLocation = localStorage.getItem("selectedLocation");
-//       if (storedLocation) {
-//         const { city } = JSON.parse(storedLocation);
-//         const coords = await getCoordsFromSelectedLocation(city);
-//         if (coords) setUserCoords(coords);
-//       } else {
-//         navigator.geolocation.getCurrentPosition(
-//           (pos) =>
-//             setUserCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-//           (err) => console.error("Location error:", err)
-//         );
-//       }
-//     };
-//     loadLocation();
-//   }, []);
-
-//   useEffect(() => {
-//     const fetchProducts = async () => {
-//       setLoading(true);
-//       try {
-//         const response = await productApi.getAll();
-//         let fetchedProducts = Array.isArray(response.data.products)
-//           ? response.data.products
-//           : [];
-
-//         if (userCoords) {
-//           fetchedProducts = fetchedProducts.map((p) => {
-//             let distance = null;
-
-//             if (p.location?.coordinates) {
-//               const [lon, lat] = p.location.coordinates;
-//               distance = calculateDistance(userCoords.latitude, userCoords.longitude, lat, lon);
-//             }
-
-//             return {
-//               ...p,
-//               distance,
-//               locationName: p.location?.name || p.location?.city || "",
-//             };
-//           });
-
-//           // sort by distance
-//           fetchedProducts.sort((a, b) => {
-//             if (a.distance === null) return 1;
-//             if (b.distance === null) return -1;
-//             return a.distance - b.distance;
-//           });
-//         }
-
-//         setProducts(fetchedProducts);
-//         setDisplayedProducts(fetchedProducts.slice(0, PRODUCTS_PER_PAGE));
-//       } catch (err) {
-//         console.error("Error fetching products:", err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchProducts();
-//   }, [userCoords]);
-
-//   useEffect(() => {
-//     const fetchWishlist = async () => {
-//       try {
-//         const res = await wishlistApi.get();
-//         const productIds = res.data.products.map((p) => p._id);
-//         setWishlist(productIds);
-//       } catch (err) {
-//         console.error("Error fetching wishlist", err);
-//       }
-//     };
-//     fetchWishlist();
-//   }, []);
-
-//   const toggleWishlist = async (productId) => {
-//     try {
-//       if (wishlist.includes(productId)) {
-//         const res = await wishlistApi.remove(productId);
-//         setWishlist(res.data.products.map((p) => p._id));
-//         toast.success("Removed from wishlist");
-//       } else {
-//         const res = await wishlistApi.add(productId);
-//         setWishlist(res.data.products.map((p) => p._id));
-//         toast.success("Added to wishlist");
-//       }
-//     } catch (err) {
-//       console.error("Error updating wishlist", err);
-//       toast.error("Failed to update wishlist");
-//     }
-//   };
-
-//   const shareProduct = (productId) => {
-//     const url = `${window.location.origin}/product/${productId}`;
-//     if (navigator.share) {
-//       navigator.share({ title: "Check this product", url }).catch(console.error);
-//     } else {
-//       navigator.clipboard.writeText(url);
-//       alert("Product link copied to clipboard!");
-//     }
-//   };
-
-//   const ProductSkeleton = () => (
-//     <div className="animate-pulse bg-white border border-gray-200 shadow-md rounded-md overflow-hidden">
-//       <div className="h-40 md:h-48 bg-gray-200 w-full" />
-//       <div className="p-4 space-y-2">
-//         <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-//         <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-//         <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-//       </div>
-//     </div>
-//   );
-
-//   // Categorize products
-//   const nearbyProducts = displayedProducts.filter(
-//     (p) => typeof p.distance === "number" && p.distance <= 5
-//   );
-//   const under10kmProducts = displayedProducts.filter(
-//     (p) => typeof p.distance === "number" && p.distance > 5 && p.distance <= 10
-//   );
-//   const under50kmProducts = displayedProducts.filter(
-//     (p) => typeof p.distance === "number" && p.distance > 10 && p.distance <= 50
-//   );
-
-//   const renderProducts = (items) =>
-//     items.map((item) => (
-//       <div
-//         key={item._id}
-//         className="relative bg-white border p-2 border-blue-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
-//       >
-//         <FaHeart
-//           onClick={() => toggleWishlist(item._id)}
-//           className={`absolute top-5 right-3 text-lg cursor-pointer transition ${
-//             wishlist.includes(item._id) ? "text-red-500" : "text-white"
-//           }`}
-//         />
-//         <FaShareAlt
-//           onClick={() => shareProduct(item._id)}
-//           className="absolute top-12 right-3 text-lg cursor-pointer text-white hover:text-green-500 transition"
-//         />
-//         <img
-//           src={item.images[0]}
-//           alt={`${item.fields.Brand} ${item.fields.Model}`}
-//           className="w-full h-40 md:h-48 object-cover"
-//           loading="lazy"
-//           onClick={() =>
-//             navigate(`/product/${item._id}`, { state: { product: item, allProducts: products } })
-//           }
-//         />
-//         <div className="md:p-4">
-//           <p className="text-gray-800 font-semibold text-lg md:text-base">
-//             {item.fields.Price
-//               ? `₹${Number(item.fields.Price).toLocaleString()}`
-//               : item.fields.Role || "N/A"}
-//           </p>
-//           <h4 className="text-base md:text-lg font-bold mb-1">
-//             {item.fields.Brand} {item.fields.Model}
-//           </h4>
-//           <p className="text-gray-500 text-sm mb-1">
-//             {item.fields.Year} {item.fields.Km}
-//           </p>
-//           {item.locationName && (
-//             <p className="text-gray-600 text-xs font-medium">{item.fields.location}</p>
-//           )}
-//           <p className="text-gray-400 text-xs">
-//             Published: {new Date(item.createdAt).toLocaleDateString()}
-//           </p>
-//         </div>
-//       </div>
-//     ));
-
-//   return (
-//     <>
-//       <Toaster position="top-right" reverseOrder={false} />
-//       <section className="py-8 md:py-16 px-4 md:px-16 max-w-9xl mx-auto flex flex-col gap-8">
-//         {nearbyProducts.length > 0 && (
-//           <>
-//             <h2 className="text-2xl md:text-3xl font-extrabold mb-4 text-gray-800">
-//               Nearby Products
-//             </h2>
-//             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
-//               {renderProducts(nearbyProducts)}
-//             </div>
-//           </>
-//         )}
-//         {under10kmProducts.length > 0 && (
-//           <>
-//             <h2 className="text-2xl font-bold mb-4">Products under 10 km</h2>
-//             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
-//               {renderProducts(under10kmProducts)}
-//             </div>
-//           </>
-//         )}
-//         {under50kmProducts.length > 0 && (
-//           <>
-//             <h2 className="text-2xl font-bold mb-4">Products under 50 km</h2>
-//             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
-//               {renderProducts(under50kmProducts)}
-//             </div>
-//           </>
-//         )}
-//       </section>
-//     </>
-//   );
-// };
-
-// export default ListingsPage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useState, useEffect, useRef, useCallback } from "react";
-// import { FaHeart, FaShareAlt } from "react-icons/fa";
-// import { Link, useNavigate } from "react-router-dom";
-// import { productApi } from "../api/product";
-// import { wishlistApi } from "../api/wishlist";
-// import { calculateDistance } from "../utils/distance";
-// import toast, { Toaster } from "react-hot-toast";
-
-// const categoriesList = [
-//   "Mobiles", "Cars", "Furniture", "Jobs",
-//   "Fashion", "Electronics", "Home Appliances", "Sports"
-// ];
-
-// const ListingsPage = () => {
-//   const [products, setProducts] = useState([]);
-//   const [displayedProducts, setDisplayedProducts] = useState([]);
-//   const [wishlist, setWishlist] = useState([]);
-//   const [sortOption, setSortOption] = useState("");
-//   const [loading, setLoading] = useState(true);
-//   const [userCoords, setUserCoords] = useState(null);
-//   const [page, setPage] = useState(1); // for lazy loading
-//   const navigate = useNavigate();
-
-//   const observerRef = useRef();
-
-//   const PRODUCTS_PER_PAGE = 10;
-
-//   // Get user location
-//   useEffect(() => {
-//     navigator.geolocation.getCurrentPosition(
-//       (pos) => setUserCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
-//       (err) => console.error("Location error:", err)
-//     );
-//   }, []);
-
-//   // Fetch products
-//   useEffect(() => {
-//     const fetchProducts = async () => {
-//       try {
-//         const response = await productApi.getAll();
-//         let fetchedProducts = Array.isArray(response.data.products)
-//           ? response.data.products
-//           : [];
-
-//         // calculate distance
-//         if (userCoords) {
-//           fetchedProducts = fetchedProducts.map((p) => {
-//             if (p.location?.lat && p.location?.lon) {
-//               const distance = calculateDistance(
-//                 userCoords.latitude,
-//                 userCoords.longitude,
-//                 p.location.lat,
-//                 p.location.lon
-//               );
-//               return { ...p, distance };
-//             }
-//             return { ...p, distance: Infinity };
-//           });
-
-//           fetchedProducts.sort((a, b) => {
-//             const getGroup = (d) => (d <= 10 ? 1 : d <= 50 ? 2 : d <= 100 ? 3 : 4);
-//             const groupA = getGroup(a.distance);
-//             const groupB = getGroup(b.distance);
-//             if (groupA !== groupB) return groupA - groupB;
-//             return a.distance - b.distance;
-//           });
-//         }
-
-//         setProducts(fetchedProducts);
-//         setDisplayedProducts(fetchedProducts.slice(0, PRODUCTS_PER_PAGE));
-//       } catch (err) {
-//         console.error("Error fetching products:", err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchProducts();
-//   }, [userCoords]);
-
-//   // Fetch wishlist
-//   useEffect(() => {
-//     const fetchWishlist = async () => {
-//       try {
-//         const res = await wishlistApi.get();
-//         const productIds = res.data.products.map((p) => p._id);
-//         setWishlist(productIds);
-//       } catch (err) {
-//         console.error("Error fetching wishlist", err);
-//       }
-//     };
-//     fetchWishlist();
-//   }, []);
-
-//   // Lazy loading with IntersectionObserver
-//   const lastProductRef = useCallback((node) => {
-//     if (loading) return;
-//     if (observerRef.current) observerRef.current.disconnect();
-
-//     observerRef.current = new IntersectionObserver((entries) => {
-//       if (entries[0].isIntersecting && displayedProducts.length < products.length) {
-//         setPage((prev) => prev + 1);
-//         setDisplayedProducts(products.slice(0, (page + 1) * PRODUCTS_PER_PAGE));
-//       }
-//     });
-
-//     if (node) observerRef.current.observe(node);
-//   }, [loading, displayedProducts, products, page]);
-
-//   // Wishlist toggle
-//  const toggleWishlist = async (productId) => {
-//   try {
-//     if (wishlist.includes(productId)) {
-//       const res = await wishlistApi.remove(productId);
-//       setWishlist(res.data.products.map((p) => p._id));
-//       toast.success("Removed from wishlist");
-//     } else {
-//       const res = await wishlistApi.add(productId);
-//       setWishlist(res.data.products.map((p) => p._id));
-//       toast.success("Added to wishlist");
-//     }
-//   } catch (err) {
-//     console.error("Error updating wishlist", err);
-//     toast.error("Failed to update wishlist");
-//   }
-// };
-
-
-//   // Share product
-//   const shareProduct = (productId) => {
-//     const url = `${window.location.origin}/product/${productId}`;
-//     if (navigator.share) {
-//       navigator.share({ title: "Check this product", url }).catch(console.error);
-//     } else {
-//       navigator.clipboard.writeText(url);
-//       alert("Product link copied to clipboard!");
-//     }
-//   };
-
-//   // Skeleton loader
-//   const ProductSkeleton = () => (
-//     <div className="animate-pulse bg-white border border-gray-200 shadow-md rounded-md overflow-hidden">
-//       <div className="h-40 md:h-48 bg-gray-200 w-full" />
-//       <div className="p-4 space-y-2">
-//         <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-//         <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-//         <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-//       </div>
-//     </div>
-//   );
-
-//   return (
-//    <>
-//     <Toaster position="top-right" reverseOrder={false} />
-//     <section className="py-8 md:py-16 px-4 md:px-16 max-w-9xl mx-auto flex flex-col lg:flex-row gap-8">
-//       <aside className="w-full lg:w-64 flex-shrink-0 space-y-6">
-//         {/* Categories & Sorting */}
-//         <div className="bg-white rounded-2xl hidden lg:block shadow-xl p-6">
-//           <h4 className="font-extrabold text-xl mb-5 text-blue-700 tracking-wide">Categories</h4>
-//           <ul className="space-y-3">
-//             {categoriesList.map((cat, idx) => (
-//               <li key={idx}>
-//                 <Link
-//                   to={`/search?query=${encodeURIComponent(cat.toLowerCase())}`}
-//                   className="flex items-center justify-between px-4 py-2 rounded-xl hover:bg-gradient-to-r hover:from-blue-500 hover:to-pink-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg group"
-//                 >
-//                   <span className="font-medium group-hover:font-semibold">{cat}</span>
-//                   <svg className="w-4 h-4 text-blue-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-//                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-//                   </svg>
-//                 </Link>
-//               </li>
-//             ))}
-//           </ul>
-//         </div>
-
-//         <div className="bg-white rounded-xl shadow p-4">
-//           <h4 className="font-bold text-lg text-blue-700 mb-3">Sort Products</h4>
-//           <select
-//             value={sortOption}
-//             onChange={(e) => {
-//               handleSort(e.target.value);
-//               setPage(1);
-//             }}
-//             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500"
-//           >
-//             <option value="">Select</option>
-//             <option value="priceLowHigh">Price: Low to High</option>
-//             <option value="priceHighLow">Price: High to Low</option>
-//             <option value="dateNewOld">Date: New to Old</option>
-//             <option value="dateOldNew">Date: Old to New</option>
-//           </select>
-//         </div>
-//       </aside>
-
-//       <main className="flex-1 flex flex-col gap-6">
-//         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 md:gap-6">
-//           {loading
-//             ? Array.from({ length: 8 }).map((_, idx) => <ProductSkeleton key={idx} />)
-//             : displayedProducts.map((item, idx) => {
-//                 if (displayedProducts.length === idx + 1) {
-//                   return (
-//                     <div
-//                       ref={lastProductRef}
-//                       key={item._id}
-//                       className="relative bg-white border p-2 border-blue-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
-//                     >
-//                       <FaHeart
-//                         onClick={() => toggleWishlist(item._id)}
-//                         className={`absolute top-5 right-3 text-lg cursor-pointer transition ${
-//                           wishlist.includes(item._id) ? "text-red-500" : "text-white"
-//                         }`}
-//                       />
-//                       <FaShareAlt
-//                         onClick={() => shareProduct(item._id)}
-//                         className="absolute top-12 right-3 text-lg cursor-pointer text-white hover:text-green-500 transition"
-//                       />
-//                       <img
-//                         src={item.images[0]}
-//                         alt={`${item.fields.Brand} ${item.fields.Model}`}
-//                         className="w-full h-40 md:h-48 object-cover"
-//                         loading="lazy"
-//                         onClick={() => navigate(`/product/${item._id}`, { state: { product: item, allProducts: products } })}
-//                       />
-//                       <div className="md:p-4">
-//                         <p className="text-gray-800 font-semibold text-lg md:text-base">
-//                           {item.fields.Price ? `₹${Number(item.fields.Price).toLocaleString()}` : item.fields.Role || "N/A"}
-//                         </p>
-//                         <h4 className="text-base md:text-lg font-bold mb-1">
-//                           {item.fields.Brand} {item.fields.Model}
-//                         </h4>
-//                         <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
-//                         {item.distance !== undefined && item.distance !== Infinity && (
-//                           <p className="text-green-600 text-xs font-medium">📍 {item.distance.toFixed(1)} km away</p>
-//                         )}
-//                         <p className="text-gray-400 text-xs">Published: {new Date(item.createdAt).toLocaleDateString()}</p>
-//                       </div>
-//                     </div>
-//                   );
-//                 } else {
-//                   return (
-//                     <div
-//                       key={item._id}
-//                       className="relative bg-white border p-2 border-blue-500 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105 transform"
-//                     >
-//                       <FaHeart
-//                         onClick={() => toggleWishlist(item._id)}
-//                         className={`absolute top-5 right-3 text-lg cursor-pointer transition ${
-//                           wishlist.includes(item._id) ? "text-red-500" : "text-white"
-//                         }`}
-//                       />
-//                       <FaShareAlt
-//                         onClick={() => shareProduct(item._id)}
-//                         className="absolute top-12 right-3 text-lg cursor-pointer text-white hover:text-green-500 transition"
-//                       />
-//                       <img
-//                         src={item.images[0]}
-//                         alt={`${item.fields.Brand} ${item.fields.Model}`}
-//                         className="w-full h-40 md:h-48 object-cover"
-//                         loading="lazy"
-//                         onClick={() => navigate(`/product/${item._id}`, { state: { product: item, allProducts: products } })}
-//                       />
-//                       <div className="md:p-4">
-//                         <p className="text-gray-800 font-semibold text-lg md:text-base">
-//                           {item.fields.Price ? `₹${Number(item.fields.Price).toLocaleString()}` : item.fields.Role || "N/A"}
-//                         </p>
-//                         <h4 className="text-base md:text-lg font-bold mb-1">
-//                           {item.fields.Brand} {item.fields.Model}
-//                         </h4>
-//                         <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
-//                         {item.distance !== undefined && item.distance !== Infinity && (
-//                           <p className="text-green-600 text-xs font-medium">📍 {item.distance.toFixed(1)} km away</p>
-//                         )}
-//                         <p className="text-gray-400 text-xs">Published: {new Date(item.createdAt).toLocaleDateString()}</p>
-//                       </div>
-//                     </div>
-//                   );
-//                 }
-//               })}
-//         </div>
-
-//         {/* Loading spinner */}
-//         {displayedProducts.length < products.length && (
-//           <div className="text-center mt-4 text-gray-500">Loading more products...</div>
-//         )}
-//       </main>
-//     </section>
-//     </>
-//   );
-// };
-
-// export default ListingsPage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React, { useEffect, useState } from "react";
-import { FaHeart, FaShareAlt } from "react-icons/fa";
+import axios from "axios";
+import { FaHeart } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../redux/slices/productsSlices";
@@ -601,19 +13,67 @@ const categoriesList = [
   "Fashion", "Electronics", "Home Appliances",
 ];
 
-// 🔹 Component for empty product state
+// Component for empty product state
 const NoProducts = ({ message }) => (
   <div className="w-full text-center py-12 bg-gray-50 rounded-xl shadow-md">
     <h3 className="text-2xl md:text-3xl font-bold text-gray-700 mb-4">{message}</h3>
     <p className="text-gray-500">Be the first to post in your area!</p>
     <Link
-      to="/post-ad" // Change this to your actual posting page route
+      to="/post-ad"
       className="mt-4 inline-block bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 transition"
     >
       Post Your Ad
     </Link>
   </div>
 );
+
+// Product card component
+const ProductCard = ({ item, wishlist, handleToggleWishlist, navigate }) => {
+  const isFeatured = item.featured;
+
+  return (
+    <div
+      className={`relative bg-white border p-2 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105
+        ${isFeatured ? "border-2 border-yellow-400" : "border border-blue-200"}`}
+    >
+      {isFeatured && (
+        <>
+          <span className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-10">
+            FEATURED
+          </span>
+        </>
+      )}
+
+      <div
+        onClick={() => handleToggleWishlist(item._id)}
+        className={`absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 bg-white shadow-md cursor-pointer transition 
+          ${wishlist.includes(item._id) ? "text-red-500" : "text-gray-400 hover:text-red-500 hover:bg-gray-100"}`}
+      >
+        <FaHeart className="text-lg" />
+      </div>
+
+      <img
+        src={item.images[0] || "https://via.placeholder.com/300"}
+        alt={`${item.fields.Brand} ${item.fields.Model}`}
+        className="w-full h-40 md:h-48 object-contain rounded-md transition-transform duration-300 hover:scale-110"
+        loading="lazy"
+        onClick={() =>
+          navigate(`/product/${item._id}`, { state: { product: item } })
+        }
+      />
+
+      <div className="md:p-4">
+        <p className={`text-lg font-semibold mb-1 ${isFeatured ? "text-yellow-600" : "text-gray-800"}`}>
+          {item.fields.Price ? `₹${Number(item.fields.Price).toLocaleString()}` : item.fields.Role || "N/A"}
+        </p>
+        <h4 className="text-base md:text-lg font-bold mb-1">{item.fields.Brand} {item.fields.Model}</h4>
+        <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
+        <p className="text-gray-400 text-xs mb-1">Published: {new Date(item.createdAt).toLocaleDateString()}</p>
+        <p className="text-gray-500 text-sm">{item.fields.location}</p>
+      </div>
+    </div>
+  );
+};
 
 const ListingsPage = () => {
   const dispatch = useDispatch();
@@ -624,22 +84,37 @@ const ListingsPage = () => {
   const { selected: currentLocation, status: locationStatus } = useSelector((state) => state.location);
 
   const [sortOption, setSortOption] = useState("");
+  const [banners, setBanners] = useState([]);
 
+  // Detect location
   useEffect(() => {
     if (!currentLocation?.city) {
       dispatch(detectCurrentLocation());
     }
   }, [dispatch, currentLocation]);
 
+  // Fetch products & wishlist
   useEffect(() => {
     if (currentLocation?.latitude && currentLocation?.longitude) {
-      dispatch(fetchProducts({ 
-        latitude: currentLocation.latitude, 
-        longitude: currentLocation.longitude 
-      }));
+      dispatch(fetchProducts({ latitude: currentLocation.latitude, longitude: currentLocation.longitude }));
       dispatch(fetchWishlist());
     }
   }, [dispatch, currentLocation]);
+
+ 
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/ads/banner/active`);
+        setBanners(res.data);
+      } catch (err) {
+        console.error("Failed to fetch banners:", err);
+      }
+    };
+
+    fetchBanners();
+  }, []);
 
   const handleToggleWishlist = (id) => {
     dispatch(toggleWishlist(id))
@@ -648,16 +123,7 @@ const ListingsPage = () => {
       .catch(() => toast.error("Failed to update wishlist"));
   };
 
-  const shareProduct = (productId) => {
-    const url = `${window.location.origin}/product/${productId}`;
-    if (navigator.share) {
-      navigator.share({ title: "Check this product", url }).catch(console.error);
-    } else {
-      navigator.clipboard.writeText(url);
-      toast.success("Product link copied!");
-    }
-  };
-
+  // Sorting
   const sortedProducts = [...products].sort((a, b) => {
     switch (sortOption) {
       case "priceLowHigh": return a.fields.Price - b.fields.Price;
@@ -672,68 +138,41 @@ const ListingsPage = () => {
   const under10kmProducts = sortedProducts.filter((p) => p.distance > 5 && p.distance <= 10);
   const under50kmProducts = sortedProducts.filter((p) => p.distance > 10 && p.distance <= 50);
 
-  const ProductSkeleton = () => (
-    <div className="animate-pulse bg-white border border-gray-200 shadow-md rounded-md overflow-hidden">
-      <div className="h-40 md:h-48 bg-gray-200 w-full" />
-      <div className="p-4 space-y-2">
-        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-      </div>
-    </div>
-  );
+  // Merge products with banners
+  const renderProductsWithBanners = (items) => {
+    const elements = [];
+    const bannerCount = banners.length;
 
-  const renderProducts = (items) =>
-    items.map((item) => {
-      const isFeatured = item.featured;
-
-      return (
-        <div
-          key={item._id}
-          className={`relative bg-white border p-2 shadow-md overflow-hidden cursor-pointer transition hover:shadow-xl hover:scale-105
-            ${isFeatured ? "border-2 border-yellow-400" : "border border-blue-200"}`}
-        >
-          {isFeatured && (
-            <span className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-10">
-              FEATURED
-            </span>
-          )}
-
-          <div
-            onClick={() => handleToggleWishlist(item._id)}
-            className={`absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full border border-gray-300 bg-white shadow-md cursor-pointer transition 
-              ${wishlist.includes(item._id) ? "text-red-500" : "text-gray-400 hover:text-red-500 hover:bg-gray-100"}`}
-          >
-            <FaHeart className="text-lg" />
-          </div>
-
-          <img
-            src={item.images[0] || "https://via.placeholder.com/300"}
-            alt={`${item.fields.Brand} ${item.fields.Model}`}
-            className="w-full h-40 md:h-48 object-cover rounded-md transition-transform duration-300 hover:scale-110"
-            loading="lazy"
-            onClick={() =>
-              navigate(`/product/${item._id}`, { state: { product: item, allProducts: products } })
-            }
-          />
-
-          <div className="md:p-4">
-            <p className={`text-lg font-semibold mb-1 ${isFeatured ? "text-yellow-600" : "text-gray-800"}`}>
-              {item.fields.Price ? `₹${Number(item.fields.Price).toLocaleString()}` : item.fields.Role || "N/A"}
-            </p>
-            <h4 className="text-base md:text-lg font-bold mb-1">{item.fields.Brand} {item.fields.Model}</h4>
-            <p className="text-gray-500 text-sm mb-1">{item.fields.Year} {item.fields.Km}</p>
-            <p className="text-gray-400 text-xs mb-1">Published: {new Date(item.createdAt).toLocaleDateString()}</p>
-            <p className="text-gray-500 text-sm">{item.fields.location}</p>
-          </div>
-        </div>
+    items.forEach((item, index) => {
+      elements.push(
+        <ProductCard key={item._id} item={item} wishlist={wishlist} handleToggleWishlist={handleToggleWishlist} navigate={navigate} />
       );
+
+      // Insert banner after every 8 products
+      if ((index + 1) % 4 === 0 && bannerCount > 0) {
+        const bannerIndex = Math.floor(index / 8) % bannerCount;
+        const banner = banners[bannerIndex];
+
+        elements.push(
+          <div key={`banner-${banner._id}`} className="w-full my-6 flex justify-center">
+            <a href={banner.link || "#"}>
+              <img
+                src={banner.image}
+                alt="Store Banner"
+                className="w-full md:w-4/5 object-cover rounded-lg shadow-lg"
+              />
+            </a>
+          </div>
+        );
+      }
     });
+
+    return elements;
+  };
 
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-
       <section className="py-8 px-4 md:px-16 max-w-9xl mx-auto flex flex-col lg:flex-row gap-8">
         {/* Sidebar */}
         <aside className="w-full hidden lg:block lg:w-64 flex-shrink-0 space-y-6">
@@ -747,9 +186,6 @@ const ListingsPage = () => {
                     className="flex items-center justify-between px-4 py-2 rounded-xl hover:bg-gradient-to-r hover:from-blue-500 hover:to-pink-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-lg group"
                   >
                     <span className="font-medium group-hover:font-semibold">{cat}</span>
-                    <svg className="w-4 h-4 text-blue-500 group-hover:text-white transition-colors" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
                   </Link>
                 </li>
               ))}
@@ -776,50 +212,43 @@ const ListingsPage = () => {
         <section className="flex-1 flex flex-col gap-2">
           {productStatus === "loading" || locationStatus === "loading" ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {Array(8).fill(0).map((_, i) => <ProductSkeleton key={i} />)}
+              {Array(8).fill(0).map((_, i) => (
+                <div key={i} className="animate-pulse bg-white border border-gray-200 shadow-md rounded-md overflow-hidden h-48" />
+              ))}
             </div>
           ) : (
             <>
-              {/* Nearby */}
               {nearbyProducts.length > 0 ? (
                 <>
                   <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
                     Nearby Products
                   </h2>
                   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-6">
-                    {renderProducts(nearbyProducts)}
+                    {renderProductsWithBanners(nearbyProducts)}
                   </div>
                 </>
-              ) : (
-                <NoProducts message="No products nearby" />
-              )}
+              ) : <NoProducts message="No products nearby" />}
 
-              {/* Under 10 km */}
-              {under10kmProducts.length > 0 ? (
+              {under10kmProducts.length > 0 && (
                 <>
                   <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
                     Products under 10 km
                   </h2>
                   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-6">
-                    {renderProducts(under10kmProducts)}
+                    {renderProductsWithBanners(under10kmProducts)}
                   </div>
                 </>
-              ) : (
-                <NoProducts message="No products within 10 km" />
               )}
 
-              {/* Under 50 km */}
-              {under50kmProducts.length > 0 ? (
+              {under50kmProducts.length > 0 && (
                 <>
                   <h2 className="w-full bg-blue-500 text-white text-center text-2xl md:text-3xl font-extrabold py-3 mb-4">
                     Products under 50 km
                   </h2>
                   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1 md:gap-6">
-                    {renderProducts(under50kmProducts)}
+                    {renderProductsWithBanners(under50kmProducts)}
                   </div>
                 </>
-              ) : (
-                <NoProducts message="No products within 50 km" />
               )}
             </>
           )}

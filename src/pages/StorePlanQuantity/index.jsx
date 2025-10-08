@@ -1,14 +1,14 @@
 // src/pages/StorePlanQuantity.jsx
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
-
-// Dummy company logo
-import logo from "../../assets/images/myweblogo/ChatGPT Image Sep 20, 2025, 11_04_57 PM.png"; // Replace with your actual logo path
+import axios from "axios";
+import logo from "../../assets/images/myweblogo/ChatGPT Image Sep 20, 2025, 11_04_57 PM.png"; // Replace with your logo
 
 export default function StorePlanQuantity() {
   const location = useLocation();
   const { plan } = location.state || {};
   const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   if (!plan) return <p className="text-center mt-10">No plan selected.</p>;
 
@@ -18,14 +18,34 @@ export default function StorePlanQuantity() {
   // Price calculations
   const baseTotal = plan.price * quantity;
   const gst = +(baseTotal * 0.18).toFixed(2); // 18% GST
-  const platformFee = 1; // ₹1 platform fee
+  const platformFee = 1;
   const totalPrice = baseTotal + gst + platformFee;
 
-  const handleBuy = () => {
-    alert(
-      `You bought ${quantity} x ${plan.name} plan(s)\nBase: ₹${baseTotal}\nGST (18%): ₹${gst}\nPlatform Fee: ₹${platformFee}\nTotal: ₹${totalPrice}`
-    );
-    // TODO: Call backend to purchase plan
+  const handleBuy = async () => {
+    setLoading(true);
+    try {
+      // Replace with your backend API endpoint
+      const { data } = await axios.post("http://localhost:5000/api/plans/purchase", {
+        planId: plan.id,
+        quantity,
+        baseTotal,
+        gst,
+        platformFee,
+        totalPrice,
+      });
+
+      if (data.success) {
+        alert(`✅ Order Created Successfully!\nOrder ID: ${data.orderId}`);
+        // TODO: Redirect to payment gateway page (e.g. Razorpay)
+      } else {
+        alert("❌ Failed to create order.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while creating the order.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -95,14 +115,18 @@ export default function StorePlanQuantity() {
 
           <button
             onClick={handleBuy}
-            className="w-full bg-purple-600 text-white py-3 md:py-4 rounded-xl font-bold hover:bg-purple-700 transition text-lg md:text-xl"
+            disabled={loading}
+            className={`w-full py-3 md:py-4 rounded-xl font-bold text-lg md:text-xl ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-purple-600 text-white hover:bg-purple-700 transition"
+            }`}
           >
-            Buy Now
+            {loading ? "Processing..." : "Buy Now"}
           </button>
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="bg-white shadow-inner py-6 mt-auto text-center text-gray-600 text-sm">
         &copy; {new Date().getFullYear()} Your Company Name. All rights reserved.
       </footer>

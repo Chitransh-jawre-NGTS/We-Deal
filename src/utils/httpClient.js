@@ -18,7 +18,7 @@ httpClient.interceptors.request.use(
     const storeToken = storage.get("storeToken"); // store token
 
     console.log("User token in interceptor:", token);
-    console.log("Store token in interceptor:", storeToken);
+    // console.log("Store token in interceptor:", storeToken);
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

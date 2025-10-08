@@ -222,7 +222,8 @@ const MobileTopNavbar = ({ title, currentLocation }) => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const location = useSelector((state) => state.location.currentLocation);
+ const location = useSelector((state) => state.location.selected);
+
 
   const handleSearch = () => {
     if (query.trim()) navigate(`/search?query=${encodeURIComponent(query)}`);
@@ -284,7 +285,7 @@ const MobileTopNavbar = ({ title, currentLocation }) => {
   return (
     <>
       {/* Top Navbar */}
-      <div className="md:hidden fixed top-0 left-0 w-full bg-white shadow z-50">
+      <div className="lg:hidden fixed top-0 left-0 w-full bg-white shadow z-50">
         <div className="flex items-center justify-between px-4 py-3">
           <Link to="/" className="flex items-center">
             <img

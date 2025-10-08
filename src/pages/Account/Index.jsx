@@ -13,21 +13,85 @@ import {
   HelpCircle,
   LogOut,
   ChevronRight,
+  CreditCard,
+  Receipt,
+  Store,
+  Shield,
+  FileText,
 } from "lucide-react";
 import Navbar from "../../components/Navbar";
 
-const menuItems = [
-  { label: "My Profile", sublabel: "View and edit your profile", icon: User, to: "/profile" },
-  { label: "My Listings", sublabel: "Your active listings", icon: ShoppingBag, to: "/my-listing" },
-  { label: "Wishlist", sublabel: "Your favorite items", icon: Heart, to: "/wishlist" },
-  { label: "billing", sublabel: "billing section", icon: Heart, to: "/billing" },
-  { label: "Transection", sublabel: "All transection", icon: Heart, to: "/transactions" },
-  { label: "Become Seller", sublabel: "Start selling products", icon: Heart, to: "/become-seller" },
-  { label: "Settings", sublabel: "Manage account settings", icon: Settings, to: "/settings" },
-  { label: "Help Center", sublabel: "Get support and help", icon: HelpCircle, to: "/help" },
-  { label: "Logout", sublabel: "Sign out of your account", icon: LogOut, to: "/logout", color: "text-red-600", isLogout: true },
-];
 
+const menuItems = [
+  {
+    label: "My Profile",
+    sublabel: "View and edit your profile",
+    icon: User,
+    to: "/profile",
+  },
+  {
+    label: "My Listings",
+    sublabel: "Your active listings",
+    icon: ShoppingBag,
+    to: "/my-listing",
+  },
+  {
+    label: "Wishlist",
+    sublabel: "Your favorite items",
+    icon: Heart,
+    to: "/wishlist",
+  },
+  {
+    label: "Billing",
+    sublabel: "Manage payments and invoices",
+    icon: CreditCard,
+    to: "/billing",
+  },
+  {
+    label: "Transactions",
+    sublabel: "Your payment history",
+    icon: Receipt,
+    to: "/transactions",
+  },
+  {
+    label: "Become Seller",
+    sublabel: "Start selling products",
+    icon: Store,
+    to: "/become-seller",
+  },
+  {
+    label: "Settings",
+    sublabel: "Manage account preferences",
+    icon: Settings,
+    to: "/settings",
+  },
+  {
+    label: "Help Center",
+    sublabel: "Get support and FAQs",
+    icon: HelpCircle,
+    to: "/help",
+  },
+  {
+    label: "Privacy Policy",
+    sublabel: "Learn how we protect your data",
+    icon: Shield,
+    to: "/privacy-policy",
+  },
+  {
+    label: "Terms & Conditions",
+    sublabel: "Read our terms of service",
+    icon: FileText,
+    to: "/terms-conditions",
+  },
+  {
+    label: "Logout",
+    sublabel: "Sign out of your account",
+    icon: LogOut,
+    to: "/logout",
+    color: "text-red-600",
+    isLogout: true,
+  },
+];
 const Account = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -157,7 +221,7 @@ const Account = () => {
         </section>
 
         {/* Menu Section */}
-        <section className="flex-1 overflow-y-auto w-full max-w-320 mx-auto px-4 lg:mt-6 pb-20">
+        <section className="flex-1 overflow-y-auto w-full max-w-320 mx-auto px-4 lg:mt-6 pb-10">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {menuItems.map((item, idx) =>
               item.isLogout ? (

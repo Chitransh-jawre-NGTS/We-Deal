@@ -44,7 +44,7 @@ const SellerDashboard = () => {
 
   const menuItems = [
     { name: "Dashboard", icon: <FaTachometerAlt /> },
-    { name: "Sell Mobile", icon: <FaMobileAlt /> },
+    { name: "Upload Products", icon: <FaMobileAlt /> },
     { name: "My Listings", icon: <FaClipboardList /> },
     { name: "Store Plan", icon: <FaCog /> },
     { name: "Store Transection", icon: <FaCog /> },
@@ -253,7 +253,7 @@ const SellerDashboard = () => {
         {/* Page Content */}
         <main className="flex-1 p-6 overflow-auto">
           {activeMenu === "Dashboard" && <DashboardPage />}
-          {activeMenu === "Sell Mobile" && <SellItemForm />}
+          {activeMenu === "Upload Products" && <SellItemForm />}
           {activeMenu === "My Listings" && <MyStoreListings />}
           {activeMenu === "Settings" && <DashSetting />}
           {activeMenu === "Store Plan" && <StorePlan />}

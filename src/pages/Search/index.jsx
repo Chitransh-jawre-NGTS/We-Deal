@@ -146,7 +146,7 @@ const SearchPage = () => {
     <>
       <Navbar ShowMobileTop={false} />
       {/* Mobile Search Bar */}
-      <div className="flex items-center md:hidden bg-white sticky top-0 z-50 px-4 py-3 shadow-md">
+      <div className="flex items-center lg:hidden bg-white sticky top-0 z-50 px-4 py-3 shadow-md">
         <button
           onClick={() => navigate(-1)}
           className="p-2 rounded-full hover:bg-gray-100 transition"
@@ -200,7 +200,7 @@ const SearchPage = () => {
                     <img
                       src={item.images?.[0] || "/placeholder.png"}
                       alt={`${item.fields?.Brand || ""} ${item.fields?.Model || ""}`}
-                      className="w-full h-full object-cover rounded"
+                      className="w-full h-full object-contain rounded"
                       loading="lazy"
                     />
                   </div>

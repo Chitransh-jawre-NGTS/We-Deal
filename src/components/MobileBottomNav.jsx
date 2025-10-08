@@ -13,7 +13,7 @@ const MobileBottomNav = () => {
     pathname === path ? "text-blue-600 font-semibold" : "text-gray-600";
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-inner z-50">
+    <nav className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-inner z-50">
       <div className="flex justify-around items-center py-2">
         <Link to="/" className={`flex flex-col items-center text-sm ${isActive("/")}`}>
           <FaHome className="text-xl" />
